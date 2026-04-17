@@ -14,7 +14,6 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: "dashboard", href: "/", isAppRoute: true },
   { label: "Builder do Trust Center", icon: "architecture", href: "#" },
-  { label: "Trust Center Publico", icon: "public", href: "/trust-center-publico", isAppRoute: true },
   { label: "Due Diligence de Terceiros", icon: "shield_person", href: "/due-diligence-terceiros", isAppRoute: true },
   { label: "Data Room Seguro", icon: "lock", href: "/data-room-seguro", isAppRoute: true },
   { label: "Gestao de Acessos", icon: "manage_accounts", href: "/gestao-acessos", isAppRoute: true },
