@@ -73,7 +73,7 @@ export default function DashboardPage() {
         </section>
 
         <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <div className="group relative overflow-hidden rounded-xl bg-surface-container-low p-6 transition-colors hover:bg-surface-container">
+          <div className="group relative overflow-hidden rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel transition-colors hover:bg-slate-50/50">
             <div className="absolute right-0 top-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
               <span className="material-symbols-outlined text-6xl">description</span>
             </div>
@@ -88,7 +88,7 @@ export default function DashboardPage() {
             <p className="mt-2 text-xs text-outline">Atividade nos últimos 30 dias</p>
           </div>
 
-          <div className="group relative overflow-hidden rounded-xl bg-surface-container-low p-6 transition-colors hover:bg-surface-container">
+          <div className="group relative overflow-hidden rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel transition-colors hover:bg-slate-50/50">
             <div className="absolute right-0 top-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
               <span className="material-symbols-outlined text-6xl">fact_check</span>
             </div>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
             <p className="mt-2 text-xs text-outline">Requisições de terceiros pendentes</p>
           </div>
 
-          <div className="group relative overflow-hidden rounded-xl bg-surface-container-low p-6 transition-colors hover:bg-surface-container">
+          <div className="group relative overflow-hidden rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel transition-colors hover:bg-slate-50/50">
             <div className="absolute right-0 top-0 p-4 opacity-10 transition-opacity group-hover:opacity-20">
               <span className="material-symbols-outlined text-6xl">assignment_late</span>
             </div>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
               {activities.map((activity) => (
                 <div
                   key={activity.title}
-                  className="group flex items-center gap-4 rounded-xl border border-white/5 bg-surface-container-lowest p-4 transition-colors hover:bg-surface-container-low"
+                  className="group flex items-center gap-4 rounded-xl border border-slate-100/50 bg-surface-container-lowest p-4 shadow-panel transition-colors hover:bg-slate-50/50"
                 >
                   <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${toneMap[activity.tone]}`}>
                     <span className="material-symbols-outlined">{activity.icon}</span>
@@ -149,7 +149,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-6 lg:col-span-2">
-            <div className="relative overflow-hidden rounded-xl border border-white/5 bg-surface-container-high">
+            <div className="relative overflow-hidden rounded-xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
               <div className="p-6">
                 <h3 className="mb-4 font-headline text-xl font-bold">Status de Auditoria</h3>
                 <div className="space-y-4">
@@ -187,7 +187,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="rounded-xl border border-primary/10 bg-gradient-to-br from-primary-container/20 to-surface-container-high p-6">
+            <div className="rounded-xl border border-primary/10 bg-primary/5 p-6 shadow-panel">
               <div className="mb-4 flex items-start justify-between">
                 <div className="rounded-lg bg-primary/20 p-3">
                   <span className="material-symbols-outlined text-primary">task_alt</span>

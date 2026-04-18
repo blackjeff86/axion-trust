@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 
@@ -69,7 +70,7 @@ export default function GestaoAcessosPage() {
         </div>
 
         <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="rounded-xl border border-outline-variant/5 bg-surface-container-low p-6">
+          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-primary/10 p-2 text-primary">pending_actions</span>
               <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-bold text-primary">PENDENTE</span>
@@ -77,7 +78,7 @@ export default function GestaoAcessosPage() {
             <div className="mb-1 text-2xl font-bold text-white">08</div>
             <div className="text-xs font-medium text-on-surface-variant">Novas Solicitacoes</div>
           </div>
-          <div className="rounded-xl border border-outline-variant/5 bg-surface-container-low p-6">
+          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-green-400/10 p-2 text-green-400">verified</span>
               <span className="rounded-full bg-green-400/10 px-2 py-1 text-xs font-bold text-green-400">ATIVO</span>
@@ -85,7 +86,7 @@ export default function GestaoAcessosPage() {
             <div className="mb-1 text-2xl font-bold text-white">124</div>
             <div className="text-xs font-medium text-on-surface-variant">Acessos Ativos</div>
           </div>
-          <div className="rounded-xl border border-outline-variant/5 bg-surface-container-low p-6">
+          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-tertiary/10 p-2 text-tertiary">schedule</span>
               <span className="rounded-full bg-tertiary/10 px-2 py-1 text-xs font-bold text-tertiary">AVISO</span>
@@ -93,7 +94,7 @@ export default function GestaoAcessosPage() {
             <div className="mb-1 text-2xl font-bold text-white">12</div>
             <div className="text-xs font-medium text-on-surface-variant">Expirando em 48h</div>
           </div>
-          <div className="rounded-xl border border-outline-variant/5 bg-surface-container-low p-6">
+          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-error/10 p-2 text-error">history</span>
             </div>
@@ -103,14 +104,16 @@ export default function GestaoAcessosPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="overflow-hidden rounded-2xl border border-outline-variant/5 bg-surface-container-low shadow-2xl">
+          <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
               <h3 className="font-headline text-lg font-bold text-white">Solicitacoes Pendentes</h3>
-              <button className="text-xs font-bold text-primary transition-all hover:underline">VER TODAS</button>
+              <Link href="/gestao-acessos/detalhes/ver-solicitacoes" className="text-xs font-bold text-primary transition-all hover:underline">
+                VER TODAS
+              </Link>
             </div>
             <div className="divide-y divide-outline-variant/10">
               {pendingRequests.map((request) => (
-                <div key={request.company} className={`${pendingRowClasses} transition-colors hover:bg-white/2`}>
+                <div key={request.company} className={`${pendingRowClasses} transition-colors hover:bg-slate-50/50`}>
                   <div className="flex min-w-0 items-center gap-5">
                     <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-high">
                       <span className="material-symbols-outlined text-white">{request.icon}</span>
@@ -138,7 +141,7 @@ export default function GestaoAcessosPage() {
                   <div className="flex min-w-0 flex-col lg:pr-1">
                     <label className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Nivel de Acesso</label>
                     <select
-                      className="w-full rounded-lg border-none bg-surface-container-highest py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-primary"
+                      className="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-primary"
                       defaultValue={request.access}
                     >
                       <option value="Visualizador">Visualizador</option>
@@ -150,38 +153,47 @@ export default function GestaoAcessosPage() {
                   <div className="flex min-w-0 flex-col lg:px-1">
                     <label className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Expira em</label>
                     <input
-                      className="w-full rounded-lg border-none bg-surface-container-highest py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-primary"
+                      className="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-primary"
                       type="date"
                       defaultValue={request.expires}
                     />
                   </div>
 
                   <div className="flex min-w-0 items-center justify-start gap-2 lg:justify-end lg:pl-1">
-                    <button className="rounded-lg bg-error/10 p-2 text-error transition-all hover:bg-error/20" title="Negar">
+                    <Link
+                      href="/gestao-acessos/detalhes/negar-solicitacao"
+                      className="rounded-lg bg-error/10 p-2 text-error transition-all hover:bg-error/20"
+                      title="Negar"
+                    >
                       <span className="material-symbols-outlined">close</span>
-                    </button>
-                    <button className="min-w-[112px] rounded-lg bg-primary px-4 py-2 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:bg-primary-container">
+                    </Link>
+                    <Link
+                      href="/gestao-acessos/detalhes/aprovar-solicitacao"
+                      className="min-w-[112px] rounded-lg bg-primary px-4 py-2 text-center text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:bg-primary-container"
+                    >
                       APROVAR
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-outline-variant/5 bg-surface-container-low">
+          <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
               <h3 className="font-headline text-lg font-bold text-white">Acessos Ativos</h3>
               <div className="flex items-center gap-4">
                 <span className="text-xs text-on-surface-variant">Filtrar por:</span>
                 <div className="flex gap-1">
-                  <button className="rounded-full bg-surface-container-high px-3 py-1 text-[10px] font-bold text-primary">Todos</button>
-                  <button className="rounded-full bg-transparent px-3 py-1 text-[10px] font-bold text-on-surface-variant transition-all hover:bg-surface-container-high">
+                  <Link href="/gestao-acessos/detalhes/filtro-todos" className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-bold text-primary">
+                    Todos
+                  </Link>
+                  <Link href="/gestao-acessos/detalhes/filtro-administradores" className="rounded-full bg-transparent px-3 py-1 text-[10px] font-bold text-on-surface-variant transition-all hover:bg-surface-container-low">
                     Administradores
-                  </button>
-                  <button className="rounded-full bg-transparent px-3 py-1 text-[10px] font-bold text-on-surface-variant transition-all hover:bg-surface-container-high">
+                  </Link>
+                  <Link href="/gestao-acessos/detalhes/filtro-expirando" className="rounded-full bg-transparent px-3 py-1 text-[10px] font-bold text-on-surface-variant transition-all hover:bg-surface-container-low">
                     Expirando em breve
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -196,7 +208,7 @@ export default function GestaoAcessosPage() {
                   <col style={{ width: "10%" }} />
                 </colgroup>
                 <thead>
-                  <tr className="bg-surface-container-highest/30">
+                  <tr className="bg-surface-container-low/50">
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Entidade / Usuario</th>
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Permissao</th>
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Data de Inicio</th>
@@ -206,7 +218,7 @@ export default function GestaoAcessosPage() {
                 </thead>
                 <tbody className="divide-y divide-outline-variant/10">
                   {activeAccesses.map((item) => (
-                    <tr key={item.email} className="group transition-colors hover:bg-white/2">
+                    <tr key={item.email} className="group transition-colors hover:bg-slate-50/50">
                       <td className="px-8 py-5">
                         <div className="flex items-center gap-3">
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10">
@@ -226,12 +238,12 @@ export default function GestaoAcessosPage() {
                       <td className="px-8 py-5 text-xs text-on-surface-variant">{item.start}</td>
                       <td className="px-8 py-5 text-xs font-medium text-white">{item.end}</td>
                       <td className="px-8 py-5 text-right">
-                        <button className="p-1 text-slate-500 transition-colors hover:text-white">
+                        <Link href="/gestao-acessos/detalhes/editar-acesso" className="p-1 text-slate-500 transition-colors hover:text-white">
                           <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                        <button className="ml-2 p-1 text-slate-500 transition-colors hover:text-error">
+                        </Link>
+                        <Link href="/gestao-acessos/detalhes/remover-acesso" className="ml-2 p-1 text-slate-500 transition-colors hover:text-error">
                           <span className="material-symbols-outlined text-lg">delete</span>
-                        </button>
+                        </Link>
                       </td>
                     </tr>
                   ))}
@@ -239,15 +251,15 @@ export default function GestaoAcessosPage() {
               </table>
             </div>
 
-            <div className="flex items-center justify-between bg-surface-container-highest/20 px-8 py-4">
+              <div className="flex items-center justify-between border-t border-outline-variant/10 bg-surface-container-low/30 px-8 py-4">
               <p className="text-[11px] font-medium text-on-surface-variant">Exibindo 3 de 124 usuarios com acesso</p>
               <div className="flex gap-2">
-                <button className="rounded bg-surface-container-high p-1.5 text-on-surface-variant hover:text-white">
+                <Link href="/gestao-acessos/detalhes/paginacao-anterior" className="rounded bg-surface-container-high p-1.5 text-on-surface-variant hover:text-white">
                   <span className="material-symbols-outlined text-sm">chevron_left</span>
-                </button>
-                <button className="rounded bg-primary p-1.5 text-on-primary">
+                </Link>
+                <Link href="/gestao-acessos/detalhes/paginacao-proxima" className="rounded bg-primary p-1.5 text-on-primary">
                   <span className="material-symbols-outlined text-sm">chevron_right</span>
-                </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -260,9 +272,12 @@ export default function GestaoAcessosPage() {
         </footer>
       </main>
 
-      <button className="fixed bottom-8 right-8 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary-container shadow-2xl shadow-primary/30 transition-transform hover:bg-primary-container active:scale-95">
+      <Link
+        href="/gestao-acessos/detalhes/novo-acesso"
+        className="fixed bottom-8 right-8 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary-container shadow-2xl shadow-primary/30 transition-transform hover:bg-primary-container active:scale-95"
+      >
         <span className="material-symbols-outlined text-2xl">add</span>
-      </button>
+      </Link>
     </>
   );
 }

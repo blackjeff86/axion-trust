@@ -26,7 +26,7 @@ export function UserInitialsAvatar({ name, size = "md", className = "" }: UserIn
   return (
     <div
       aria-label={`Avatar de ${name}`}
-      className={`flex ${sizeClasses[size]} items-center justify-center rounded-full border border-outline-variant/30 bg-surface-container-high font-bold text-primary ${className}`.trim()}
+      className={`flex ${sizeClasses[size]} items-center justify-center rounded-full border border-white/10 bg-gradient-to-br from-primary-container to-primary font-bold tracking-wide text-on-primary-container shadow-[0_10px_24px_rgba(15,23,35,0.18)] ring-1 ring-white/5 ${className}`.trim()}
       title={name}
     >
       {getInitials(name)}
