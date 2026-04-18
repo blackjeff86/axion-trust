@@ -2,7 +2,7 @@
 
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 
-const tabs = ["Perfil da Empresa", "Branding", "Dominio", "Usuarios", "Integracoes"];
+const tabs = ["Organizacao", "Usuarios", "Dominio", "Integracoes", "Politicas do Sistema"];
 
 const members = [
   {
@@ -18,7 +18,7 @@ const members = [
     initials: "BN",
     name: "Beatriz Nogueira",
     email: "beatriz@axiontrust.io",
-    access: "Editor",
+    access: "Editor interno",
     accessClass: "bg-surface-variant text-on-surface-variant",
     status: "Ativo",
     statusDot: "bg-emerald-500",
@@ -27,25 +27,23 @@ const members = [
     initials: "RP",
     name: "Ricardo Pereira",
     email: "ricardo@axiontrust.io",
-    access: "Visualizador",
+    access: "Visualizador interno",
     accessClass: "bg-surface-variant text-on-surface-variant",
     status: "Pendente",
     statusDot: "bg-amber-500",
   },
 ];
 
-const palette = ["#005cba", "#abc7ff", "#314972", "#ffb688", "#e07316", "#94a3b8"];
-
 export default function ConfiguracoesPage() {
   return (
     <>
-      <SecureTopbar placeholder="Pesquisar configuracoes..." />
+      <SecureTopbar placeholder="Pesquisar configuracoes internas..." />
 
       <main className="min-h-screen p-8">
         <header className="mb-10">
-          <h2 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-white">Configuracoes do Trust Center</h2>
+          <h2 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-white">Configurações da Conta</h2>
           <p className="max-w-2xl text-on-surface-variant">
-            Gerencie a identidade visual, acessos e integracoes da sua plataforma de confianca digital.
+            Gerencie dominio, equipe, integrações e políticas internas da operação. A aparência da página pública do Trust é configurada no Builder do Trust Center.
           </p>
         </header>
 
@@ -69,57 +67,29 @@ export default function ConfiguracoesPage() {
             <section className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
               <div className="mb-8 flex items-center justify-between">
                 <div>
-                  <h3 className="mb-1 font-headline text-xl font-bold text-white">Branding e Identidade</h3>
-                  <p className="text-sm text-on-surface-variant">Personalize como sua marca aparece para os auditores.</p>
+                  <h3 className="mb-1 font-headline text-xl font-bold text-white">Organização</h3>
+                  <p className="text-sm text-on-surface-variant">Dados operacionais da conta e preferências internas do cliente.</p>
                 </div>
-                <span className="material-symbols-outlined text-3xl text-primary/20">palette</span>
+                <span className="material-symbols-outlined text-3xl text-primary/20">apartment</span>
               </div>
 
-              <div className="grid grid-cols-1 gap-10 md:grid-cols-2">
-                <div className="space-y-4">
-                  <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Logotipo da Empresa</label>
-                  <div className="group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-outline-variant/20 bg-surface-container-low p-8 transition-all hover:border-primary/50">
-                    <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-lg bg-surface-container">
-                      <span className="material-symbols-outlined text-4xl text-slate-600">cloud_upload</span>
-                    </div>
-                    <span className="text-sm font-semibold text-on-surface">Upload do Logo</span>
-                    <span className="mt-1 text-[10px] text-slate-500">PNG, SVG ate 2MB</span>
-                  </div>
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Razão social</label>
+                  <input type="text" value="AXION Tech Group LTDA" readOnly className="w-full rounded-lg border-none bg-surface-container-low p-3 text-on-surface" />
                 </div>
-
-                <div className="space-y-4">
-                  <label className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Cor Primaria da Interface</label>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 rounded-lg bg-surface-container-low p-3">
-                      <div className="h-10 w-10 rounded bg-primary shadow-lg shadow-primary/20" />
-                      <div className="flex-1">
-                        <div className="text-xs font-medium text-on-surface-variant">Hexadecimal</div>
-                        <div className="font-mono text-sm font-bold uppercase text-white">#ABC7FF</div>
-                      </div>
-                      <button className="text-xs font-bold text-primary hover:underline">Alterar</button>
-                    </div>
-
-                    <div className="grid grid-cols-6 gap-2">
-                      {palette.map((color) => (
-                        <button
-                          key={color}
-                          className={`aspect-square rounded transition-transform hover:scale-110 ${
-                            color === "#abc7ff" ? "ring-2 ring-white/20" : ""
-                          }`}
-                          style={{ backgroundColor: color }}
-                          aria-label={`Selecionar cor ${color}`}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">ID da organização</label>
+                  <input type="text" value="AX-7749-BT" readOnly className="w-full rounded-lg border-none bg-surface-container-low p-3 text-on-surface" />
                 </div>
-              </div>
-
-              <div className="mt-10 flex justify-end border-t border-outline-variant/10 pt-6">
-                <button className="rounded-lg bg-primary px-6 py-2.5 text-sm font-bold text-on-primary-container shadow-lg shadow-primary/10 transition-all hover:bg-primary/90">
-                  Salvar Branding
-                </button>
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Responsável principal</label>
+                  <input type="text" value="Ricardo Menezes" readOnly className="w-full rounded-lg border-none bg-surface-container-low p-3 text-on-surface" />
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email operacional</label>
+                  <input type="email" value="ops@axiontrust.io" readOnly className="w-full rounded-lg border-none bg-surface-container-low p-3 text-on-surface" />
+                </div>
               </div>
             </section>
 
@@ -127,7 +97,7 @@ export default function ConfiguracoesPage() {
               <div className="mb-8 flex items-center justify-between">
                 <div>
                   <h3 className="mb-1 font-headline text-xl font-bold text-white">Membros da Equipe</h3>
-                  <p className="text-sm text-on-surface-variant">Gerencie quem pode editar e visualizar o Trust Center.</p>
+                  <p className="text-sm text-on-surface-variant">Gerencie quem pode operar a conta, revisar documentos e administrar o Trust.</p>
                 </div>
                 <button className="flex items-center gap-2 rounded-xl bg-surface-container-low px-4 py-2.5 text-sm font-bold text-on-surface transition-colors hover:bg-slate-200">
                   <span className="material-symbols-outlined text-sm">person_add</span>
@@ -181,6 +151,29 @@ export default function ConfiguracoesPage() {
                 </table>
               </div>
             </section>
+
+            <section className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
+              <div className="mb-8 flex items-center justify-between">
+                <div>
+                  <h3 className="mb-1 font-headline text-xl font-bold text-white">Políticas do Sistema</h3>
+                  <p className="text-sm text-on-surface-variant">Regras globais que governam como a plataforma opera internamente.</p>
+                </div>
+                <span className="material-symbols-outlined text-3xl text-primary/20">settings_suggest</span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="rounded-xl bg-surface-container-low p-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Validade padrão dos acessos ao Trust</p>
+                  <p className="mt-2 text-sm font-semibold text-white">1 ano</p>
+                  <p className="mt-2 text-xs text-on-surface-variant">Override manual permitido pelo administrador da conta.</p>
+                </div>
+                <div className="rounded-xl bg-surface-container-low p-4">
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Modo de publicação de documentos</p>
+                  <p className="mt-2 text-sm font-semibold text-white">Aprovação interna obrigatória</p>
+                  <p className="mt-2 text-xs text-on-surface-variant">Controla se o documento pode ser publicado direto ou precisa passar por aprovação.</p>
+                </div>
+              </div>
+            </section>
           </div>
 
           <aside className="space-y-6">
@@ -223,11 +216,32 @@ export default function ConfiguracoesPage() {
               </button>
             </div>
 
+            <div className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
+              <div className="mb-4 flex items-center gap-3">
+                <span className="material-symbols-outlined text-primary">hub</span>
+                <h4 className="text-sm font-bold text-white">Integracoes</h4>
+              </div>
+              <div className="space-y-3 text-sm text-on-surface-variant">
+                <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3">
+                  <span>Webhook de auditoria</span>
+                  <span className="font-semibold text-emerald-500">Ativo</span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3">
+                  <span>Notificacoes por e-mail</span>
+                  <span className="font-semibold text-emerald-500">Ativo</span>
+                </div>
+                <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3">
+                  <span>SIEM / Log export</span>
+                  <span className="font-semibold text-slate-400">Nao configurado</span>
+                </div>
+              </div>
+            </div>
+
             <div className="relative overflow-hidden rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-panel">
               <div className="relative z-10">
                 <h4 className="mb-2 text-sm font-bold text-white">Precisa de Ajuda?</h4>
                 <p className="mb-4 text-xs leading-relaxed text-on-surface-variant">
-                  Fale com nosso time para configurar seu branding white-label.
+                  Fale com nosso time para configurar dominio, equipe e integrações da sua conta.
                 </p>
                 <a className="flex items-center gap-2 text-xs font-bold text-primary transition-all hover:gap-3" href="#">
                   Abrir Chamado de Suporte

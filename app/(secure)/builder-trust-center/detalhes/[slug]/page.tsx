@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
+import { BuilderTrustPreviewPage } from "../../preview-client";
 
 type Detail = {
   title: string;
@@ -10,15 +11,6 @@ type Detail = {
 };
 
 const details: Record<string, Detail> = {
-  "modo-preview": {
-    title: "Modo Preview do Trust Center",
-    summary: "Valide a experiência pública antes de publicar alterações em produção.",
-    deliverables: [
-      "Renderização com identidade visual vigente",
-      "Checklist de seções públicas obrigatórias",
-      "Validação de visibilidade (público/privado)",
-    ],
-  },
   "salvar-alteracoes": {
     title: "Publicação de Alterações",
     summary: "Centraliza governança de publicação e histórico de versões do Builder.",
@@ -81,6 +73,11 @@ type PageProps = {
 
 export default async function BuilderActionDetailPage({ params }: PageProps) {
   const { slug } = await params;
+
+  if (slug === "modo-preview") {
+    return <BuilderTrustPreviewPage />;
+  }
+
   const detail = details[slug];
 
   if (!detail) {
