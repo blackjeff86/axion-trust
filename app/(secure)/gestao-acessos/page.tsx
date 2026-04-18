@@ -1,72 +1,269 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 
-const pendingRequests = [
+const initialPendingRequests = [
   {
-    company: "FinTech Global Inc.",
-    requester: "Roberto Silva (roberto@fintech.io)",
-    tags: ["Compliance", "Data Room Alpha"],
-    icon: "corporate_fare",
-    access: "Editor",
-    expires: "2024-12-31",
+    id: "req-1",
+    requester: "Mariana Costa",
+    email: "mariana@bancoglobal.com",
+    company: "Banco Global",
+    document: "SOC_2_Type_II_Report.pdf",
+    requestedAt: "Ha 25 min",
+    reason: "Validacao de controles antes da renovacao contratual.",
+    documentType: "Documento privado",
+    reviewTag: null,
   },
   {
-    company: "Advocacia Martins & Co.",
-    requester: "Ana Paula (ana@martinsadv.com.br)",
-    tags: ["Auditoria Legal"],
-    icon: "gavel",
-    access: "Visualizador",
-    expires: "2024-06-15",
-  },
-];
-
-const activeAccesses = [
-  {
-    name: "CloudScale Tech",
-    email: "marco.antonio@cloudscale.net",
-    permission: "Administrador",
-    permissionClass: "bg-on-secondary/30 text-primary border-primary/20",
-    start: "12 Jan 2024",
-    end: "12 Jan 2025",
-    icon: "business",
-  },
-  {
-    name: "Carlos Mendes",
-    email: "carlos@mendes-associados.com",
-    permission: "Visualizador",
-    permissionClass: "bg-surface-container-highest text-on-surface-variant border-outline-variant/20",
-    start: "05 Out 2023",
-    end: "15 Abr 2024",
-    icon: "person",
-  },
-  {
-    name: "Banco Centralizado",
-    email: "compliance@bancocen.com.br",
-    permission: "Editor",
-    permissionClass: "bg-secondary-container/30 text-secondary border-secondary/20",
-    start: "02 Fev 2024",
-    end: "02 Ago 2024",
-    icon: "account_balance",
+    id: "req-2",
+    requester: "Igor Mota",
+    email: "igor@retailwave.com",
+    company: "Retail Wave",
+    document: "Data_Processing_Addendum.pdf",
+    requestedAt: "Hoje, 08:35",
+    reason: "Checklist de privacidade para assinatura do MSA.",
+    documentType: "Documento privado",
+    reviewTag: null,
   },
 ];
 
-const pendingRowClasses =
-  "grid grid-cols-1 gap-y-5 px-8 py-6 lg:grid-cols-[minmax(0,2.45fr)_minmax(0,2.05fr)_minmax(0,1.85fr)_minmax(0,1.15fr)] lg:items-end lg:gap-x-4";
+const initialApprovedAccesses = [
+  {
+    id: "acc-1",
+    requester: "Amanda Reis",
+    email: "amanda@bancoglobal.com",
+    company: "Banco Global",
+    document: "SOC_2_Type_II_Report.pdf",
+    approvedAt: "18/04/2026, 14:02",
+    expiresAt: "18/04/2027",
+    status: "Ativo",
+    statusClass: "bg-emerald-100 text-emerald-700",
+  },
+  {
+    id: "acc-2",
+    requester: "Ricardo Nunes",
+    email: "ricardo@pineventures.com",
+    company: "Pine Ventures",
+    document: "Resumo_Pentest_Externos.pdf",
+    approvedAt: "15/04/2026, 18:40",
+    expiresAt: "15/04/2027",
+    status: "Ativo",
+    statusClass: "bg-emerald-100 text-emerald-700",
+  },
+  {
+    id: "acc-3",
+    requester: "Fernanda Souza",
+    email: "fernanda@bancoglobal.com",
+    company: "Banco Global",
+    document: "SOC_2_Type_II_Report.pdf",
+    approvedAt: "16/04/2026, 09:11",
+    expiresAt: "16/04/2027",
+    status: "Ativo",
+    statusClass: "bg-emerald-100 text-emerald-700",
+  },
+];
+
+type PendingRequest = {
+  id: string;
+  requester: string;
+  email: string;
+  company: string;
+  document: string;
+  requestedAt: string;
+  reason: string;
+  documentType: string;
+  reviewTag: string | null;
+};
+
+type ApprovedAccess = (typeof initialApprovedAccesses)[number];
+
+type DeniedAccess = PendingRequest & {
+  deniedAt: string;
+};
+
+const STORAGE_KEY = "axion-trust-gestao-acessos";
+
+type AccessManagementState = {
+  pendingRequests: PendingRequest[];
+  approvedAccesses: ApprovedAccess[];
+  deniedAccesses: DeniedAccess[];
+};
+
+const defaultState: AccessManagementState = {
+  pendingRequests: initialPendingRequests,
+  approvedAccesses: initialApprovedAccesses,
+  deniedAccesses: [],
+};
+
+function getInitialState(): AccessManagementState {
+  if (typeof window === "undefined") {
+    return defaultState;
+  }
+
+  const raw = window.localStorage.getItem(STORAGE_KEY);
+
+  if (!raw) {
+    return defaultState;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as AccessManagementState;
+
+    const hasAnyData =
+      (parsed.pendingRequests?.length ?? 0) > 0 ||
+      (parsed.approvedAccesses?.length ?? 0) > 0 ||
+      (parsed.deniedAccesses?.length ?? 0) > 0;
+
+    return hasAnyData ? parsed : defaultState;
+  } catch {
+    return defaultState;
+  }
+}
 
 export default function GestaoAcessosPage() {
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
+  const [approvedAccesses, setApprovedAccesses] = useState<ApprovedAccess[]>([]);
+  const [deniedAccesses, setDeniedAccesses] = useState<DeniedAccess[]>([]);
+
+  useEffect(() => {
+    const state = getInitialState();
+    setPendingRequests(state.pendingRequests);
+    setApprovedAccesses(state.approvedAccesses);
+    setDeniedAccesses(state.deniedAccesses);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        pendingRequests,
+        approvedAccesses,
+        deniedAccesses,
+      }),
+    );
+  }, [approvedAccesses, deniedAccesses, pendingRequests]);
+
+  function handleApprove(request: PendingRequest) {
+    const approvedAt = new Date().toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const expirationDate = new Date();
+    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+
+    const expiresAt = expirationDate.toLocaleDateString("pt-BR");
+
+    setPendingRequests((current) => current.filter((item) => item.id !== request.id));
+    setApprovedAccesses((current) => [
+      {
+        id: `approved-${request.id}`,
+        requester: request.requester,
+        email: request.email,
+        company: request.company,
+        document: request.document,
+        approvedAt,
+        expiresAt,
+        status: "Ativo",
+        statusClass: "bg-emerald-100 text-emerald-700",
+      },
+      ...current,
+    ]);
+  }
+
+  function handleDeny(request: PendingRequest) {
+    const deniedAt = new Date().toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    setPendingRequests((current) => current.filter((item) => item.id !== request.id));
+    setDeniedAccesses((current) => [{ ...request, deniedAt }, ...current]);
+  }
+
+  function handleReviewDenied(item: DeniedAccess) {
+    setDeniedAccesses((current) => current.filter((entry) => entry.id !== item.id));
+    setPendingRequests((current) => [
+      {
+        id: `reopened-${item.id}`,
+        requester: item.requester,
+        email: item.email,
+        company: item.company,
+        document: item.document,
+        requestedAt: item.deniedAt,
+        reason: item.reason,
+        documentType: item.documentType,
+        reviewTag: "Pedido retornado",
+      },
+      ...current,
+    ]);
+  }
+
+  function handleRevokeAccess(access: ApprovedAccess) {
+    const deniedAt = new Date().toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    setApprovedAccesses((current) => current.filter((item) => item.id !== access.id));
+    setDeniedAccesses((current) => [
+      {
+        id: `denied-${access.id}`,
+        requester: access.requester,
+        email: access.email,
+        company: access.company,
+        document: access.document,
+        requestedAt: access.approvedAt,
+        reason: "Acesso revogado manualmente pelo administrador do Trust.",
+        documentType: "Documento privado",
+        reviewTag: null,
+        deniedAt,
+      },
+      ...current,
+    ]);
+  }
+
+  function handleRestoreMocks() {
+    setPendingRequests(defaultState.pendingRequests);
+    setApprovedAccesses(defaultState.approvedAccesses);
+    setDeniedAccesses(defaultState.deniedAccesses);
+  }
+
   return (
     <>
-      <SecureTopbar />
+      <SecureTopbar placeholder="Buscar solicitacoes, empresas ou documentos..." />
 
       <main className="min-h-screen p-8">
         <div className="mb-10">
           <SecurePageHeader
-            title="Gestão de Acessos Externos"
-            subtitle="Controle rigoroso de quem pode visualizar e interagir com seus dados de Trust. Gerencie permissões de parceiros, auditores e terceiros em um único lugar."
+            title="Gestão de Acessos ao Trust"
+            subtitle="Acompanhe pedidos de acesso a documentos privados do Trust Center. O administrador do cliente decide quem pode baixar cada arquivo sensível, com validade padrão de 1 ano e ajuste manual quando necessário."
           />
+          <div className="mt-4">
+            <button
+              type="button"
+              onClick={handleRestoreMocks}
+              className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
+            >
+              Restaurar dados mockados
+            </button>
+          </div>
         </div>
 
         <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -75,100 +272,117 @@ export default function GestaoAcessosPage() {
               <span className="material-symbols-outlined rounded-lg bg-primary/10 p-2 text-primary">pending_actions</span>
               <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-bold text-primary">PENDENTE</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">08</div>
-            <div className="text-xs font-medium text-on-surface-variant">Novas Solicitacoes</div>
+            <div className="mb-1 text-2xl font-bold text-white">{pendingRequests.length}</div>
+            <div className="text-xs font-medium text-on-surface-variant">Novas solicitacoes</div>
           </div>
+
           <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-green-400/10 p-2 text-green-400">verified</span>
               <span className="rounded-full bg-green-400/10 px-2 py-1 text-xs font-bold text-green-400">ATIVO</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">124</div>
-            <div className="text-xs font-medium text-on-surface-variant">Acessos Ativos</div>
+            <div className="mb-1 text-2xl font-bold text-white">
+              {approvedAccesses.filter((item) => item.status === "Ativo").length}
+            </div>
+            <div className="text-xs font-medium text-on-surface-variant">Acessos liberados</div>
           </div>
+
           <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-tertiary/10 p-2 text-tertiary">schedule</span>
               <span className="rounded-full bg-tertiary/10 px-2 py-1 text-xs font-bold text-tertiary">AVISO</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">12</div>
-            <div className="text-xs font-medium text-on-surface-variant">Expirando em 48h</div>
+            <div className="mb-1 text-2xl font-bold text-white">
+              {approvedAccesses.filter((item) => item.status === "Expira em breve").length}
+            </div>
+            <div className="text-xs font-medium text-on-surface-variant">Expirando em breve</div>
           </div>
+
           <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-error/10 p-2 text-error">history</span>
             </div>
             <div className="mb-1 text-2xl font-bold text-white">452</div>
-            <div className="text-xs font-medium text-on-surface-variant">Log de Auditoria</div>
+            <div className="text-xs font-medium text-on-surface-variant">Eventos auditados</div>
           </div>
         </div>
 
         <div className="space-y-6">
           <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
-              <h3 className="font-headline text-lg font-bold text-white">Solicitacoes Pendentes</h3>
+              <div>
+                <h3 className="font-headline text-lg font-bold text-white">Solicitacoes pendentes</h3>
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  Pedidos criados quando um terceiro tenta baixar um documento privado do Trust.
+                </p>
+              </div>
               <Link href="/gestao-acessos/detalhes/ver-solicitacoes" className="text-xs font-bold text-primary transition-all hover:underline">
                 VER TODAS
               </Link>
             </div>
+
             <div className="divide-y divide-outline-variant/10">
               {pendingRequests.map((request) => (
-                <div key={request.company} className={`${pendingRowClasses} transition-colors hover:bg-slate-50/50`}>
-                  <div className="flex min-w-0 items-center gap-5">
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-high">
-                      <span className="material-symbols-outlined text-white">{request.icon}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-semibold text-white">{request.company}</h4>
-                      <p className="text-xs text-on-surface-variant">Solicitado por: {request.requester}</p>
-                      <div className="mt-2 flex gap-2">
-                        {request.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${
-                              tag === "Compliance"
-                                ? "bg-secondary-container/30 text-secondary"
-                                : "bg-surface-container-highest text-on-surface-variant"
-                            }`}
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                <div key={request.id} className="grid grid-cols-1 gap-5 px-8 py-6 lg:grid-cols-[minmax(0,2.8fr)_minmax(0,1.8fr)_minmax(0,1.3fr)] lg:items-end">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full border border-outline-variant/20 bg-surface-container-high">
+                        <span className="material-symbols-outlined text-white">lock_open_right</span>
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-semibold text-white">{request.requester}</h4>
+                        <p className="text-xs text-on-surface-variant">
+                          {request.company} • {request.email}
+                        </p>
                       </div>
                     </div>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold uppercase text-on-surface-variant">
+                        {request.documentType}
+                      </span>
+                      <span className="rounded bg-secondary-container/30 px-2 py-0.5 text-[10px] font-bold uppercase text-secondary">
+                        {request.document}
+                      </span>
+                      {request.reviewTag ? (
+                        <span className="rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700">
+                          {request.reviewTag}
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <p className="mt-3 text-sm text-on-surface-variant">{request.reason}</p>
                   </div>
 
-                  <div className="flex min-w-0 flex-col lg:pr-1">
-                    <label className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Nivel de Acesso</label>
-                    <select
-                      className="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-primary"
-                      defaultValue={request.access}
-                    >
-                      <option value="Visualizador">Visualizador</option>
-                      <option value="Editor">Editor</option>
-                      <option value="Administrador">Administrador</option>
-                    </select>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Data da solicitacao</p>
+                      <p className="mt-1 text-sm font-semibold text-white">{request.requestedAt}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Decisao esperada</p>
+                      <p className="mt-1 text-sm text-on-surface-variant">Aprovar ou negar acesso ao download deste documento. Regra padrao: 1 ano de validade, com override manual pelo administrador.</p>
+                    </div>
                   </div>
 
-                  <div className="flex min-w-0 flex-col lg:px-1">
-                    <label className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">Expira em</label>
-                    <input
-                      className="w-full rounded-lg border border-outline-variant/20 bg-surface-container-low py-1.5 text-xs font-medium text-white focus:ring-1 focus:ring-primary"
-                      type="date"
-                      defaultValue={request.expires}
-                    />
-                  </div>
-
-                  <div className="flex min-w-0 items-center justify-start gap-2 lg:justify-end lg:pl-1">
+                  <div className="flex items-center justify-start gap-2 lg:justify-end">
                     <Link
-                      href="/gestao-acessos/detalhes/negar-solicitacao"
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handleDeny(request);
+                      }}
                       className="rounded-lg bg-error/10 p-2 text-error transition-all hover:bg-error/20"
                       title="Negar"
                     >
                       <span className="material-symbols-outlined">close</span>
                     </Link>
                     <Link
-                      href="/gestao-acessos/detalhes/aprovar-solicitacao"
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        handleApprove(request);
+                      }}
                       className="min-w-[112px] rounded-lg bg-primary px-4 py-2 text-center text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:bg-primary-container"
                     >
                       APROVAR
@@ -181,15 +395,17 @@ export default function GestaoAcessosPage() {
 
           <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
-              <h3 className="font-headline text-lg font-bold text-white">Acessos Ativos</h3>
+              <div>
+                <h3 className="font-headline text-lg font-bold text-white">Acessos já liberados</h3>
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  Pessoas e empresas terceiras que receberam permissão para baixar documentos privados.
+                </p>
+              </div>
               <div className="flex items-center gap-4">
                 <span className="text-xs text-on-surface-variant">Filtrar por:</span>
                 <div className="flex gap-1">
                   <Link href="/gestao-acessos/detalhes/filtro-todos" className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-bold text-primary">
                     Todos
-                  </Link>
-                  <Link href="/gestao-acessos/detalhes/filtro-administradores" className="rounded-full bg-transparent px-3 py-1 text-[10px] font-bold text-on-surface-variant transition-all hover:bg-surface-container-low">
-                    Administradores
                   </Link>
                   <Link href="/gestao-acessos/detalhes/filtro-expirando" className="rounded-full bg-transparent px-3 py-1 text-[10px] font-bold text-on-surface-variant transition-all hover:bg-surface-container-low">
                     Expirando em breve
@@ -200,50 +416,43 @@ export default function GestaoAcessosPage() {
 
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-left">
-                <colgroup>
-                  <col style={{ width: "40%" }} />
-                  <col style={{ width: "22%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "14%" }} />
-                  <col style={{ width: "10%" }} />
-                </colgroup>
                 <thead>
                   <tr className="bg-surface-container-low/50">
-                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Entidade / Usuario</th>
-                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Permissao</th>
-                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Data de Inicio</th>
-                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Vencimento</th>
+                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Solicitante</th>
+                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Documento liberado</th>
+                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Aprovado em</th>
+                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Expira em</th>
+                    <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Status</th>
                     <th className="px-8 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Acoes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/10">
-                  {activeAccesses.map((item) => (
-                    <tr key={item.email} className="group transition-colors hover:bg-slate-50/50">
+                  {approvedAccesses.map((item) => (
+                    <tr key={item.id} className="group transition-colors hover:bg-slate-50/50">
                       <td className="px-8 py-5">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10">
-                            <span className="material-symbols-outlined text-sm text-blue-500">{item.icon}</span>
-                          </div>
-                          <div>
-                            <div className="text-sm font-semibold text-white">{item.name}</div>
-                            <div className="text-[11px] text-on-surface-variant">{item.email}</div>
+                        <div>
+                          <div className="text-sm font-semibold text-white">{item.requester}</div>
+                          <div className="text-[11px] text-on-surface-variant">
+                            {item.company} • {item.email}
                           </div>
                         </div>
                       </td>
+                      <td className="px-8 py-5 text-sm text-on-surface">{item.document}</td>
+                      <td className="px-8 py-5 text-xs text-on-surface-variant">{item.approvedAt}</td>
+                      <td className="px-8 py-5 text-xs font-medium text-white">{item.expiresAt}</td>
                       <td className="px-8 py-5">
-                        <span className={`rounded border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-tighter ${item.permissionClass}`}>
-                          {item.permission}
+                        <span className={`rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-tighter ${item.statusClass}`}>
+                          {item.status}
                         </span>
                       </td>
-                      <td className="px-8 py-5 text-xs text-on-surface-variant">{item.start}</td>
-                      <td className="px-8 py-5 text-xs font-medium text-white">{item.end}</td>
                       <td className="px-8 py-5 text-right">
-                        <Link href="/gestao-acessos/detalhes/editar-acesso" className="p-1 text-slate-500 transition-colors hover:text-white">
-                          <span className="material-symbols-outlined text-lg">edit</span>
-                        </Link>
-                        <Link href="/gestao-acessos/detalhes/remover-acesso" className="ml-2 p-1 text-slate-500 transition-colors hover:text-error">
+                        <button
+                          type="button"
+                          onClick={() => handleRevokeAccess(item)}
+                          className="rounded-lg bg-error/10 p-2 text-error transition-all hover:bg-error/20"
+                        >
                           <span className="material-symbols-outlined text-lg">delete</span>
-                        </Link>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -251,8 +460,10 @@ export default function GestaoAcessosPage() {
               </table>
             </div>
 
-              <div className="flex items-center justify-between border-t border-outline-variant/10 bg-surface-container-low/30 px-8 py-4">
-              <p className="text-[11px] font-medium text-on-surface-variant">Exibindo 3 de 124 usuarios com acesso</p>
+            <div className="flex items-center justify-between border-t border-outline-variant/10 bg-surface-container-low/30 px-8 py-4">
+              <p className="text-[11px] font-medium text-on-surface-variant">
+                Exibindo {approvedAccesses.length} acessos liberados
+              </p>
               <div className="flex gap-2">
                 <Link href="/gestao-acessos/detalhes/paginacao-anterior" className="rounded bg-surface-container-high p-1.5 text-on-surface-variant hover:text-white">
                   <span className="material-symbols-outlined text-sm">chevron_left</span>
@@ -263,6 +474,63 @@ export default function GestaoAcessosPage() {
               </div>
             </div>
           </div>
+
+          <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
+            <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
+              <div>
+                <h3 className="font-headline text-lg font-bold text-white">Acessos não liberados</h3>
+                <p className="mt-1 text-sm text-on-surface-variant">
+                  Solicitações negadas pelo administrador do Trust.
+                </p>
+              </div>
+            </div>
+
+            {deniedAccesses.length > 0 ? (
+              <div className="divide-y divide-outline-variant/10">
+                {deniedAccesses.map((item) => (
+                  <div key={item.id} className="grid grid-cols-1 gap-5 px-8 py-6 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.2fr)] lg:items-end">
+                    <div>
+                      <h4 className="text-sm font-semibold text-white">{item.requester}</h4>
+                      <p className="mt-1 text-xs text-on-surface-variant">
+                        {item.company} • {item.email}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="rounded bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase text-rose-700">
+                          Negado
+                        </span>
+                        <span className="rounded bg-surface-container-highest px-2 py-0.5 text-[10px] font-bold uppercase text-on-surface-variant">
+                          {item.document}
+                        </span>
+                      </div>
+                      <p className="mt-3 text-sm text-on-surface-variant">{item.reason}</p>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Negado em</p>
+                      <p className="mt-1 text-sm font-semibold text-white">{item.deniedAt}</p>
+                    </div>
+
+                    <div className="flex justify-start lg:justify-end">
+                      <Link
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handleReviewDenied(item);
+                        }}
+                        className="rounded-lg border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface transition-colors hover:bg-slate-50"
+                      >
+                        REVISAR
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="px-8 py-8 text-sm text-on-surface-variant">
+                Nenhuma solicitação negada até o momento.
+              </div>
+            )}
+          </div>
         </div>
 
         <footer className="mt-16 border-t border-outline-variant/5 pt-8 text-center">
@@ -271,13 +539,6 @@ export default function GestaoAcessosPage() {
           </p>
         </footer>
       </main>
-
-      <Link
-        href="/gestao-acessos/detalhes/novo-acesso"
-        className="fixed bottom-8 right-8 z-[70] flex h-14 w-14 items-center justify-center rounded-full bg-primary text-on-primary-container shadow-2xl shadow-primary/30 transition-transform hover:bg-primary-container active:scale-95"
-      >
-        <span className="material-symbols-outlined text-2xl">add</span>
-      </Link>
     </>
   );
 }

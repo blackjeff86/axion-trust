@@ -88,3 +88,4 @@ Colocar o AXION TRUST em produção comercial com MVP vendável, operação mín
 - [ ] Configurar DNS
 - [ ] Abrir chamado de suporte
 - [ ] Salvar todas alterações
+- [ ] Configurar validade padrão dos acessos ao Trust (default 1 ano com override manual)

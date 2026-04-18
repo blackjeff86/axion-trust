@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 
@@ -22,8 +22,8 @@ const details: Record<string, Detail> = {
   },
   "aprovar-solicitacao": {
     title: "Aprovar Solicitação de Acesso",
-    summary: "Conceda acesso com perfil e data de expiração.",
-    checklist: ["Confirmação de nível de acesso", "Definição de expiração", "Registro de aprovação"],
+    summary: "Conceda acesso ao download do documento privado solicitado pelo terceiro.",
+    checklist: ["Confirmação do solicitante", "Expiração padrão de 1 ano com ajuste manual", "Registro da aprovação"],
   },
   "filtro-todos": {
     title: "Filtro: Todos os Acessos",
@@ -31,9 +31,9 @@ const details: Record<string, Detail> = {
     checklist: ["Lista completa", "Paginação", "Ações por usuário"],
   },
   "filtro-administradores": {
-    title: "Filtro: Administradores",
-    summary: "Mostra apenas acessos com perfil administrador.",
-    checklist: ["Usuários administradores", "Validade de acesso", "Edição rápida"],
+    title: "Filtro legado",
+    summary: "Este filtro deve ser substituído por status de expiração ou documento liberado.",
+    checklist: ["Revisar uso do filtro", "Adequar ao fluxo Trust", "Remover perfis legados"],
   },
   "filtro-expirando": {
     title: "Filtro: Expirando em Breve",
@@ -42,8 +42,8 @@ const details: Record<string, Detail> = {
   },
   "editar-acesso": {
     title: "Editar Acesso Ativo",
-    summary: "Atualize perfil e validade de um acesso já concedido.",
-    checklist: ["Alterar permissão", "Ajustar data de vencimento", "Salvar com auditoria"],
+    summary: "Atualize a validade de um acesso já concedido a um documento privado.",
+    checklist: ["Revisar solicitante", "Ajustar data de vencimento sobre o padrão de 1 ano", "Salvar com auditoria"],
   },
   "remover-acesso": {
     title: "Remover Acesso",
@@ -62,8 +62,8 @@ const details: Record<string, Detail> = {
   },
   "novo-acesso": {
     title: "Novo Acesso Externo",
-    summary: "Cadastre rapidamente um novo usuário com perfil e escopo.",
-    checklist: ["Identificação do usuário", "Definição de perfil", "Validade e envio de convite"],
+    summary: "Conceda manualmente acesso de download a um terceiro em caso excepcional.",
+    checklist: ["Identificação do usuário", "Documento a ser liberado", "Validade padrão de 1 ano com override manual"],
   },
 };
 
@@ -73,6 +73,11 @@ type PageProps = {
 
 export default async function GestaoAcessosDetailPage({ params }: PageProps) {
   const { slug } = await params;
+
+  if (slug === "ver-solicitacoes" || slug === "remover-acesso" || slug === "aprovar-solicitacao") {
+    redirect("/gestao-acessos");
+  }
+
   const detail = details[slug];
 
   if (!detail) {
