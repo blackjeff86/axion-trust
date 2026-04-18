@@ -1,235 +1,306 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
+import {
+  getAccessRequestsForDocument,
+  getDataRoomWorkspaceClient,
+  getStatusBadgeClass,
+  getVisibilityBadgeClass,
+  type DataRoomWorkspace,
+} from "./data-room-data";
 
-const files = [
-  { name: "01_Documentos_Financeiros", type: "folder", color: "text-amber-500", access: "Ha 2 horas", size: "12 pastas" },
-  { name: "02_Compliance_e_Legal", type: "folder", color: "text-amber-500", access: "Ontem, 16:45", size: "5 pastas" },
-  { name: "Relatorio_Auditoria_V4.pdf", type: "description", color: "text-primary-container", access: "Ha 15 min", size: "4.2 MB", selected: true },
-  { name: "Planilha_Consolidada_Q3.xlsx", type: "table_chart", color: "text-green-500", access: "02/11/2023", size: "1.8 MB" },
-];
+function buildRoomHref(filters: {
+  category?: string;
+  visibility?: string;
+  status?: string;
+  selected?: string | null;
+}) {
+  const params = new URLSearchParams();
+
+  if (filters.category && filters.category !== "Todos") params.set("category", filters.category);
+  if (filters.visibility && filters.visibility !== "Todos") params.set("visibility", filters.visibility);
+  if (filters.status && filters.status !== "Todos") params.set("status", filters.status);
+  if (filters.selected) params.set("selected", filters.selected);
+
+  const query = params.toString();
+  return query ? `/data-room-seguro?${query}` : "/data-room-seguro";
+}
 
 export default function DataRoomSeguroPage() {
+  const searchParams = useSearchParams();
+  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspaceClient());
+
+  useEffect(() => {
+    setWorkspace(getDataRoomWorkspaceClient());
+
+    function handleStorage(event: StorageEvent) {
+      if (event.key) {
+        setWorkspace(getDataRoomWorkspaceClient());
+      }
+    }
+
+    function handleFocus() {
+      setWorkspace(getDataRoomWorkspaceClient());
+    }
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, []);
+
+  const selectedCategory = searchParams.get("category") ?? "Todos";
+  const selectedVisibility = searchParams.get("visibility") ?? "Todos";
+  const selectedStatus = searchParams.get("status") ?? "Todos";
+  const selectedId = searchParams.get("selected");
+
+  const documents = useMemo(
+    () =>
+      workspace.documents.filter((document) => {
+        if (selectedCategory !== "Todos" && document.category !== selectedCategory) return false;
+        if (selectedVisibility !== "Todos" && document.visibility !== selectedVisibility) return false;
+        if (selectedStatus !== "Todos" && document.status !== selectedStatus) return false;
+        return true;
+      }),
+    [selectedCategory, selectedStatus, selectedVisibility, workspace.documents],
+  );
+
+  const selectedDocument = useMemo(
+    () => workspace.documents.find((entry) => entry.id === selectedId) ?? documents[0] ?? workspace.documents[0] ?? null,
+    [documents, selectedId, workspace.documents],
+  );
+
+  const selectedRequests = useMemo(
+    () => getAccessRequestsForDocument(selectedDocument?.id).slice(0, 3),
+    [selectedDocument?.id, workspace.requests],
+  );
+
+  const totalPublished = workspace.documents.filter((document) => document.status === "Publicado").length;
+  const totalPending = workspace.documents.filter((document) => document.status === "Pendente de aprovacao").length;
+  const totalPublic = workspace.documents.filter((document) => document.visibility === "Publico").length;
+  const totalApprovalFlow = workspace.documents.filter((document) => document.requiresApproval).length;
+
   return (
     <>
-      <SecureTopbar placeholder="Pesquisar arquivos ou pastas..." />
+      <SecureTopbar placeholder="Pesquisar documentos do Trust..." />
 
-      <main className="min-h-screen p-8">
-        <div className="mb-10 flex items-end justify-between">
-          <SecurePageHeader
-            title="Data Room Seguro"
-            subtitle="Ambiente criptografado e auditado para compartilhamento de ativos críticos."
-          />
-          <div className="flex gap-2">
-            <Link
-              href="/data-room-seguro/detalhes/visualizacao-grid"
-              className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-2.5 text-slate-400 transition-all hover:bg-slate-200 hover:text-primary"
-            >
-              <span className="material-symbols-outlined">grid_view</span>
-            </Link>
-            <Link
-              href="/data-room-seguro/detalhes/visualizacao-lista"
-              className="rounded-xl border border-outline-variant/20 bg-surface-container-low p-2.5 text-primary transition-all"
-            >
-              <span className="material-symbols-outlined">list</span>
-            </Link>
-          </div>
-        </div>
+      <main className="min-h-screen bg-surface p-8">
+        <div className="space-y-8">
+          <section className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+            <div>
+              <SecurePageHeader title={workspace.title} subtitle={workspace.subtitle} />
+            </div>
 
-        <div className="flex gap-6">
-          <section className="flex flex-1 flex-col gap-6">
-            <Link
-              href="/data-room-seguro/detalhes/upload-arquivos"
-              className="group flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-outline-variant/50 bg-surface-container-low/30 p-10 transition-all hover:border-primary/50 hover:bg-primary/5"
-            >
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface-container-high transition-transform group-hover:scale-110">
-                <span className="material-symbols-outlined text-3xl text-primary">upload_file</span>
-              </div>
-              <p className="text-lg font-semibold text-white">Arraste arquivos ou pastas para upload</p>
-              <p className="mt-1 text-sm text-slate-500">Criptografia AES-256 aplicada automaticamente no upload.</p>
-            </Link>
-
-            <nav className="flex items-center gap-2 text-sm text-slate-400">
-              <span className="material-symbols-outlined text-base">home</span>
-              <span>Raiz</span>
-              <span className="material-symbols-outlined text-base">chevron_right</span>
-              <span className="font-medium text-white">Due Diligence M&A 2024</span>
-            </nav>
-
-            <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
-              <table className="w-full border-collapse text-left">
-                <thead className="bg-surface-container-low/50">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Nome</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Ultimo Acesso</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Tamanho</th>
-                    <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Acoes</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-outline-variant/10">
-                  {files.map((file) => (
-                    <tr
-                      key={file.name}
-                      className={`${file.selected ? "border-l-4 border-primary bg-primary/10" : ""} group transition-colors hover:bg-slate-50/50`}
-                    >
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`material-symbols-outlined ${file.color}`}
-                            style={file.type === "folder" ? { fontVariationSettings: "'FILL' 1" } : undefined}
-                          >
-                            {file.type}
-                          </span>
-                          <span className={`text-sm ${file.selected ? "font-semibold text-white" : "font-medium text-white"}`}>{file.name}</span>
-                          {file.selected && (
-                            <span className="rounded bg-primary-container/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-tighter text-primary">
-                              Confidencial
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-sm text-slate-400">{file.access}</td>
-                      <td className="px-6 py-4 text-sm text-slate-400">{file.size}</td>
-                      <td className="px-6 py-4 text-right">
-                        <Link
-                          href="/data-room-seguro/detalhes/acao-item"
-                          className={`material-symbols-outlined cursor-pointer transition-all ${file.selected ? "text-primary" : "text-slate-500 opacity-0 group-hover:opacity-100 hover:text-white"}`}
-                        >
-                          {file.selected ? "info" : "more_vert"}
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/data-room-seguro/detalhes/upload-arquivos"
+                className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20"
+              >
+                <span className="material-symbols-outlined mr-2 align-middle text-base">upload_file</span>
+                Novo documento
+              </Link>
+              <Link
+                href="/data-room-seguro/detalhes/fila-aprovacoes"
+                className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
+              >
+                <span className="material-symbols-outlined mr-2 align-middle text-base">approval</span>
+                Fila de aprovacoes
+              </Link>
             </div>
           </section>
 
-          <aside className="flex w-80 flex-col gap-6">
-            <div className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-              <div className="mb-6 flex items-start justify-between">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/20">
-                  <span className="material-symbols-outlined text-2xl text-primary">description</span>
-                </div>
-                <Link href="/data-room-seguro/detalhes/fechar-painel" className="text-slate-500 hover:text-white">
-                  <span className="material-symbols-outlined">close</span>
-                </Link>
-              </div>
-              <h3 className="font-headline text-lg font-bold leading-tight text-white">Relatorio_Auditoria_V4.pdf</h3>
-              <p className="mt-1 text-xs text-slate-500">Hash: e3b0c44298fc1c149afbf4c899...</p>
+          <section className="grid grid-cols-1 gap-6 md:grid-cols-4">
+            {[
+              { label: "Publicados", value: totalPublished, tone: "text-emerald-700 bg-emerald-50 border-emerald-100" },
+              { label: "Pendentes", value: totalPending, tone: "text-amber-700 bg-amber-50 border-amber-100" },
+              { label: "Publicos", value: totalPublic, tone: "text-blue-700 bg-blue-50 border-blue-100" },
+              { label: "Com aprovacao", value: totalApprovalFlow, tone: "text-rose-700 bg-rose-50 border-rose-100" },
+            ].map((card) => (
+              <article key={card.label} className={`rounded-2xl border p-5 shadow-panel ${card.tone}`}>
+                <p className="text-[11px] font-bold uppercase tracking-widest">{card.label}</p>
+                <p className="mt-2 text-3xl font-extrabold">{card.value}</p>
+              </article>
+            ))}
+          </section>
 
-              <div className="mt-8 space-y-6">
-                <div>
-                  <label className="mb-3 block text-[10px] font-bold uppercase tracking-widest text-slate-500">Controle de Acesso</label>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-slate-400">visibility</span>
-                        <span className="text-sm text-white">Visualizacao Offline</span>
-                      </div>
-                      <div className="relative h-4 w-8 rounded-full bg-primary">
-                        <div className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full bg-white" />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-slate-500">
-                        <span className="material-symbols-outlined text-lg">download</span>
-                        <span className="text-sm">Permitir Download</span>
-                      </div>
-                      <div className="relative h-4 w-8 rounded-full bg-surface-variant">
-                        <div className="absolute left-0.5 top-0.5 h-3 w-3 rounded-full bg-slate-400" />
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-lg text-slate-400">print</span>
-                        <span className="text-sm text-white">Watermark Dinamica</span>
-                      </div>
-                      <div className="relative h-4 w-8 rounded-full bg-primary">
-                        <div className="absolute right-0.5 top-0.5 h-3 w-3 rounded-full bg-white" />
-                      </div>
-                    </div>
+          <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
+            <div className="space-y-6 xl:col-span-8">
+              <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
+                <form action="/data-room-seguro" method="get" className="flex flex-col gap-4 xl:flex-row xl:items-end">
+                  {selectedDocument?.id ? <input type="hidden" name="selected" value={selectedDocument.id} /> : null}
+
+                  <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-3">
+                    <label className="block">
+                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Categoria</span>
+                      <select name="category" defaultValue={selectedCategory} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary">
+                        {["Todos", ...workspace.categories].map((category) => (
+                          <option key={category} value={category}>{category}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Tipo de acesso</span>
+                      <select name="visibility" defaultValue={selectedVisibility} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary">
+                        {["Todos", "Publico", "Privado"].map((visibility) => (
+                          <option key={visibility} value={visibility}>{visibility}</option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="block">
+                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Status de publicacao</span>
+                      <select name="status" defaultValue={selectedStatus} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary">
+                        {["Todos", "Publicado", "Pendente de aprovacao", "Rascunho"].map((status) => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
+                      </select>
+                    </label>
                   </div>
-                </div>
 
-                <div>
-                  <label className="mb-2 block text-[10px] font-bold uppercase tracking-widest text-slate-500">Data de Expiracao</label>
-                  <div className="flex items-center justify-between rounded-lg border border-outline-variant/10 bg-surface-container-highest/50 p-3">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-lg text-primary">event</span>
-                      <span className="text-sm text-white">31 Dez, 2024</span>
-                    </div>
-                    <Link href="/data-room-seguro/detalhes/editar-expiracao" className="material-symbols-outlined text-base text-slate-500">
-                      edit
+                  <div className="flex items-center gap-3 xl:pb-px">
+                    <button type="submit" className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">
+                      Aplicar filtros
+                    </button>
+                    <Link href={buildRoomHref({ selected: selectedDocument?.id, category: "Todos", visibility: "Todos", status: "Todos" })} className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
+                      Limpar
                     </Link>
                   </div>
-                </div>
+                </form>
 
-                <div>
-                  <label className="mb-4 block text-[10px] font-bold uppercase tracking-widest text-slate-500">Logs de Auditoria</label>
-                  <div className="space-y-4">
-                    <div className="flex gap-3">
-                      <div className="relative">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-[10px] font-bold">JD</div>
-                        <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#0c1321] bg-green-500">
-                          <span className="material-symbols-outlined text-[10px] text-white">visibility</span>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-white">Joao Doria (Parceiro)</p>
-                        <p className="text-[10px] text-slate-500">Visualizou via Web • 2 min atras</p>
-                      </div>
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-outline-variant/15 bg-surface-container-low px-4 py-3">
+                  <p className="text-sm text-on-surface-variant"><strong className="text-on-surface">{documents.length}</strong> documento(s) encontrado(s)</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-500">Biblioteca do Trust Center</p>
+                </div>
+              </article>
+
+              <article className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
+                <table className="w-full border-collapse text-left">
+                  <thead className="bg-surface-container-low/50">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Documento</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Categoria</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Acesso</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
+                      <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Downloads</th>
+                      <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Acoes</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/10">
+                    {documents.map((document) => {
+                      const isSelected = selectedDocument?.id === document.id;
+
+                      return (
+                        <tr key={document.id} className={`${isSelected ? "border-l-4 border-primary bg-primary/10" : ""} group transition-colors hover:bg-slate-50/40`}>
+                          <td className="px-6 py-4">
+                            <Link href={buildRoomHref({ category: selectedCategory, visibility: selectedVisibility, status: selectedStatus, selected: document.id })} className="flex items-center gap-3">
+                              <span className={`material-symbols-outlined text-2xl ${document.iconClass}`}>{document.icon}</span>
+                              <div>
+                                <p className="text-sm font-semibold text-white">{document.name}</p>
+                                <p className="text-xs text-on-surface-variant">{document.description}</p>
+                              </div>
+                            </Link>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-on-surface">{document.category}</td>
+                          <td className="px-6 py-4">
+                            <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${getVisibilityBadgeClass(document.visibility)}`}>{document.visibility}</span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${getStatusBadgeClass(document.status)}`}>{document.status}</span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-on-surface">{document.downloads}</td>
+                          <td className="px-6 py-4 text-right">
+                            <Link href={`/data-room-seguro/detalhes/documento?item=${document.id}`} className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface transition-colors hover:bg-slate-50">
+                              Gerenciar
+                            </Link>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </article>
+            </div>
+
+            <aside className="space-y-6 xl:col-span-4">
+              {selectedDocument ? (
+                <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
+                  <div className="mb-5 flex items-start justify-between gap-3">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                      <span className={`material-symbols-outlined text-3xl ${selectedDocument.iconClass}`}>{selectedDocument.icon}</span>
                     </div>
-                    <div className="flex gap-3">
-                      <div className="relative">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-[10px] font-bold">AL</div>
-                        <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#0c1321] bg-blue-500">
-                          <span className="material-symbols-outlined text-[10px] text-white">download</span>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-white">Ana Lucia (Admin)</p>
-                        <p className="text-[10px] text-slate-500">Fez download • Hoje, 09:12</p>
-                      </div>
+                    <Link href={`/data-room-seguro/detalhes/documento?item=${selectedDocument.id}`} className="rounded-xl bg-primary/10 px-4 py-2 text-xs font-bold uppercase tracking-widest text-primary">
+                      Abrir detalhe
+                    </Link>
+                  </div>
+
+                  <h3 className="font-headline text-xl font-bold text-white">{selectedDocument.name}</h3>
+                  <p className="mt-2 text-sm text-on-surface-variant">{selectedDocument.description}</p>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${getVisibilityBadgeClass(selectedDocument.visibility)}`}>{selectedDocument.visibility}</span>
+                    <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest ${getStatusBadgeClass(selectedDocument.status)}`}>{selectedDocument.status}</span>
+                    <span className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">{selectedDocument.category}</span>
+                  </div>
+
+                  <div className="mt-8 grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Versao</p>
+                      <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.version}</p>
                     </div>
-                    <div className="flex gap-3">
-                      <div className="relative">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-[10px] font-bold">EB</div>
-                        <div className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full border-2 border-[#0c1321] bg-amber-500">
-                          <span className="material-symbols-outlined text-[10px] text-white">warning</span>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs font-bold text-white">Eduardo B. (Externo)</p>
-                        <p className="text-[10px] font-medium text-error">Tentativa de print bloqueada • Ontem</p>
-                      </div>
+                    <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Owner</p>
+                      <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.owner}</p>
+                    </div>
+                    <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Atualizacao</p>
+                      <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.updatedAtLabel}</p>
+                    </div>
+                    <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Downloads</p>
+                      <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.downloads}</p>
                     </div>
                   </div>
-                  <Link
-                    href="/data-room-seguro/detalhes/ver-relatorio-completo"
-                    className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/10"
-                  >
-                    Ver Relatorio Completo
-                    <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
 
-            <div className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-panel">
-              <div className="mb-4 flex items-center gap-3">
-                <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  verified
-                </span>
-                <h4 className="text-sm font-bold text-white">Ambiente Certificado</h4>
-              </div>
-              <p className="text-xs leading-relaxed text-slate-400">
-                Este Data Room opera sob a certificacao ISO 27001 e os dados sao redundantes em multiplos clusters geograficos.
-              </p>
-            </div>
-          </aside>
+                  <div className="mt-8 rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                    <p className="text-sm font-bold text-on-surface">Modelo de acesso</p>
+                    <p className="mt-2 text-sm text-on-surface-variant">{selectedDocument.approvalRule}</p>
+                    <div className="mt-3 space-y-2 text-xs text-on-surface-variant">
+                      <p>Visivel no Trust Center: {selectedDocument.visibleInTrustCenter ? "Sim" : "Nao"}</p>
+                      <p>Exige aprovacao: {selectedDocument.requiresApproval ? "Sim" : "Nao"}</p>
+                      <p>NDA: {selectedDocument.ndaRequired ? "Obrigatorio" : "Nao obrigatorio"}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8">
+                    <p className="mb-3 text-sm font-bold text-on-surface">Ultimas solicitacoes</p>
+                    <div className="space-y-3">
+                      {selectedRequests.length > 0 ? (
+                        selectedRequests.map((request) => (
+                          <div key={request.id} className="rounded-xl bg-surface-container-low p-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-sm font-semibold text-white">{request.requester}</p>
+                              <span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-widest ${getStatusBadgeClass(request.status)}`}>{request.status}</span>
+                            </div>
+                            <p className="mt-1 text-xs text-on-surface-variant">{request.company} • {request.requestedAtLabel}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">Nenhuma solicitacao recente para este documento.</div>
+                      )}
+                    </div>
+                  </div>
+                </article>
+              ) : null}
+            </aside>
+          </section>
         </div>
       </main>
     </>

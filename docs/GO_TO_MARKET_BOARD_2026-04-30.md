@@ -64,8 +64,8 @@ Colocar o AXION TRUST em produção comercial com MVP vendável, operação mín
 - [ ] Insights detalhados
 
 ### Data Room Seguro
-- [ ] Ver relatório completo
-- [ ] Ações de item (menu)
+- [x] Ver relatório completo
+- [x] Ações de item (menu)
 
 ### Gestão de Acessos
 - [ ] Ver todas solicitações
