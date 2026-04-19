@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import { BuilderTrustPreviewPage } from "../../preview-client";
@@ -76,6 +76,10 @@ export default async function BuilderActionDetailPage({ params }: PageProps) {
 
   if (slug === "modo-preview") {
     return <BuilderTrustPreviewPage />;
+  }
+
+  if (slug === "documento-configuracao") {
+    redirect("/builder-trust-center");
   }
 
   const detail = details[slug];

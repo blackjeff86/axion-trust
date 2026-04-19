@@ -336,10 +336,11 @@ export function updateTrustDocumentStatusClient(documentId: string, status: Trus
   const nextWorkspace: DataRoomWorkspace = {
     ...current,
     documents: current.documents.map((document) =>
-      document.id === documentId
+        document.id === documentId
         ? {
             ...document,
             status,
+            visibleInTrustCenter: status === "Publicado",
             publishedAtLabel:
               status === "Publicado"
                 ? `Publicado em ${new Date().toLocaleDateString("pt-BR")}`
@@ -352,6 +353,10 @@ export function updateTrustDocumentStatusClient(documentId: string, status: Trus
   saveDataRoomWorkspaceClient(nextWorkspace);
 
   return nextWorkspace;
+}
+
+export function updateTrustDocumentPublicationClient(documentId: string, published: boolean) {
+  return updateTrustDocumentStatusClient(documentId, published ? "Publicado" : "Rascunho");
 }
 
 export function getTrustDocumentById(id?: string | null) {

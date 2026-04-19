@@ -21,26 +21,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" data-theme="dark" suppressHydrationWarning>
       <head>
         <link
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-50..200"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function () {
-                try {
-                  var saved = localStorage.getItem("axion-theme-mode");
-                  var mode = saved === "light" ? "light" : "dark";
-                  document.documentElement.setAttribute("data-theme", mode);
-                } catch (e) {
-                  document.documentElement.setAttribute("data-theme", "dark");
-                }
-              })();
-            `,
-          }}
         />
       </head>
       <body className={`${inter.variable} ${manrope.variable} font-body`}>{children}</body>
