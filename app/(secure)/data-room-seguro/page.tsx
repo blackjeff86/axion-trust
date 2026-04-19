@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import {
@@ -30,7 +30,7 @@ function buildRoomHref(filters: {
   return query ? `/data-room-seguro?${query}` : "/data-room-seguro";
 }
 
-export default function DataRoomSeguroPage() {
+function DataRoomSeguroPageContent() {
   const searchParams = useSearchParams();
   const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspaceClient());
 
@@ -304,5 +304,13 @@ export default function DataRoomSeguroPage() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function DataRoomSeguroPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-surface" />}>
+      <DataRoomSeguroPageContent />
+    </Suspense>
   );
 }
