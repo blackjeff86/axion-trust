@@ -57,18 +57,12 @@ export default function DashboardPage() {
       <SecureTopbar placeholder="Pesquisar auditorias..." />
 
       <main className="min-h-screen space-y-8 p-8">
-        <section className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+        <section className="mb-10">
           <div>
-            <h2 className="mb-2 font-headline text-3xl font-extrabold uppercase tracking-tight text-white">Bem-vindo, Administrador</h2>
+            <h2 className="mb-2 font-headline text-3xl font-extrabold uppercase tracking-tight text-white">Visão Geral da Operação</h2>
             <p className="max-w-2xl font-body text-on-surface-variant">
-              Sua infraestrutura de confiança digital está operando com integridade total.
+              Monitore auditorias, documentos compartilhados, diligências em andamento e itens que exigem revisão prioritária.
             </p>
-          </div>
-          <div className="flex gap-3">
-            <div className="flex items-center gap-2 rounded border border-outline-variant/10 bg-surface-container-high px-4 py-2 text-sm text-on-surface">
-              <span className="material-symbols-outlined text-primary">verified</span>
-              <span>Sistema Seguro</span>
-            </div>
           </div>
         </section>
 

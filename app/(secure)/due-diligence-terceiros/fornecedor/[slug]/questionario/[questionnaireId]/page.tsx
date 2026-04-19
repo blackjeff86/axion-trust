@@ -9,7 +9,10 @@ import {
   getQuestionnaireRunStatusClass,
   getQuestionnaireOptionsClient,
   getSupplierBySlugClient,
+  getRiskClass,
+  upsertSupplier,
   type QuestionnaireOption,
+  type SupplierRisk,
   type SupplierProfile,
 } from "../../../../supplier-data";
 import {
@@ -33,12 +36,37 @@ type QuestionReviewState = {
   additionalEvidenceNames: string[];
 };
 
+const QUESTIONNAIRE_REVIEW_STORAGE_KEY = "axion-trust-dd-questionnaire-review";
+
 const ASSESSMENT_LABELS: Record<Exclude<AnalystAssessmentStatus, null>, string> = {
   atende: "Atende",
   parcial: "Atende parcialmente",
   "nao-atende": "Nao atende",
   na: "N/A",
 };
+
+const ASSESSMENT_POINTS: Record<Exclude<AnalystAssessmentStatus, null>, number> = {
+  atende: 25,
+  parcial: 15,
+  "nao-atende": 5,
+  na: 0,
+};
+
+function getRiskFromScore(score: number): SupplierRisk {
+  if (score >= 85) {
+    return "Baixo Risco";
+  }
+
+  if (score >= 70) {
+    return "Medio Risco";
+  }
+
+  if (score >= 50) {
+    return "Alto Risco";
+  }
+
+  return "Risco Critico";
+}
 
 function getSampleAnswer(question: Question) {
   if (question.type === "multipla-escolha") {
@@ -68,6 +96,35 @@ function createInitialReviewState(questions: Question[]): Record<string, Questio
       analystObservation: "",
       supplierResponse: "",
       additionalEvidenceNames: [],
+    };
+
+    return acc;
+  }, {});
+}
+
+function getReviewStorageKey(slug: string, questionnaireId: string) {
+  return `${QUESTIONNAIRE_REVIEW_STORAGE_KEY}:${slug}:${questionnaireId}`;
+}
+
+function mergeReviewState(
+  questions: Question[],
+  savedReviewState: Record<string, Partial<QuestionReviewState>> | null,
+) {
+  const initialState = createInitialReviewState(questions);
+
+  if (!savedReviewState) {
+    return initialState;
+  }
+
+  return questions.reduce<Record<string, QuestionReviewState>>((acc, question) => {
+    const savedQuestionState = savedReviewState[question.id];
+
+    acc[question.id] = {
+      ...initialState[question.id],
+      ...savedQuestionState,
+      additionalEvidenceNames: Array.isArray(savedQuestionState?.additionalEvidenceNames)
+        ? savedQuestionState.additionalEvidenceNames
+        : initialState[question.id].additionalEvidenceNames,
     };
 
     return acc;
@@ -128,8 +185,11 @@ export default function SupplierQuestionnaireDetailPage() {
   const [reviewByQuestion, setReviewByQuestion] = useState<Record<string, QuestionReviewState>>(
     createInitialReviewState(initialQuestions),
   );
+  const [hasHydratedReview, setHasHydratedReview] = useState(false);
 
   useEffect(() => {
+    setHasHydratedReview(false);
+
     const supplierData = getSupplierBySlugClient(slug) ?? null;
     const questionnaireData =
       getQuestionnaireOptionsClient().find((item) => item.id === questionnaireId) ?? null;
@@ -141,10 +201,24 @@ export default function SupplierQuestionnaireDetailPage() {
       return;
     }
 
+    const reviewStorageKey = getReviewStorageKey(slug, questionnaireId);
+    const rawSavedReview = window.localStorage.getItem(reviewStorageKey);
+    let parsedSavedReview: Record<string, Partial<QuestionReviewState>> | null = null;
+
+    if (rawSavedReview) {
+      try {
+        parsedSavedReview = JSON.parse(rawSavedReview) as Record<string, Partial<QuestionReviewState>>;
+      } catch {
+        parsedSavedReview = null;
+      }
+    }
     const rawTemplate = window.localStorage.getItem(TEMPLATE_STORAGE_KEY);
 
     if (!rawTemplate) {
-      setReviewByQuestion(createInitialReviewState(initialQuestions));
+      setSections(initialSections);
+      setQuestions(initialQuestions);
+      setReviewByQuestion(mergeReviewState(initialQuestions, parsedSavedReview));
+      setHasHydratedReview(true);
       return;
     }
 
@@ -160,15 +234,33 @@ export default function SupplierQuestionnaireDetailPage() {
       if (templateId === questionnaireId) {
         setSections(template.sections);
         setQuestions(template.questions);
-        setReviewByQuestion(createInitialReviewState(template.questions));
+        setReviewByQuestion(mergeReviewState(template.questions, parsedSavedReview));
+        setHasHydratedReview(true);
         return;
       }
 
-      setReviewByQuestion(createInitialReviewState(initialQuestions));
+      setSections(initialSections);
+      setQuestions(initialQuestions);
+      setReviewByQuestion(mergeReviewState(initialQuestions, parsedSavedReview));
+      setHasHydratedReview(true);
     } catch {
-      setReviewByQuestion(createInitialReviewState(initialQuestions));
+      setSections(initialSections);
+      setQuestions(initialQuestions);
+      setReviewByQuestion(mergeReviewState(initialQuestions, parsedSavedReview));
+      setHasHydratedReview(true);
     }
   }, [questionnaireId, slug]);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !hasHydratedReview) {
+      return;
+    }
+
+    window.localStorage.setItem(
+      getReviewStorageKey(slug, questionnaireId),
+      JSON.stringify(reviewByQuestion),
+    );
+  }, [hasHydratedReview, questionnaireId, reviewByQuestion, slug]);
 
   const questionnaireRun = useMemo(
     () => supplier?.questionnaireRuns.find((run) => run.questionnaireId === questionnaireId) ?? null,
@@ -203,6 +295,53 @@ export default function SupplierQuestionnaireDetailPage() {
       withEvidenceRequest: values.filter((item) => item.requestAdditionalEvidence).length,
     };
   }, [reviewByQuestion]);
+
+  const scoringSummary = useMemo(() => {
+    const reviewedQuestions = questions.filter((question) => reviewByQuestion[question.id]?.assessment !== null);
+    const applicableQuestions = reviewedQuestions.filter(
+      (question) => reviewByQuestion[question.id]?.assessment !== "na",
+    );
+    const totalPoints = applicableQuestions.reduce((sum, question) => {
+      const assessment = reviewByQuestion[question.id]?.assessment;
+
+      if (!assessment || assessment === "na") {
+        return sum;
+      }
+
+      return sum + ASSESSMENT_POINTS[assessment];
+    }, 0);
+    const maximumPoints = applicableQuestions.length * ASSESSMENT_POINTS.atende;
+    const normalizedScore = maximumPoints > 0 ? Math.round((totalPoints / maximumPoints) * 100) : 0;
+    const risk = getRiskFromScore(normalizedScore);
+
+    return {
+      reviewedCount: reviewedQuestions.length,
+      applicableCount: applicableQuestions.length,
+      totalPoints,
+      maximumPoints,
+      normalizedScore,
+      risk,
+    };
+  }, [questions, reviewByQuestion]);
+
+  useEffect(() => {
+    if (!supplier || scoringSummary.reviewedCount === 0) {
+      return;
+    }
+
+    if (supplier.score === scoringSummary.normalizedScore && supplier.risk === scoringSummary.risk) {
+      return;
+    }
+
+    const nextSupplier = {
+      ...supplier,
+      score: scoringSummary.normalizedScore,
+      risk: scoringSummary.risk,
+    };
+
+    setSupplier(nextSupplier);
+    upsertSupplier(nextSupplier);
+  }, [scoringSummary.normalizedScore, scoringSummary.reviewedCount, scoringSummary.risk, supplier]);
 
   function updateReviewState(questionId: string, updates: Partial<QuestionReviewState>) {
     setReviewByQuestion((current) => ({
@@ -492,6 +631,21 @@ export default function SupplierQuestionnaireDetailPage() {
                                   N/A
                                 </button>
                               </div>
+
+                              <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 lg:grid-cols-4">
+                                <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-emerald-700">
+                                  Atende = {ASSESSMENT_POINTS.atende} pts
+                                </div>
+                                <div className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-amber-700">
+                                  Parcial = {ASSESSMENT_POINTS.parcial} pts
+                                </div>
+                                <div className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-rose-700">
+                                  Nao atende = {ASSESSMENT_POINTS["nao-atende"]} pts
+                                </div>
+                                <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
+                                  N/A = {ASSESSMENT_POINTS.na} pt
+                                </div>
+                              </div>
                             </div>
 
                             <div className="mb-4 rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
@@ -527,122 +681,130 @@ export default function SupplierQuestionnaireDetailPage() {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-                              <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
-                                <div className="mb-3 flex items-center gap-2">
-                                  <span className="material-symbols-outlined text-base text-primary">
-                                    rate_review
-                                  </span>
-                                  <h6 className="text-sm font-bold text-on-surface">
-                                    Solicitacao do analista
-                                  </h6>
-                                </div>
-
-                                <label
-                                  htmlFor={`analyst-observation-${question.id}`}
-                                  className="mb-2 block text-sm font-semibold text-on-surface"
-                                >
-                                  Observacao / nova solicitacao / duvida
-                                </label>
-                                <textarea
-                                  id={`analyst-observation-${question.id}`}
-                                  value={reviewState.analystObservation}
-                                  onChange={(event) =>
-                                    updateReviewState(question.id, {
-                                      analystObservation: event.target.value,
-                                    })
-                                  }
-                                  rows={6}
-                                  placeholder="Descreva aqui a nova solicitacao adicional, a evidencia complementar esperada, a ressalva identificada ou a duvida que o fornecedor deve responder."
-                                  className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
-                                />
-                                <p className="mt-2 text-xs text-on-surface-variant">
-                                  Esse texto representa o pedido formal do analista para esta pergunta.
-                                </p>
-                              </div>
-
-                              <div className="rounded-xl border border-outline-variant/15 bg-primary/5 p-4">
-                                <div className="mb-3 flex items-center gap-2">
-                                  <span className="material-symbols-outlined text-base text-primary">
-                                    forum
-                                  </span>
-                                  <h6 className="text-sm font-bold text-on-surface">
-                                    Devolutiva do fornecedor
-                                  </h6>
-                                </div>
-
-                                <label
-                                  htmlFor={`supplier-response-${question.id}`}
-                                  className="mb-2 block text-sm font-semibold text-on-surface"
-                                >
-                                  Resposta complementar
-                                </label>
-                                <textarea
-                                  id={`supplier-response-${question.id}`}
-                                  value={reviewState.supplierResponse}
-                                  onChange={(event) =>
-                                    updateReviewState(question.id, {
-                                      supplierResponse: event.target.value,
-                                    })
-                                  }
-                                  rows={6}
-                                  placeholder="Campo destinado a resposta complementar do fornecedor, justificativa, esclarecimento ou devolutiva sobre a solicitacao."
-                                  className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
-                                />
-                                <p className="mt-2 text-xs text-on-surface-variant">
-                                  O fornecedor pode responder aqui e complementar a pergunta com contexto adicional.
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="mt-4 rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-low p-4">
-                              <div className="mb-3 flex items-start justify-between gap-3">
-                                <div>
-                                  <p className="text-sm font-bold text-on-surface">
-                                    Evidencias adicionais do fornecedor
-                                  </p>
-                                  <p className="text-xs text-on-surface-variant">
-                                    Area para anexos complementares enviados em resposta a solicitacoes do analista.
-                                  </p>
-                                </div>
-
-                                <button
-                                  type="button"
-                                  onClick={() => handleMockAttachEvidence(question.id)}
-                                  className="inline-flex items-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-slate-50"
-                                >
-                                  <span className="material-symbols-outlined text-base">attach_file</span>
-                                  Anexar evidencia
-                                </button>
-                              </div>
-
-                              {reviewState.additionalEvidenceNames.length > 0 ? (
-                                <div className="space-y-2">
-                                  {reviewState.additionalEvidenceNames.map((fileName) => (
-                                    <div
-                                      key={fileName}
-                                      className="flex items-center justify-between rounded-xl border border-outline-variant/15 bg-surface-container-lowest px-4 py-3"
-                                    >
-                                      <div className="flex items-center gap-2">
-                                        <span className="material-symbols-outlined text-base text-primary">
-                                          description
-                                        </span>
-                                        <span className="text-sm font-medium text-on-surface">
-                                          {fileName}
-                                        </span>
-                                      </div>
-                                      <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">
-                                        Anexado
+                            {reviewState.requestAdditionalEvidence ? (
+                              <>
+                                <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                  <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                                    <div className="mb-3 flex items-center gap-2">
+                                      <span className="material-symbols-outlined text-base text-primary">
+                                        rate_review
                                       </span>
+                                      <h6 className="text-sm font-bold text-on-surface">
+                                        Solicitacao do analista
+                                      </h6>
                                     </div>
-                                  ))}
+
+                                    <label
+                                      htmlFor={`analyst-observation-${question.id}`}
+                                      className="mb-2 block text-sm font-semibold text-on-surface"
+                                    >
+                                      Observacao / nova solicitacao / duvida
+                                    </label>
+                                    <textarea
+                                      id={`analyst-observation-${question.id}`}
+                                      value={reviewState.analystObservation}
+                                      onChange={(event) =>
+                                        updateReviewState(question.id, {
+                                          analystObservation: event.target.value,
+                                        })
+                                      }
+                                      rows={6}
+                                      placeholder="Descreva aqui a nova solicitacao adicional, a evidencia complementar esperada, a ressalva identificada ou a duvida que o fornecedor deve responder."
+                                      className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
+                                    />
+                                    <p className="mt-2 text-xs text-on-surface-variant">
+                                      Esse texto representa o pedido formal do analista para esta pergunta.
+                                    </p>
+                                  </div>
+
+                                  <div className="rounded-xl border border-outline-variant/15 bg-primary/5 p-4">
+                                    <div className="mb-3 flex items-center gap-2">
+                                      <span className="material-symbols-outlined text-base text-primary">
+                                        forum
+                                      </span>
+                                      <h6 className="text-sm font-bold text-on-surface">
+                                        Devolutiva do fornecedor
+                                      </h6>
+                                    </div>
+
+                                    <label
+                                      htmlFor={`supplier-response-${question.id}`}
+                                      className="mb-2 block text-sm font-semibold text-on-surface"
+                                    >
+                                      Resposta complementar
+                                    </label>
+                                    <textarea
+                                      id={`supplier-response-${question.id}`}
+                                      value={reviewState.supplierResponse}
+                                      onChange={(event) =>
+                                        updateReviewState(question.id, {
+                                          supplierResponse: event.target.value,
+                                        })
+                                      }
+                                      rows={6}
+                                      placeholder="Campo destinado a resposta complementar do fornecedor, justificativa, esclarecimento ou devolutiva sobre a solicitacao."
+                                      className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
+                                    />
+                                    <p className="mt-2 text-xs text-on-surface-variant">
+                                      O fornecedor pode responder aqui e complementar a pergunta com contexto adicional.
+                                    </p>
+                                  </div>
                                 </div>
-                              ) : (
-                                <div className="rounded-xl bg-surface-container-lowest px-4 py-5 text-sm text-on-surface-variant">
-                                  Nenhuma evidencia adicional anexada ate o momento.
+
+                                <div className="mt-4 rounded-xl border border-dashed border-outline-variant/30 bg-surface-container-low p-4">
+                                  <div className="mb-3 flex items-start justify-between gap-3">
+                                    <div>
+                                      <p className="text-sm font-bold text-on-surface">
+                                        Evidencias adicionais do fornecedor
+                                      </p>
+                                      <p className="text-xs text-on-surface-variant">
+                                        Area para anexos complementares enviados em resposta a solicitacoes do analista.
+                                      </p>
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleMockAttachEvidence(question.id)}
+                                      className="inline-flex items-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm font-semibold text-on-surface transition-colors hover:bg-slate-50"
+                                    >
+                                      <span className="material-symbols-outlined text-base">attach_file</span>
+                                      Anexar evidencia
+                                    </button>
+                                  </div>
+
+                                  {reviewState.additionalEvidenceNames.length > 0 ? (
+                                    <div className="space-y-2">
+                                      {reviewState.additionalEvidenceNames.map((fileName) => (
+                                        <div
+                                          key={fileName}
+                                          className="flex items-center justify-between rounded-xl border border-outline-variant/15 bg-surface-container-lowest px-4 py-3"
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            <span className="material-symbols-outlined text-base text-primary">
+                                              description
+                                            </span>
+                                            <span className="text-sm font-medium text-on-surface">
+                                              {fileName}
+                                            </span>
+                                          </div>
+                                          <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">
+                                            Anexado
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="rounded-xl bg-surface-container-lowest px-4 py-5 text-sm text-on-surface-variant">
+                                      Nenhuma evidencia adicional anexada ate o momento.
+                                    </div>
+                                  )}
                                 </div>
-                              )}
-                            </div>
+                              </>
+                            ) : (
+                              <div className="mt-4 rounded-xl border border-dashed border-outline-variant/20 bg-surface-container-low px-4 py-5 text-sm text-on-surface-variant">
+                                Os campos de solicitacao, devolutiva e evidencias adicionais ficam visiveis somente apos o analista ativar <span className="font-semibold text-on-surface">Solicitar complemento</span>.
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -740,6 +902,73 @@ export default function SupplierQuestionnaireDetailPage() {
                   </p>
                   <p className="mt-1 text-2xl font-extrabold text-on-surface">
                     {assessmentSummary.withEvidenceRequest}
+                  </p>
+                </div>
+              </article>
+
+              <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
+                <div className="mb-4 flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="font-headline text-lg font-bold text-on-surface">
+                      Pontuacao de risco
+                    </h3>
+                    <p className="mt-1 text-sm text-on-surface-variant">
+                      Resultado dinamico conforme o analista revisa cada resposta.
+                    </p>
+                  </div>
+                  <span className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-widest ${getRiskClass(scoringSummary.risk)}`}>
+                    {scoringSummary.risk}
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-primary/10 bg-primary/5 p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                    Total de pontos do fornecedor
+                  </p>
+                  <div className="mt-2 flex items-end justify-between gap-4">
+                    <p className="text-4xl font-extrabold text-on-surface">
+                      {scoringSummary.totalPoints}
+                    </p>
+                    <p className="text-sm font-semibold text-on-surface-variant">
+                      de {scoringSummary.maximumPoints} pts
+                    </p>
+                  </div>
+
+                  <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-100">
+                    <div
+                      className="h-full bg-primary transition-all"
+                      style={{ width: `${scoringSummary.normalizedScore}%` }}
+                    />
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        Score consolidado
+                      </p>
+                      <p className="mt-1 text-2xl font-extrabold text-on-surface">
+                        {scoringSummary.normalizedScore}
+                      </p>
+                    </div>
+
+                    <div className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4">
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                        Perguntas revisadas
+                      </p>
+                      <p className="mt-1 text-2xl font-extrabold text-on-surface">
+                        {scoringSummary.reviewedCount}/{questions.length}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                    Regra da metrica
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-on-surface-variant">
+                    Atende = 25 pts, Atende parcialmente = 15 pts, Nao atende = 5 pts e N/A = 0.
+                    O risco final considera o score consolidado: 85+ Baixo, 70-84 Medio, 50-69 Alto e abaixo de 50 Critico.
                   </p>
                 </div>
               </article>

@@ -53,6 +53,7 @@ export type SupplierProfile = {
   servicesProvided: string;
   countriesOfOperation: string;
   certifications: string[];
+  accessUsers: string[];
   notes: string;
   risk: SupplierRisk;
   lifecycleStatus: SupplierLifecycleStatus;
@@ -131,6 +132,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Hospedagem de workloads criticos, observabilidade e orquestracao de containers.",
     countriesOfOperation: "Estados Unidos, Brasil, Irlanda",
     certifications: ["SOC 2 Type II", "ISO 27001", "CSA STAR"],
+    accessUsers: ["melissa@stellar-cloud.com"],
     notes: "Fornecedor tier 1 com monitoramento continuo e renovacao anual de controles.",
     risk: "Baixo Risco",
     lifecycleStatus: "concluido",
@@ -213,6 +215,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Operacao de fulfillment, despacho e atualizacao de tracking.",
     countriesOfOperation: "Brasil, Mexico",
     certifications: ["ISO 27001"],
+    accessUsers: ["roberto@primelog.io"],
     notes: "Questionario em revisao pelo time de compliance.",
     risk: "Medio Risco",
     lifecycleStatus: "em-avaliacao",
@@ -262,6 +265,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Gestao de audiencias, analytics e ativacao de campanhas.",
     countriesOfOperation: "Estados Unidos, Canada",
     certifications: ["Sem comprovacao recente"],
+    accessUsers: ["rachel@datastream.mkt"],
     notes: "Pendencias de due diligence em aberto e evidencias vencidas.",
     risk: "Risco Critico",
     lifecycleStatus: "vencido",
@@ -311,6 +315,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Autorizacao de pagamentos e monitoramento antifraude.",
     countriesOfOperation: "Portugal, Espanha, Brasil",
     certifications: ["PCI-DSS", "ISO 27001"],
+    accessUsers: ["andre@nexus.pay"],
     notes: "Fornecedor aguardando envio e resposta do questionario atual.",
     risk: "Alto Risco",
     lifecycleStatus: "questionarios-enviados",
@@ -560,6 +565,12 @@ function normalizeSupplierProfile(profile: Partial<SupplierProfile>): SupplierPr
     servicesProvided: profile.servicesProvided ?? "",
     countriesOfOperation: profile.countriesOfOperation ?? "",
     certifications: profile.certifications ?? [],
+    accessUsers:
+      profile.accessUsers && profile.accessUsers.length > 0
+        ? profile.accessUsers
+        : profile.primaryContactEmail
+          ? [profile.primaryContactEmail]
+          : [],
     notes: profile.notes ?? "",
     risk: profile.risk ?? "Medio Risco",
     lifecycleStatus,

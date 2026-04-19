@@ -34,6 +34,17 @@ import {
   type TrustThemeRole,
 } from "./trust-theme";
 
+const certificationIconOptions = [
+  { value: "security", label: "Seguranca", iconClass: "text-blue-400 bg-blue-500/10" },
+  { value: "verified", label: "Validacao", iconClass: "text-emerald-500 bg-emerald-500/10" },
+  { value: "workspace_premium", label: "Selo premium", iconClass: "text-amber-500 bg-amber-500/10" },
+  { value: "analytics", label: "Auditoria", iconClass: "text-primary bg-primary/10" },
+  { value: "gavel", label: "Compliance legal", iconClass: "text-tertiary bg-tertiary/10" },
+  { value: "shield", label: "Protecao", iconClass: "text-cyan-500 bg-cyan-500/10" },
+  { value: "fact_check", label: "Conformidade", iconClass: "text-violet-500 bg-violet-500/10" },
+  { value: "policy", label: "Politicas", iconClass: "text-slate-500 bg-slate-500/10" },
+];
+
 export default function BuilderTrustCenterPage() {
   const [theme, setTheme] = useState<TrustTheme>(DEFAULT_TRUST_THEME);
   const [settings, setSettings] = useState<BuilderSettings>(DEFAULT_BUILDER_SETTINGS);
@@ -99,13 +110,44 @@ export default function BuilderTrustCenterPage() {
     }));
   }
 
+  function updateCertificationLabel(certificationId: string, label: string) {
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      certifications: currentSettings.certifications.map((certification) =>
+        certification.id === certificationId ? { ...certification, label } : certification,
+      ),
+    }));
+  }
+
+  function updateCertificationIcon(certificationId: string, icon: string) {
+    const selectedIcon =
+      certificationIconOptions.find((option) => option.value === icon) ?? certificationIconOptions[0];
+
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      certifications: currentSettings.certifications.map((certification) =>
+        certification.id === certificationId
+          ? { ...certification, icon: selectedIcon.value, iconClass: selectedIcon.iconClass }
+          : certification,
+      ),
+    }));
+  }
+
+  function removeCertification(certificationId: string) {
+    setSettings((currentSettings) => ({
+      ...currentSettings,
+      certifications: currentSettings.certifications.filter((certification) => certification.id !== certificationId),
+    }));
+  }
+
   function addCertification() {
     const nextIndex = settings.certifications.length + 1;
+    const defaultIcon = certificationIconOptions[0];
     const newCertification: BuilderCertification = {
-      id: `custom-cert-${nextIndex}`,
+      id: `custom-cert-${Date.now()}`,
       label: `Nova certificacao ${nextIndex}`,
-      icon: "verified",
-      iconClass: "text-blue-400 bg-blue-500/10",
+      icon: defaultIcon.value,
+      iconClass: defaultIcon.iconClass,
       checked: true,
     };
 
@@ -745,25 +787,73 @@ export default function BuilderTrustCenterPage() {
 
             <div className="space-y-4">
               {settings.certifications.map((certification) => (
-                <label
+                <div
                   key={certification.id}
-                  className="group flex cursor-pointer items-center justify-between rounded-lg bg-surface-container-lowest p-3 transition-colors hover:bg-surface-container-high"
+                  className="rounded-2xl border border-outline-variant/10 bg-surface-container-lowest p-4 transition-colors hover:bg-surface-container-high"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${certification.iconClass}`}>
-                      <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
-                        {certification.icon}
-                      </span>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex flex-1 items-start gap-3">
+                      <div className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${certification.iconClass}`}>
+                        <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                          {certification.icon}
+                        </span>
+                      </div>
+
+                      <div className="flex-1 space-y-3">
+                        <div>
+                          <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                            Nome da certificacao
+                          </label>
+                          <input
+                            type="text"
+                            value={certification.label}
+                            onChange={(event) => updateCertificationLabel(certification.id, event.target.value)}
+                            className="w-full rounded-xl border border-outline-variant/10 bg-white px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
+                            placeholder="Ex.: ISO 27001"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                            Icone da certificacao
+                          </label>
+                          <select
+                            value={certification.icon}
+                            onChange={(event) => updateCertificationIcon(certification.id, event.target.value)}
+                            className="w-full rounded-xl border border-outline-variant/10 bg-white px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
+                          >
+                            {certificationIconOptions.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-sm font-medium">{certification.label}</span>
+
+                    <div className="flex shrink-0 flex-col items-end gap-3">
+                      <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+                        <span>Exibir</span>
+                        <input
+                          type="checkbox"
+                          checked={certification.checked}
+                          onChange={(event) => updateCertification(certification.id, event.target.checked)}
+                          className="h-5 w-5 rounded border-outline-variant bg-surface text-primary"
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        onClick={() => removeCertification(certification.id)}
+                        className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-rose-700 transition hover:bg-rose-100"
+                        aria-label={`Excluir ${certification.label}`}
+                      >
+                        Excluir
+                      </button>
+                    </div>
                   </div>
-                  <input
-                    type="checkbox"
-                    checked={certification.checked}
-                    onChange={(event) => updateCertification(certification.id, event.target.checked)}
-                    className="h-5 w-5 rounded border-outline-variant bg-surface text-primary"
-                  />
-                </label>
+                </div>
               ))}
 
               <button

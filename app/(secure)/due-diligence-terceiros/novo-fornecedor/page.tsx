@@ -219,6 +219,7 @@ export default function NovoFornecedorPage() {
       servicesProvided: form.servicesProvided,
       countriesOfOperation: form.countriesOfOperation,
       certifications: form.certifications,
+      accessUsers: form.primaryContactEmail ? [form.primaryContactEmail] : [],
       notes: form.notes,
       risk: form.risk,
       lifecycleStatus: "pendente-envio",
