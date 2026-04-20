@@ -26,6 +26,12 @@ export type SupplierQuestionnaireRun = {
   lastUpdatedAt?: string;
 };
 
+export type SupplierAccessUser = {
+  email: string;
+  invitationStatus: "pendente" | "enviado";
+  invitationSentAt?: string;
+};
+
 export type SupplierProfile = {
   slug: string;
   legalName: string;
@@ -53,7 +59,7 @@ export type SupplierProfile = {
   servicesProvided: string;
   countriesOfOperation: string;
   certifications: string[];
-  accessUsers: string[];
+  accessUsers: SupplierAccessUser[];
   notes: string;
   risk: SupplierRisk;
   lifecycleStatus: SupplierLifecycleStatus;
@@ -132,7 +138,9 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Hospedagem de workloads criticos, observabilidade e orquestracao de containers.",
     countriesOfOperation: "Estados Unidos, Brasil, Irlanda",
     certifications: ["SOC 2 Type II", "ISO 27001", "CSA STAR"],
-    accessUsers: ["melissa@stellar-cloud.com"],
+    accessUsers: [
+      { email: "melissa@stellar-cloud.com", invitationStatus: "enviado", invitationSentAt: "2026-04-10T12:00:00.000Z" },
+    ],
     notes: "Fornecedor tier 1 com monitoramento continuo e renovacao anual de controles.",
     risk: "Baixo Risco",
     lifecycleStatus: "concluido",
@@ -215,7 +223,9 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Operacao de fulfillment, despacho e atualizacao de tracking.",
     countriesOfOperation: "Brasil, Mexico",
     certifications: ["ISO 27001"],
-    accessUsers: ["roberto@primelog.io"],
+    accessUsers: [
+      { email: "roberto@primelog.io", invitationStatus: "enviado", invitationSentAt: "2026-04-09T13:00:00.000Z" },
+    ],
     notes: "Questionario em revisao pelo time de compliance.",
     risk: "Medio Risco",
     lifecycleStatus: "em-avaliacao",
@@ -265,7 +275,9 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Gestao de audiencias, analytics e ativacao de campanhas.",
     countriesOfOperation: "Estados Unidos, Canada",
     certifications: ["Sem comprovacao recente"],
-    accessUsers: ["rachel@datastream.mkt"],
+    accessUsers: [
+      { email: "rachel@datastream.mkt", invitationStatus: "enviado", invitationSentAt: "2026-03-20T12:00:00.000Z" },
+    ],
     notes: "Pendencias de due diligence em aberto e evidencias vencidas.",
     risk: "Risco Critico",
     lifecycleStatus: "vencido",
@@ -315,7 +327,9 @@ export const defaultSuppliers: SupplierProfile[] = [
     servicesProvided: "Autorizacao de pagamentos e monitoramento antifraude.",
     countriesOfOperation: "Portugal, Espanha, Brasil",
     certifications: ["PCI-DSS", "ISO 27001"],
-    accessUsers: ["andre@nexus.pay"],
+    accessUsers: [
+      { email: "andre@nexus.pay", invitationStatus: "enviado", invitationSentAt: "2026-04-12T16:00:00.000Z" },
+    ],
     notes: "Fornecedor aguardando envio e resposta do questionario atual.",
     risk: "Alto Risco",
     lifecycleStatus: "questionarios-enviados",
@@ -530,6 +544,43 @@ function buildRunsFromAssignments(
   }));
 }
 
+function normalizeAccessUsers(
+  accessUsers: Partial<SupplierAccessUser>[] | string[] | undefined,
+  primaryContactEmail: string | undefined,
+): SupplierAccessUser[] {
+  if (Array.isArray(accessUsers) && accessUsers.length > 0) {
+    return accessUsers
+      .map((item) => {
+        if (typeof item === "string") {
+          return {
+            email: item,
+            invitationStatus: "pendente" as const,
+          };
+        }
+
+        if (item && typeof item === "object" && typeof item.email === "string") {
+          return {
+            email: item.email,
+            invitationStatus: item.invitationStatus === "enviado" ? "enviado" : "pendente",
+            invitationSentAt: typeof item.invitationSentAt === "string" ? item.invitationSentAt : undefined,
+          };
+        }
+
+        return null;
+      })
+      .filter((item): item is SupplierAccessUser => item !== null);
+  }
+
+  return primaryContactEmail
+    ? [
+        {
+          email: primaryContactEmail,
+          invitationStatus: "pendente",
+        },
+      ]
+    : [];
+}
+
 function normalizeSupplierProfile(profile: Partial<SupplierProfile>): SupplierProfile {
   const assignedQuestionnaireIds = profile.assignedQuestionnaireIds ?? [];
   const lifecycleStatus = profile.lifecycleStatus ?? inferLifecycleStatus(profile.status, assignedQuestionnaireIds);
@@ -565,12 +616,7 @@ function normalizeSupplierProfile(profile: Partial<SupplierProfile>): SupplierPr
     servicesProvided: profile.servicesProvided ?? "",
     countriesOfOperation: profile.countriesOfOperation ?? "",
     certifications: profile.certifications ?? [],
-    accessUsers:
-      profile.accessUsers && profile.accessUsers.length > 0
-        ? profile.accessUsers
-        : profile.primaryContactEmail
-          ? [profile.primaryContactEmail]
-          : [],
+    accessUsers: normalizeAccessUsers(profile.accessUsers, profile.primaryContactEmail),
     notes: profile.notes ?? "",
     risk: profile.risk ?? "Medio Risco",
     lifecycleStatus,
@@ -661,6 +707,75 @@ export function sendSupplierQuestionnaires(slug: string, questionnaireIds: strin
     questionnaireRuns: runs,
   });
   saveSuppliers(stored);
+}
+
+export function updateSupplierQuestionnaireRunStatus(
+  slug: string,
+  questionnaireId: string,
+  status: QuestionnaireRunStatus,
+) {
+  const allSuppliers = getAllSuppliersClient();
+  const target = allSuppliers.find((supplier) => supplier.slug === slug);
+
+  if (!target) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const updatedSupplier: SupplierProfile = {
+    ...target,
+    lifecycleStatus:
+      status === "Concluido"
+        ? "concluido"
+        : status === "Em avaliacao"
+          ? "em-avaliacao"
+          : target.lifecycleStatus,
+    status:
+      status === "Concluido"
+        ? getLifecycleStatusLabel("concluido")
+        : status === "Em avaliacao"
+          ? getLifecycleStatusLabel("em-avaliacao")
+          : target.status,
+    questionnaireRuns: target.questionnaireRuns.map((run) =>
+      run.questionnaireId === questionnaireId
+        ? {
+            ...run,
+            status,
+            progress: status === "Concluido" ? 100 : run.progress,
+            lastUpdatedAt: now,
+          }
+        : run,
+    ),
+  };
+
+  upsertSupplier(updatedSupplier);
+  return updatedSupplier;
+}
+
+export function markSupplierAccessUserInviteSent(slug: string, email: string) {
+  const allSuppliers = getAllSuppliersClient();
+  const target = allSuppliers.find((supplier) => supplier.slug === slug);
+
+  if (!target) {
+    return null;
+  }
+
+  const now = new Date().toISOString();
+  const updatedSupplier: SupplierProfile = {
+    ...target,
+    accessUsers: target.accessUsers.map((user) =>
+      user.email === email
+        ? {
+            ...user,
+            invitationStatus: "enviado",
+            invitationSentAt: now,
+          }
+        : user,
+    ),
+  };
+
+  upsertSupplier(updatedSupplier);
+  return updatedSupplier;
 }
 
 export function getQuestionnaireRunStatusClass(status: QuestionnaireRunStatus) {

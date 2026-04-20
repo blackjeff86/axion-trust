@@ -10,6 +10,7 @@ import {
   getQuestionnaireOptionsClient,
   getSupplierBySlugClient,
   getRiskClass,
+  updateSupplierQuestionnaireRunStatus,
   upsertSupplier,
   type QuestionnaireOption,
   type SupplierRisk,
@@ -46,26 +47,26 @@ const ASSESSMENT_LABELS: Record<Exclude<AnalystAssessmentStatus, null>, string> 
 };
 
 const ASSESSMENT_POINTS: Record<Exclude<AnalystAssessmentStatus, null>, number> = {
-  atende: 25,
-  parcial: 15,
-  "nao-atende": 5,
+  atende: 0,
+  parcial: 10,
+  "nao-atende": 25,
   na: 0,
 };
 
 function getRiskFromScore(score: number): SupplierRisk {
-  if (score >= 85) {
-    return "Baixo Risco";
-  }
-
-  if (score >= 70) {
-    return "Medio Risco";
+  if (score >= 75) {
+    return "Risco Critico";
   }
 
   if (score >= 50) {
     return "Alto Risco";
   }
 
-  return "Risco Critico";
+  if (score >= 25) {
+    return "Medio Risco";
+  }
+
+  return "Baixo Risco";
 }
 
 function getSampleAnswer(question: Question) {
@@ -266,6 +267,7 @@ export default function SupplierQuestionnaireDetailPage() {
     () => supplier?.questionnaireRuns.find((run) => run.questionnaireId === questionnaireId) ?? null,
     [questionnaireId, supplier?.questionnaireRuns],
   );
+  const isQuestionnaireClosed = questionnaireRun?.status === "Concluido";
 
   const answeredCount = useMemo(() => {
     if (!questionnaireRun || questions.length === 0) {
@@ -310,7 +312,7 @@ export default function SupplierQuestionnaireDetailPage() {
 
       return sum + ASSESSMENT_POINTS[assessment];
     }, 0);
-    const maximumPoints = applicableQuestions.length * ASSESSMENT_POINTS.atende;
+    const maximumPoints = applicableQuestions.length * ASSESSMENT_POINTS["nao-atende"];
     const normalizedScore = maximumPoints > 0 ? Math.round((totalPoints / maximumPoints) * 100) : 0;
     const risk = getRiskFromScore(normalizedScore);
 
@@ -360,6 +362,42 @@ export default function SupplierQuestionnaireDetailPage() {
     updateReviewState(questionId, {
       additionalEvidenceNames: [...currentFiles, `evidencia_adicional_${nextIndex}.pdf`],
     });
+  }
+
+  function handleApproveQuestionnaire() {
+    if (!supplier) {
+      return;
+    }
+
+    const refreshed = updateSupplierQuestionnaireRunStatus(supplier.slug, questionnaireId, "Concluido");
+
+    if (!refreshed) {
+      return;
+    }
+
+    setSupplier(refreshed);
+  }
+
+  function handleReopenQuestionnaire() {
+    if (!supplier) {
+      return;
+    }
+
+    const refreshed = updateSupplierQuestionnaireRunStatus(supplier.slug, questionnaireId, "Em avaliacao");
+
+    if (!refreshed) {
+      return;
+    }
+
+    setSupplier(refreshed);
+  }
+
+  function handleSavePdf() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.print();
   }
 
   if (!supplier || !questionnaire || !questionnaireRun) {
@@ -501,33 +539,49 @@ export default function SupplierQuestionnaireDetailPage() {
                           key={question.id}
                           className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-5"
                         >
-                          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                            <div className="space-y-2">
+                          <div className="mb-4 rounded-2xl border border-primary/10 bg-primary/5 p-4">
+                            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                               <div className="flex items-center gap-2">
                                 <span className="material-symbols-outlined text-base text-primary">
                                   {typeMeta.icon}
                                 </span>
-                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                                <span className="text-xs font-bold uppercase tracking-widest text-primary">
                                   {typeMeta.label}
                                 </span>
                               </div>
-                              <h4 className="font-semibold text-on-surface">
-                                {globalIndex + 1}. {question.title}
-                              </h4>
+
+                              <span className="rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase text-slate-600 shadow-sm">
+                                Pergunta
+                              </span>
                             </div>
 
-                            <span
-                              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
-                                answered
-                                  ? "bg-emerald-100 text-emerald-700"
-                                  : "bg-surface-container-lowest text-on-surface-variant"
-                              }`}
-                            >
-                              {answered ? "Respondido" : "Pendente"}
-                            </span>
+                            <h4 className="font-semibold leading-relaxed text-on-surface">
+                              {globalIndex + 1}. {question.title}
+                            </h4>
                           </div>
 
-                          <div className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4">
+                          <div className="rounded-2xl border border-outline-variant/15 bg-white p-4 shadow-sm">
+                            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                              <div className="flex items-center gap-2">
+                                <span className="material-symbols-outlined text-base text-emerald-600">
+                                  forum
+                                </span>
+                                <span className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                                  Resposta do fornecedor
+                                </span>
+                              </div>
+
+                              <span
+                                className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
+                                  answered
+                                    ? "bg-emerald-100 text-emerald-700"
+                                    : "bg-surface-container-lowest text-on-surface-variant"
+                                }`}
+                              >
+                                {answered ? "Respondido" : "Pendente"}
+                              </span>
+                            </div>
+
                             {answered ? (
                               <p className="text-sm leading-relaxed text-on-surface">
                                 {getSampleAnswer(question)}
@@ -634,13 +688,13 @@ export default function SupplierQuestionnaireDetailPage() {
 
                               <div className="mt-3 grid grid-cols-2 gap-2 text-[11px] font-bold uppercase tracking-widest text-slate-500 lg:grid-cols-4">
                                 <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-3 py-2 text-emerald-700">
-                                  Atende = {ASSESSMENT_POINTS.atende} pts
+                                  Atende = {ASSESSMENT_POINTS.atende} pt
                                 </div>
                                 <div className="rounded-xl border border-amber-100 bg-amber-50 px-3 py-2 text-amber-700">
-                                  Parcial = {ASSESSMENT_POINTS.parcial} pts
+                                  Parcial = {ASSESSMENT_POINTS.parcial} pts de risco
                                 </div>
                                 <div className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-rose-700">
-                                  Nao atende = {ASSESSMENT_POINTS["nao-atende"]} pts
+                                  Nao atende = {ASSESSMENT_POINTS["nao-atende"]} pts de risco
                                 </div>
                                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
                                   N/A = {ASSESSMENT_POINTS.na} pt
@@ -923,14 +977,14 @@ export default function SupplierQuestionnaireDetailPage() {
 
                 <div className="rounded-2xl border border-primary/10 bg-primary/5 p-5">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    Total de pontos do fornecedor
+                    Total de pontos de risco
                   </p>
                   <div className="mt-2 flex items-end justify-between gap-4">
                     <p className="text-4xl font-extrabold text-on-surface">
                       {scoringSummary.totalPoints}
                     </p>
                     <p className="text-sm font-semibold text-on-surface-variant">
-                      de {scoringSummary.maximumPoints} pts
+                      de {scoringSummary.maximumPoints} pts de risco
                     </p>
                   </div>
 
@@ -944,7 +998,7 @@ export default function SupplierQuestionnaireDetailPage() {
                   <div className="mt-4 grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4">
                       <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                        Score consolidado
+                        Score de risco
                       </p>
                       <p className="mt-1 text-2xl font-extrabold text-on-surface">
                         {scoringSummary.normalizedScore}
@@ -964,12 +1018,41 @@ export default function SupplierQuestionnaireDetailPage() {
 
                 <div className="mt-4 rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                    Regra da metrica
+                    Regra da métrica
                   </p>
                   <p className="mt-2 text-sm leading-6 text-on-surface-variant">
-                    Atende = 25 pts, Atende parcialmente = 15 pts, Nao atende = 5 pts e N/A = 0.
-                    O risco final considera o score consolidado: 85+ Baixo, 70-84 Medio, 50-69 Alto e abaixo de 50 Critico.
+                    Cada resposta revisada contribui para a pontuação final de risco deste fornecedor.
+                    Respostas classificadas como <span className="font-semibold text-on-surface">Atende</span> não adicionam risco,
+                    <span className="font-semibold text-on-surface"> Atende parcialmente</span> adicionam risco moderado,
+                    <span className="font-semibold text-on-surface"> Não atende</span> adicionam risco elevado
+                    e <span className="font-semibold text-on-surface">N/A</span> não impactam a análise.
+                    Ao final da revisão, a soma posiciona o fornecedor nas faixas <span className="font-semibold text-on-surface">Baixo</span>,
+                    <span className="font-semibold text-on-surface"> Médio</span>, <span className="font-semibold text-on-surface"> Alto</span>{" "}
+                    ou <span className="font-semibold text-on-surface">Crítico</span>.
                   </p>
+
+                  <div className="mt-4 overflow-hidden rounded-xl border border-outline-variant/15 bg-surface-container-lowest">
+                    <div className="grid grid-cols-2 border-b border-outline-variant/10 bg-surface-container-low px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                      <span>Faixa</span>
+                      <span>Classificação</span>
+                    </div>
+                    <div className="grid grid-cols-2 px-4 py-3 text-sm text-on-surface">
+                      <span>0 a 24 pontos</span>
+                      <span>Baixo risco</span>
+                    </div>
+                    <div className="grid grid-cols-2 border-t border-outline-variant/10 px-4 py-3 text-sm text-on-surface">
+                      <span>25 a 49 pontos</span>
+                      <span>Médio risco</span>
+                    </div>
+                    <div className="grid grid-cols-2 border-t border-outline-variant/10 px-4 py-3 text-sm text-on-surface">
+                      <span>50 a 74 pontos</span>
+                      <span>Alto risco</span>
+                    </div>
+                    <div className="grid grid-cols-2 border-t border-outline-variant/10 px-4 py-3 text-sm text-on-surface">
+                      <span>75 pontos ou mais</span>
+                      <span>Crítico</span>
+                    </div>
+                  </div>
                 </div>
               </article>
 
@@ -981,16 +1064,63 @@ export default function SupplierQuestionnaireDetailPage() {
                   </h3>
                 </div>
 
+                <div className="mb-4 rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                    Status do questionario
+                  </p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <span
+                      className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-widest ${
+                        isQuestionnaireClosed
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      {isQuestionnaireClosed ? "Encerrado" : "Em avaliacao"}
+                    </span>
+                    <span className="text-sm text-on-surface-variant">
+                      {isQuestionnaireClosed
+                        ? "Este questionario ja foi aprovado pelo analista e esta encerrado."
+                        : "Este questionario ainda esta aberto para revisao e ajustes do analista."}
+                    </span>
+                  </div>
+                </div>
+
                 <div className="space-y-3">
-                  <button className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-left text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
-                    Salvar avaliacao parcial
+                  {!isQuestionnaireClosed ? (
+                    <>
+                      <button className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-left text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
+                        Salvar avaliacao parcial
+                      </button>
+                      <button className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-left text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
+                        Enviar solicitacoes ao fornecedor
+                      </button>
+                    </>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={handleSavePdf}
+                    className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-left text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
+                  >
+                    Salvar em PDF
                   </button>
-                  <button className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-left text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
-                    Enviar solicitacoes ao fornecedor
-                  </button>
-                  <button className="w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-4 py-3 text-left text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-[0.98]">
-                    Aprovar questionario para consolidacao
-                  </button>
+                  {isQuestionnaireClosed ? (
+                    <button
+                      type="button"
+                      onClick={handleReopenQuestionnaire}
+                      className="w-full rounded-xl bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 text-left text-sm font-bold text-white shadow-lg shadow-slate-900/20 transition-all hover:scale-[0.98]"
+                    >
+                      Reabrir questionario
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={handleApproveQuestionnaire}
+                      className="w-full rounded-xl bg-gradient-to-r from-primary to-primary-container px-4 py-3 text-left text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-[0.98]"
+                    >
+                      Aprovar questionario
+                    </button>
+                  )}
                 </div>
               </article>
             </aside>

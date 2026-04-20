@@ -14,9 +14,11 @@ import {
   getQuestionnaireOptionsClient,
   getRiskClass,
   getSupplierBySlugClient,
+  markSupplierAccessUserInviteSent,
   sendSupplierQuestionnaires,
   upsertSupplier,
   updateSupplierAssignments,
+  type SupplierAccessUser,
   type QuestionnaireOption,
   type SupplierProfile,
 } from "../../supplier-data";
@@ -64,6 +66,28 @@ function EditableTextField({
       )}
     </div>
   );
+}
+
+function getAccessUserBadgeClass(status: SupplierAccessUser["invitationStatus"]) {
+  return status === "enviado"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    : "border-amber-200 bg-amber-50 text-amber-700";
+}
+
+function normalizeAccessUserForView(user: SupplierAccessUser | string) {
+  if (typeof user === "string") {
+    return {
+      email: user,
+      invitationStatus: "pendente" as const,
+      invitationSentAt: undefined,
+    };
+  }
+
+  return {
+    email: user.email,
+    invitationStatus: user.invitationStatus,
+    invitationSentAt: user.invitationSentAt,
+  };
 }
 
 export default function FornecedorDetailPage() {
@@ -198,7 +222,7 @@ export default function FornecedorDetailPage() {
     const cleanedSupplier = {
       ...draftSupplier,
       certifications: draftSupplier.certifications.filter((item) => item.trim().length > 0),
-      accessUsers: draftSupplier.accessUsers.filter((item) => item.trim().length > 0),
+      accessUsers: draftSupplier.accessUsers.filter((item) => item.email.trim().length > 0),
     };
 
     upsertSupplier(cleanedSupplier);
@@ -218,8 +242,11 @@ export default function FornecedorDetailPage() {
     }
 
     setDraftSupplier((current) =>
-      current && !current.accessUsers.includes(email)
-        ? { ...current, accessUsers: [...current.accessUsers, email] }
+      current && !current.accessUsers.some((user) => user.email === email)
+        ? {
+            ...current,
+            accessUsers: [...current.accessUsers, { email, invitationStatus: "pendente" }],
+          }
         : current,
     );
     setNewAccessUserEmail("");
@@ -228,9 +255,25 @@ export default function FornecedorDetailPage() {
   function handleRemoveAccessUser(email: string) {
     setDraftSupplier((current) =>
       current
-        ? { ...current, accessUsers: current.accessUsers.filter((item) => item !== email) }
+        ? { ...current, accessUsers: current.accessUsers.filter((item) => item.email !== email) }
         : current,
     );
+  }
+
+  function handleSendAccessInvite(email: string) {
+    if (!supplier) {
+      return;
+    }
+
+    const refreshed = markSupplierAccessUserInviteSent(supplier.slug, email);
+
+    if (!refreshed) {
+      return;
+    }
+
+    setSupplier(refreshed);
+    setDraftSupplier(refreshed);
+    setFeedback(`Link do questionario enviado para ${email}.`);
   }
 
   function handleAddCertification() {
@@ -737,23 +780,60 @@ export default function FornecedorDetailPage() {
 
                 <div className="space-y-3">
                   {profile.accessUsers.length > 0 ? (
-                    profile.accessUsers.map((email) => (
-                      <div key={email} className="flex items-center justify-between rounded-xl border border-outline-variant/15 bg-surface-container-low p-3">
-                        <div>
-                          <p className="text-sm font-semibold text-on-surface">{email}</p>
-                          <p className="text-xs text-on-surface-variant">Conta habilitada para receber e responder questionarios.</p>
+                    profile.accessUsers.map((accessUser) => {
+                      const user = normalizeAccessUserForView(accessUser);
+
+                      return (
+                      <div key={user.email} className="flex items-center justify-between gap-3 rounded-xl border border-outline-variant/15 bg-surface-container-low p-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-on-surface">{user.email || "E-mail nao informado"}</p>
+                            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ${getAccessUserBadgeClass(user.invitationStatus)}`}>
+                              {user.invitationStatus === "enviado" ? "Link enviado" : "Pendente"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-on-surface-variant">
+                            {user.invitationStatus === "enviado"
+                              ? `Ultimo envio: ${user.invitationSentAt ? new Date(user.invitationSentAt).toLocaleDateString("pt-BR") : "agora"}`
+                              : "Conta habilitada, aguardando envio do link do questionario."}
+                          </p>
                         </div>
-                        {isEditingSupplier ? (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveAccessUser(email)}
-                            className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-rose-700 transition hover:bg-rose-100"
-                          >
-                            Remover
-                          </button>
-                        ) : null}
+                        <div className="flex items-center gap-2">
+                          {user.invitationStatus === "pendente" ? (
+                            <button
+                              type="button"
+                              onClick={() => handleSendAccessInvite(user.email)}
+                              className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary text-white shadow-sm shadow-primary/20 transition hover:scale-[0.98] hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-primary/30"
+                              aria-label={`Enviar link do questionario para ${user.email}`}
+                              title="Enviar link do questionario"
+                            >
+                              <svg
+                                aria-hidden="true"
+                                viewBox="0 0 24 24"
+                                className="h-[18px] w-[18px]"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <rect x="3" y="5" width="18" height="14" rx="2" stroke="white" />
+                                <path d="M5 7l7 6 7-6" stroke="white" />
+                              </svg>
+                            </button>
+                          ) : null}
+                          {isEditingSupplier ? (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveAccessUser(user.email)}
+                              className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-rose-700 transition hover:bg-rose-100"
+                            >
+                              Remover
+                            </button>
+                          ) : null}
+                        </div>
                       </div>
-                    ))
+                    )})
                   ) : (
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4 text-sm text-on-surface-variant">
                       Nenhum usuario adicional cadastrado para acessar os questionarios.
