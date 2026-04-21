@@ -59,7 +59,7 @@ export default function DashboardPage() {
       <main className="min-h-screen space-y-8 p-8">
         <section className="mb-10">
           <div>
-            <h2 className="mb-2 font-headline text-3xl font-extrabold uppercase tracking-tight text-white">Visão Geral da Operação</h2>
+            <h2 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-white">Dashboard</h2>
             <p className="max-w-2xl font-body text-on-surface-variant">
               Monitore auditorias, documentos compartilhados, diligências em andamento e itens que exigem revisão prioritária.
             </p>
