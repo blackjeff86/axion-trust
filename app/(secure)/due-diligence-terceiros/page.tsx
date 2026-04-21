@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
+import { MetricCard } from "@/components/ui/metric-card";
 import { getAllSuppliersClient, toSupplierRow, type SupplierRow } from "./supplier-data";
 
 export default function DueDiligencePage() {
@@ -59,43 +60,39 @@ export default function DueDiligencePage() {
         </div>
 
         <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
-          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-            <p className="mb-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Total de Fornecedores</p>
-            <div className="flex items-end justify-between">
-              <h3 className="text-3xl font-extrabold text-white">{kpis.total || 0}</h3>
+          <MetricCard
+            label="Total de Fornecedores"
+            value={kpis.total || 0}
+            trailing={
               <div className="flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-600">
                 <span className="material-symbols-outlined text-sm">trending_up</span>
                 +3%
               </div>
-            </div>
-          </div>
-          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-            <p className="mb-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Risco Crítico/Alto</p>
-            <div className="flex items-end justify-between">
-              <h3 className="text-3xl font-extrabold text-error">{kpis.critical || 0}</h3>
+            }
+          />
+          <MetricCard
+            label="Risco Crítico/Alto"
+            value={kpis.critical || 0}
+            valueClassName="text-error"
+            trailing={
               <div className="flex -space-x-2">
                 <div className="h-6 w-6 rounded-full border-2 border-white bg-red-100" />
                 <div className="h-6 w-6 rounded-full border-2 border-white bg-red-200" />
                 <div className="h-6 w-6 rounded-full border-2 border-white bg-red-300" />
               </div>
-            </div>
-          </div>
-          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-            <p className="mb-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Questionários Pendentes</p>
-            <div className="flex items-end justify-between">
-              <h3 className="text-3xl font-extrabold text-white">{kpis.pending || 0}</h3>
-              <span className="material-symbols-outlined text-4xl text-primary/40">pending_actions</span>
-            </div>
-          </div>
-          <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-            <p className="mb-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Score Médio da Cadeia</p>
-            <div className="flex items-end justify-between">
-              <h3 className="text-3xl font-extrabold text-white">
-                {kpis.avgScore || "--"}<span className="text-sm font-normal text-on-surface-variant">/100</span>
-              </h3>
-              <div className="h-12 w-12 rotate-45 rounded-full border-4 border-primary border-t-slate-100" />
-            </div>
-          </div>
+            }
+          />
+          <MetricCard
+            label="Questionários Pendentes"
+            value={kpis.pending || 0}
+            trailing={<span className="material-symbols-outlined text-4xl text-primary/40">pending_actions</span>}
+          />
+          <MetricCard
+            label="Score Médio da Cadeia"
+            value={kpis.avgScore || "--"}
+            suffix="/100"
+            trailing={<div className="h-12 w-12 rotate-45 rounded-full border-4 border-primary border-t-slate-100" />}
+          />
         </div>
 
         <div className="mb-12 overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">

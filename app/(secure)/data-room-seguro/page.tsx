@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
+import { MetricCard } from "@/components/ui/metric-card";
 import {
   getAccessRequestsForDocument,
   getDataRoomWorkspaceClient,
@@ -117,17 +118,34 @@ function DataRoomSeguroPageContent() {
           </section>
 
           <section className="grid grid-cols-1 gap-6 md:grid-cols-4">
-            {[
-              { label: "Publicados", value: totalPublished, tone: "text-emerald-700 bg-emerald-50 border-emerald-100" },
-              { label: "Pendentes", value: totalPending, tone: "text-amber-700 bg-amber-50 border-amber-100" },
-              { label: "Publicos", value: totalPublic, tone: "text-blue-700 bg-blue-50 border-blue-100" },
-              { label: "Com aprovacao", value: totalApprovalFlow, tone: "text-rose-700 bg-rose-50 border-rose-100" },
-            ].map((card) => (
-              <article key={card.label} className={`rounded-2xl border p-5 shadow-panel ${card.tone}`}>
-                <p className="text-[11px] font-bold uppercase tracking-widest">{card.label}</p>
-                <p className="mt-2 text-3xl font-extrabold">{card.value}</p>
-              </article>
-            ))}
+            <MetricCard
+              label="Publicados"
+              value={totalPublished}
+              valueClassName="text-emerald-600"
+              trailing={
+                <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-600">
+                  Liberados
+                </div>
+              }
+            />
+            <MetricCard
+              label="Pendentes"
+              value={totalPending}
+              valueClassName="text-amber-500"
+              trailing={<span className="material-symbols-outlined text-4xl text-amber-300">schedule</span>}
+            />
+            <MetricCard
+              label="Públicos"
+              value={totalPublic}
+              valueClassName="text-blue-600"
+              trailing={<span className="material-symbols-outlined text-4xl text-blue-300">public</span>}
+            />
+            <MetricCard
+              label="Com Aprovação"
+              value={totalApprovalFlow}
+              valueClassName="text-rose-600"
+              trailing={<span className="material-symbols-outlined text-4xl text-rose-300">approval</span>}
+            />
           </section>
 
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
