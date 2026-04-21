@@ -189,7 +189,7 @@ export default function QuestionarioPreviewPage() {
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <Link href="/due-diligence-terceiros/novo-questionario" className="flex items-center gap-2 hover:text-primary">
               <span className="material-symbols-outlined text-base">arrow_back</span>
-              Builder do Questionario
+              Builder do Questionário
             </Link>
             <span className="material-symbols-outlined text-sm">chevron_right</span>
             <span className="font-semibold text-on-surface">Preview</span>
@@ -255,7 +255,7 @@ export default function QuestionarioPreviewPage() {
             <div className="border-t border-outline-variant/10 bg-surface-container-low px-6 py-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <p className="text-sm text-on-surface-variant">
-                  Ao enviar, o fornecedor confirma que as respostas e evidencias refletem o estado atual dos controles.
+                  Ao enviar, o fornecedor confirma que as respostas e evidências refletem o estado atual dos controles.
                 </p>
                 <div className="flex gap-3">
                   <button className="rounded-lg border border-outline-variant/20 bg-surface px-4 py-2.5 text-sm font-semibold text-on-surface">

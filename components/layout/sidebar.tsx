@@ -16,9 +16,9 @@ const navItems: NavItem[] = [
   { label: "Builder do Trust Center", icon: "construction", href: "/builder-trust-center", isAppRoute: true },
   { label: "Due Diligence de Terceiros", icon: "shield_person", href: "/due-diligence-terceiros", isAppRoute: true },
   { label: "Data Room Seguro", icon: "lock", href: "/data-room-seguro", isAppRoute: true },
-  { label: "Gestao de Acessos", icon: "manage_accounts", href: "/gestao-acessos", isAppRoute: true },
-  { label: "Notificacoes", icon: "notifications", href: "/notificacoes", isAppRoute: true },
-  { label: "Configuracoes", icon: "settings", href: "/configuracoes", isAppRoute: true },
+  { label: "Gestão de Acessos", icon: "manage_accounts", href: "/gestao-acessos", isAppRoute: true },
+  { label: "Notificações", icon: "notifications", href: "/notificacoes", isAppRoute: true },
+  { label: "Configurações", icon: "settings", href: "/configuracoes", isAppRoute: true },
 ];
 
 export function Sidebar() {

@@ -29,7 +29,7 @@ function getMonthKeyFromLabel(timeLabel: string) {
 
 function getMonthLabel(monthKey: string) {
   const [month, year] = monthKey.split("/");
-  const monthNames = ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+  const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
   return `${monthNames[Number(month) - 1] ?? month}/${year}`;
 }
 
@@ -77,22 +77,22 @@ function DataRoomDetailPageContent() {
             </div>
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
               <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel xl:col-span-8">
-                <SecurePageHeader title="Cadastrar novo documento" subtitle="Suba um arquivo, escolha a categoria em que ele deve aparecer no Trust Center e defina se o acesso sera publico ou privado." />
+                <SecurePageHeader title="Cadastrar novo documento" subtitle="Suba um arquivo, escolha a categoria em que ele deve aparecer no Trust Center e defina se o acesso será público ou privado." />
                 <div className="mt-8 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-10 text-center">
                   <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10"><span className="material-symbols-outlined text-4xl text-primary">upload_file</span></div>
                   <h3 className="text-xl font-bold text-white">Arraste o arquivo para upload</h3>
-                  <p className="mt-2 text-sm text-on-surface-variant">Ao publicar, o documento passa a compor a biblioteca do Trust Center conforme a categoria e a politica de acesso definidas abaixo.</p>
+                  <p className="mt-2 text-sm text-on-surface-variant">Ao publicar, o documento passa a compor a biblioteca do Trust Center conforme a categoria e a política de acesso definidas abaixo.</p>
                 </div>
                 <div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-2">
                   <div><label className="mb-2 block text-sm font-bold text-on-surface">Nome do documento</label><input className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Ex.: SOC_2_Type_II_Report.pdf" /></div>
                   <div><label className="mb-2 block text-sm font-bold text-on-surface">Categoria</label><select className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none">{workspace.categories.map((category) => <option key={category}>{category}</option>)}</select></div>
-                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Visibilidade</label><select className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none"><option>Publico</option><option>Privado</option></select></div>
-                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Status inicial</label><select className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none"><option>Publicado</option><option>Pendente de aprovacao</option><option>Rascunho</option></select></div>
+                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Visibilidade</label><select className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none"><option>Público</option><option>Privado</option></select></div>
+                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Status inicial</label><select className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none"><option>Publicado</option><option>Pendente de aprovação</option><option>Rascunho</option></select></div>
                 </div>
-                <div className="mt-5"><label className="mb-2 block text-sm font-bold text-on-surface">Descricao</label><textarea rows={4} className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Explique para o cliente o que este documento representa e em que contexto ele deve ser acessado." /></div>
+                <div className="mt-5"><label className="mb-2 block text-sm font-bold text-on-surface">Descrição</label><textarea rows={4} className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Explique para o cliente o que este documento representa e em que contexto ele deve ser acessado." /></div>
                 <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
-                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Regra de aprovacao</label><input className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Ex.: liberar somente com NDA e aprovacao do GRC" /></div>
-                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Owner do documento</label><input className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Nome do responsavel pelo conteudo" /></div>
+                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Regra de aprovação</label><input className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Ex.: liberar somente com NDA e aprovação do GRC" /></div>
+                  <div><label className="mb-2 block text-sm font-bold text-on-surface">Owner do documento</label><input className="w-full rounded-xl border border-outline-variant/20 bg-surface px-4 py-3 text-sm text-on-surface outline-none" placeholder="Nome do responsável pelo conteúdo" /></div>
                 </div>
                 <div className="mt-8 flex flex-wrap gap-3">
                   <button className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">Salvar documento</button>
@@ -103,8 +103,8 @@ function DataRoomDetailPageContent() {
                 <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
                   <h3 className="font-headline text-lg font-bold text-white">Como isso aparece no Trust</h3>
                   <div className="mt-4 space-y-3 text-sm text-on-surface-variant">
-                    <p><strong className="text-white">Publico:</strong> o cliente ve e baixa direto.</p>
-                    <p><strong className="text-white">Privado:</strong> o cliente pode ver que o documento existe no Trust, mas o download so acontece para usuarios autorizados.</p>
+                    <p><strong className="text-white">Público:</strong> o cliente vê e baixa direto.</p>
+                    <p><strong className="text-white">Privado:</strong> o cliente pode ver que o documento existe no Trust, mas o download só acontece para usuários autorizados.</p>
                   </div>
                 </article>
               </aside>
@@ -116,21 +116,21 @@ function DataRoomDetailPageContent() {
   }
 
   if (slug === "fila-aprovacoes") {
-    const documentsInApproval = workspace.documents.filter((entry) => entry.status === "Pendente de aprovacao");
+    const documentsInApproval = workspace.documents.filter((entry) => entry.status === "Pendente de aprovação");
 
     return (
       <>
-        <SecureTopbar placeholder="Buscar solicitacoes de acesso..." />
+        <SecureTopbar placeholder="Buscar solicitações de acesso..." />
         <main className="min-h-screen bg-surface p-8">
           <div className="space-y-8">
             <div className="flex items-center gap-2 text-sm text-slate-400">
               <Link href="/data-room-seguro" className="flex items-center gap-2 hover:text-primary"><span className="material-symbols-outlined text-base">arrow_back</span>Data Room Seguro</Link>
               <span className="material-symbols-outlined text-sm">chevron_right</span>
-              <span className="font-semibold text-on-surface">Fila de aprovacoes</span>
+              <span className="font-semibold text-on-surface">Fila de aprovações</span>
             </div>
             <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
               <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel xl:col-span-8">
-                <SecurePageHeader title="Fila de aprovacoes" subtitle="Revise documentos pendentes antes da publicacao no Trust Center." />
+                <SecurePageHeader title="Fila de aprovações" subtitle="Revise documentos pendentes antes da publicação no Trust Center." />
                 <div className="mt-8 space-y-4">
                   {documentsInApproval.length > 0 ? (
                     documentsInApproval.map((entry) => (
@@ -162,7 +162,7 @@ function DataRoomDetailPageContent() {
                     ))
                   ) : (
                     <div className="rounded-2xl border border-outline-variant/15 bg-surface-container-low p-6 text-sm text-on-surface-variant">
-                      Nenhum documento aguardando aprovacao no momento.
+                      Nenhum documento aguardando aprovação no momento.
                     </div>
                   )}
                 </div>
@@ -209,7 +209,7 @@ function DataRoomDetailPageContent() {
 
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-12">
             <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel xl:col-span-8">
-              <SecurePageHeader title="Detalhe do documento" subtitle="Revise como este arquivo aparece no Trust Center, qual e a politica de acesso e como esta o fluxo de solicitacoes." />
+              <SecurePageHeader title="Detalhe do documento" subtitle="Revise como este arquivo aparece no Trust Center, qual é a política de acesso e como está o fluxo de solicitações." />
 
               <div className="mt-8 rounded-2xl border border-outline-variant/15 bg-surface-container-low p-6">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -229,37 +229,37 @@ function DataRoomDetailPageContent() {
 
               <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Categoria</p><p className="mt-1 text-sm font-semibold text-on-surface">{document.category}</p></div>
-                <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Versao</p><p className="mt-1 text-sm font-semibold text-on-surface">{document.version}</p></div>
-                <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Publicado</p><p className="mt-1 text-sm font-semibold text-on-surface">{document.publishedAtLabel ?? "Ainda nao publicado"}</p></div>
+                <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Versão</p><p className="mt-1 text-sm font-semibold text-on-surface">{document.version}</p></div>
+                <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Publicado</p><p className="mt-1 text-sm font-semibold text-on-surface">{document.publishedAtLabel ?? "Ainda não publicado"}</p></div>
                 <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4"><p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Downloads</p><p className="mt-1 text-sm font-semibold text-on-surface">{document.downloads}</p></div>
               </div>
 
               <div className="mt-8 rounded-2xl border border-outline-variant/15 bg-surface-container-low p-5">
-                <h3 className="text-sm font-bold text-on-surface">Politica de acesso do documento</h3>
+                <h3 className="text-sm font-bold text-on-surface">Política de acesso do documento</h3>
                 <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Visibilidade</span><select defaultValue={document.visibility} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Publico</option><option>Privado</option></select></label>
-                  <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Status de publicacao</span><select defaultValue={document.status} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Publicado</option><option>Pendente de aprovacao</option><option>Rascunho</option></select></label>
+                  <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Visibilidade</span><select defaultValue={document.visibility} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Público</option><option>Privado</option></select></label>
+                  <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Status de publicação</span><select defaultValue={document.status} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Publicado</option><option>Pendente de aprovação</option><option>Rascunho</option></select></label>
                 </div>
                 <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <label className="block rounded-xl bg-surface-container-lowest p-4"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Visivel no Trust</span><select defaultValue={document.visibleInTrustCenter ? "Sim" : "Nao"} className="w-full rounded-lg border border-outline-variant/20 bg-surface px-3 py-2 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Sim</option><option>Nao</option></select></label>
-                  <label className="block rounded-xl bg-surface-container-lowest p-4"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Exige aprovacao</span><select defaultValue={document.requiresApproval ? "Sim" : "Nao"} className="w-full rounded-lg border border-outline-variant/20 bg-surface px-3 py-2 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Sim</option><option>Nao</option></select></label>
-                  <label className="block rounded-xl bg-surface-container-lowest p-4"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">NDA</span><select defaultValue={document.ndaRequired ? "Obrigatorio" : "Nao obrigatorio"} className="w-full rounded-lg border border-outline-variant/20 bg-surface px-3 py-2 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Obrigatorio</option><option>Nao obrigatorio</option></select></label>
+                  <label className="block rounded-xl bg-surface-container-lowest p-4"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Visível no Trust</span><select defaultValue={document.visibleInTrustCenter ? "Sim" : "Não"} className="w-full rounded-lg border border-outline-variant/20 bg-surface px-3 py-2 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Sim</option><option>Não</option></select></label>
+                  <label className="block rounded-xl bg-surface-container-lowest p-4"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Exige aprovação</span><select defaultValue={document.requiresApproval ? "Sim" : "Não"} className="w-full rounded-lg border border-outline-variant/20 bg-surface px-3 py-2 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Sim</option><option>Não</option></select></label>
+                  <label className="block rounded-xl bg-surface-container-lowest p-4"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">NDA</span><select defaultValue={document.ndaRequired ? "Obrigatório" : "Não obrigatório"} className="w-full rounded-lg border border-outline-variant/20 bg-surface px-3 py-2 text-sm font-semibold text-on-surface outline-none transition focus:border-primary"><option>Obrigatório</option><option>Não obrigatório</option></select></label>
                 </div>
-                <div className="mt-4"><label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Regra de aprovacao / acesso</span><textarea rows={4} defaultValue={document.approvalRule} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary" /></label></div>
+                <div className="mt-4"><label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Regra de aprovação / acesso</span><textarea rows={4} defaultValue={document.approvalRule} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary" /></label></div>
               </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <button className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">Salvar alteracoes</button>
+                <button className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">Salvar alterações</button>
                 {workspace.publishingMode === "approval_required" ? (
                   <button
                     type="button"
                     onClick={() => {
-                      const next = updateTrustDocumentStatusClient(document.id, "Pendente de aprovacao");
+                      const next = updateTrustDocumentStatusClient(document.id, "Pendente de aprovação");
                       setWorkspace(next);
                     }}
                     className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
                   >
-                    Enviar para aprovacao
+                    Enviar para aprovação
                   </button>
                 ) : (
                   <button
@@ -279,7 +279,7 @@ function DataRoomDetailPageContent() {
 
             <aside className="space-y-6 xl:col-span-4">
               <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-                <h3 className="font-headline text-lg font-bold text-white">Solicitacoes de acesso</h3>
+                <h3 className="font-headline text-lg font-bold text-white">Solicitações de acesso</h3>
                 <div className="mt-4 space-y-3">
                   {requests.length > 0 ? requests.map((request) => (
                     <div key={request.id} className="rounded-xl bg-surface-container-low p-4">
@@ -289,7 +289,7 @@ function DataRoomDetailPageContent() {
                       </div>
                       <p className="mt-1 text-xs text-on-surface-variant">{request.company} • {request.requestedAtLabel}</p>
                     </div>
-                  )) : <div className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">Nenhuma solicitacao recebida para este documento.</div>}
+                  )) : <div className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">Nenhuma solicitação recebida para este documento.</div>}
                 </div>
               </article>
 
@@ -307,14 +307,14 @@ function DataRoomDetailPageContent() {
                 <div className="mt-4 rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
                   <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Legenda</p>
                   <div className="mt-3 flex flex-wrap gap-3">
-                    <div className="inline-flex items-center gap-2 rounded-full bg-surface-container-lowest px-3 py-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /><span className="text-xs font-semibold text-on-surface">Download publico</span></div>
-                    <div className="inline-flex items-center gap-2 rounded-full bg-surface-container-lowest px-3 py-2"><span className="h-2.5 w-2.5 rounded-full bg-blue-500" /><span className="text-xs font-semibold text-on-surface">Download privado por usuario autorizado</span></div>
+                    <div className="inline-flex items-center gap-2 rounded-full bg-surface-container-lowest px-3 py-2"><span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /><span className="text-xs font-semibold text-on-surface">Download público</span></div>
+                    <div className="inline-flex items-center gap-2 rounded-full bg-surface-container-lowest px-3 py-2"><span className="h-2.5 w-2.5 rounded-full bg-blue-500" /><span className="text-xs font-semibold text-on-surface">Download privado por usuário autorizado</span></div>
                   </div>
                 </div>
                 <form className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-[1fr_150px]">
                   <input type="hidden" name="item" value={document.id} />
                   <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Buscar</span><input type="search" name="downloadSearch" defaultValue={searchParams.get("downloadSearch") ?? ""} placeholder="Nome, email ou empresa" className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary" /></label>
-                  <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Mes/ano</span><select name="downloadMonth" defaultValue={downloadMonth} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"><option value="Todos">Todos</option>{monthOptions.map((month) => <option key={month} value={month}>{getMonthLabel(month)}</option>)}</select></label>
+                  <label className="block"><span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Mês/ano</span><select name="downloadMonth" defaultValue={downloadMonth} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"><option value="Todos">Todos</option>{monthOptions.map((month) => <option key={month} value={month}>{getMonthLabel(month)}</option>)}</select></label>
                   <div className="md:col-span-2 flex items-center gap-3">
                     <button type="submit" className="rounded-xl bg-primary px-4 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-colors hover:bg-primary/90">Filtrar downloads</button>
                     <Link href={`/data-room-seguro/detalhes/documento?item=${document.id}`} className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">Limpar</Link>

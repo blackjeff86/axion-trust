@@ -152,21 +152,6 @@ const documentEvents = [
   { name: "SOC_2_Type_II_Report.pdf", action: "Solicitação de acesso", audience: "Banco Global", metric: "2 pendentes", tone: "text-tertiary" },
 ];
 
-const advancedFilters = [
-  { title: "Categoria", value: "Segurança, Acessos, Documentos" },
-  { title: "Janela temporal", value: "Últimos 30 dias + customização por data" },
-  { title: "Ator", value: "Usuário interno, cliente, automação" },
-  { title: "Empresa", value: "Banco Global, TechFlow, Retail Wave..." },
-  { title: "Severidade", value: "Crítico, Aviso, Info" },
-  { title: "Saída", value: "Timeline, tabela ou exportação" },
-];
-
-const weeklyBlocks = [
-  { title: "Segurança", stat: "2 incidentes críticos", note: "1 investigação aberta e 1 bloqueio automático consolidado." },
-  { title: "Acessos", stat: "9 acessos liberados", note: "3 revisões exigiram ajuste manual de validade." },
-  { title: "Documentos", stat: "26 compartilhamentos", note: "SOC2 e DPA continuam liderando consumo do Data Room." },
-];
-
 function DetailsBreadcrumb({ current }: { current: string }) {
   return (
     <div className="flex items-center gap-2 text-sm text-slate-400">
@@ -1038,184 +1023,6 @@ function FiltroDocumentosPage() {
   );
 }
 
-function FiltrosAvancadosPage() {
-  return (
-    <>
-      <SecureTopbar placeholder="Configurar filtros avançados..." />
-
-      <main className="min-h-screen bg-surface p-8">
-        <div className="space-y-8">
-          <DetailsBreadcrumb current="Filtros Avançados" />
-          <SecurePageHeader
-            title="Filtros Avançados"
-            subtitle="Monte recortes mais precisos da Central de Atividades cruzando categoria, período, ator, empresa, severidade e formato de saída."
-          />
-
-          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
-              <div className="mb-6 rounded-2xl border border-primary/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-primary">Combinador de recortes</p>
-                <p className="mt-2 max-w-2xl text-sm leading-relaxed text-on-surface-variant">
-                  Use poucos filtros por vez para manter leitura clara. O melhor resultado costuma vir de: categoria + período + severidade.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                {advancedFilters.map((filter) => (
-                  <div key={filter.title} className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-5">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">{filter.title}</p>
-                    <p className="mt-2 text-sm text-on-surface">{filter.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">
-                  Aplicar Filtro
-                </button>
-                <Link href="/notificacoes/detalhes/historico-completo" className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
-                  Ver no Histórico
-                </Link>
-              </div>
-            </article>
-
-            <aside className="space-y-6">
-              <article className="rounded-2xl border border-tertiary/10 bg-tertiary/5 p-6 shadow-panel">
-                <p className="text-xs font-bold uppercase tracking-widest text-tertiary">Atalhos úteis</p>
-                <div className="mt-4 space-y-3">
-                  {["Incidentes da última semana", "Downloads de documentos privados", "Acessos pendentes por empresa"].map((item) => (
-                    <div key={item} className="rounded-xl bg-surface-container-lowest/70 p-4 text-sm text-on-surface-variant">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </article>
-              <article className="rounded-2xl border border-secondary/10 bg-secondary/5 p-6 shadow-panel">
-                <p className="text-xs font-bold uppercase tracking-widest text-secondary">Saída recomendada</p>
-                <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-                  Depois de montar o corte, o melhor destino costuma ser o Histórico Completo para leitura operacional ou Exportar Relatório para distribuição executiva.
-                </p>
-              </article>
-            </aside>
-          </section>
-        </div>
-      </main>
-    </>
-  );
-}
-
-function GerenciarAcessoPage() {
-  return (
-    <>
-      <SecureTopbar placeholder="Gerenciar acesso e validade..." />
-      <main className="min-h-screen bg-surface p-8">
-        <div className="space-y-8">
-          <DetailsBreadcrumb current="Gerenciar Acesso" />
-          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
-              <SecurePageHeader
-                title="Gerenciar Acesso"
-                subtitle="Revise o contexto do compartilhamento, a empresa solicitante, o documento envolvido e a validade da permissão."
-              />
-              <div className="mt-6 rounded-2xl border border-primary/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent p-5">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-primary">Contexto do evento</p>
-                    <p className="mt-2 text-sm text-on-surface-variant">Compartilhamento originado na Central de Atividades após ação de documento sensível com terceiro.</p>
-                  </div>
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">Pendente de decisão</span>
-                </div>
-              </div>
-              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-                {[
-                  ["Solicitante", "Carlos Mendes • Compliance"],
-                  ["Empresa", "TechFlow Solutions"],
-                  ["Documento", "Compliance_Q3_Final.pdf"],
-                  ["Validade padrão", "1 ano com override manual"],
-                ].map(([label, value]) => (
-                  <div key={label} className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-5">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">{label}</p>
-                    <p className="mt-2 text-sm font-semibold text-on-surface">{value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-8 rounded-2xl border border-outline-variant/15 bg-surface-container-low p-6">
-                <h3 className="text-sm font-bold text-on-surface">Decisão operacional</h3>
-                <div className="mt-4 flex flex-wrap gap-3">
-                  <button className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">Aprovar acesso</button>
-                  <button className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-5 py-3 text-sm font-bold text-on-surface">Ajustar validade</button>
-                  <button className="rounded-xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-700">Negar acesso</button>
-                </div>
-              </div>
-            </article>
-
-            <aside className="space-y-6">
-              <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-                <h3 className="font-headline text-lg font-bold text-white">Próximos passos</h3>
-                <div className="mt-4 space-y-3">
-                  {["Confirmar se o NDA está válido.", "Registrar a decisão para auditoria.", "Sincronizar o acesso com Gestão de Acessos."].map((item) => (
-                    <div key={item} className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">{item}</div>
-                  ))}
-                </div>
-              </article>
-              <article className="rounded-2xl border border-secondary/10 bg-secondary/5 p-6 shadow-panel">
-                <p className="text-xs font-bold uppercase tracking-widest text-secondary">Recomendação</p>
-                <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-                  Se o documento continuar privado e o deal estiver ativo, vale aprovar com validade padrão e registrar o owner responsável pela revisão anual.
-                </p>
-              </article>
-            </aside>
-          </section>
-        </div>
-      </main>
-    </>
-  );
-}
-
-function RecursosAcessoPage() {
-  return (
-    <>
-      <SecureTopbar placeholder="Ver recursos liberados..." />
-      <main className="min-h-screen bg-surface p-8">
-        <div className="space-y-8">
-          <DetailsBreadcrumb current="Recursos do Acesso" />
-          <SecurePageHeader
-            title="Recursos do Acesso"
-            subtitle="Escopo exato do usuário afetado pela notificação, incluindo módulos, documentos privados e histórico recente de utilização."
-          />
-
-          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                <MetricCard label="Nível atual" value="Viewer" />
-                <MetricCard label="Recursos liberados" value="5" />
-                <MetricCard label="Empresa" value="Banco Global" />
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {["Políticas de Privacidade", "SOC_2_Type_II_Report.pdf", "DPA Master", "Página pública do Trust", "Histórico de versões"].map((resource) => (
-                  <article key={resource} className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-5 shadow-panel">
-                    <p className="text-sm font-semibold text-on-surface">{resource}</p>
-                    <p className="mt-2 text-xs text-on-surface-variant">Disponível para leitura com rastreabilidade por auditoria.</p>
-                  </article>
-                ))}
-              </div>
-            </div>
-
-            <aside className="rounded-2xl border border-primary/10 bg-gradient-to-br from-primary/10 to-transparent p-6 shadow-panel">
-              <p className="text-xs font-bold uppercase tracking-widest text-primary">Leitura de escopo</p>
-              <div className="mt-4 space-y-3">
-                <InsightNote title="Acesso adequado" description="O usuário permanece em Viewer, sem privilégios de escrita ou administração." />
-                <InsightNote title="Rastreabilidade" description="Todos os recursos listados entram na trilha de auditoria quando acessados ou baixados." accentClassName="text-secondary" />
-              </div>
-            </aside>
-          </section>
-        </div>
-      </main>
-    </>
-  );
-}
-
 function IgnorarSolicitacaoPage() {
   return (
     <>
@@ -1248,121 +1055,6 @@ function IgnorarSolicitacaoPage() {
                 <Link href="/notificacoes/detalhes/iniciar-resposta" className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">Responder mesmo assim</Link>
               </div>
             </div>
-          </section>
-        </div>
-      </main>
-    </>
-  );
-}
-
-function IniciarRespostaPage() {
-  return (
-    <>
-      <SecureTopbar placeholder="Iniciar resposta de due diligence..." />
-      <main className="min-h-screen bg-surface p-8">
-        <div className="space-y-8">
-          <DetailsBreadcrumb current="Iniciar Resposta" />
-          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
-              <SecurePageHeader
-                title="Iniciar Resposta de Due Diligence"
-                subtitle="Abra o fluxo operacional para responder o questionário recebido, distribuir blocos e organizar evidências."
-              />
-              <div className="mt-6 rounded-2xl border border-tertiary/10 bg-gradient-to-r from-tertiary/10 via-transparent to-transparent p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-tertiary">Kickoff operacional</p>
-                <p className="mt-2 text-sm text-on-surface-variant">A melhor abertura é começar pelo escopo, depois conectar evidências prontas e só então distribuir blocos especializados.</p>
-              </div>
-              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <MetricCard label="Questionário" value="42" />
-                <MetricCard label="Prazo" value="48h" valueClassName="text-tertiary" />
-                <MetricCard label="Owner" value="GRC" />
-              </div>
-              <div className="mt-8 space-y-4">
-                {["Abrir template e associar fornecedor.", "Separar evidências existentes no Data Room.", "Delegar blocos para segurança, jurídico e privacidade."].map((step, index) => (
-                  <div key={step} className="flex items-start gap-4 rounded-xl border border-outline-variant/15 bg-surface-container-low p-5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{index + 1}</div>
-                    <p className="text-sm text-on-surface-variant">{step}</p>
-                  </div>
-                ))}
-              </div>
-              <Link href="/due-diligence-terceiros" className="mt-8 inline-flex rounded-xl bg-primary px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">
-                Abrir Due Diligence
-              </Link>
-            </article>
-            <aside className="space-y-6">
-              <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-                <h3 className="font-headline text-lg font-bold text-white">Evidências recomendadas</h3>
-                <div className="mt-4 space-y-3">
-                  {["SOC 2 atualizado", "DPA assinado", "Resumo de pentest externo", "Política de segurança publicada"].map((item) => (
-                    <div key={item} className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface">{item}</div>
-                  ))}
-                </div>
-              </article>
-              <article className="rounded-2xl border border-primary/10 bg-primary/5 p-6 shadow-panel">
-                <p className="text-xs font-bold uppercase tracking-widest text-primary">Meta de saída</p>
-                <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-                  Deixar o questionário aberto com ownership claro, evidências ligadas e nenhum bloco crítico sem responsável.
-                </p>
-              </article>
-            </aside>
-          </section>
-        </div>
-      </main>
-    </>
-  );
-}
-
-function InvestigarIncidentePage() {
-  return (
-    <>
-      <SecureTopbar placeholder="Investigar incidente e correlacionar sinais..." />
-      <main className="min-h-screen bg-surface p-8">
-        <div className="space-y-8">
-          <DetailsBreadcrumb current="Investigar Incidente" />
-          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
-            <article className="rounded-2xl border border-error/20 bg-surface-container-lowest p-8 shadow-panel">
-              <SecurePageHeader
-                title="Investigar Incidente de Segurança"
-                subtitle="Consolide evidências do evento suspeito, entenda impacto potencial e registre a resposta operacional."
-              />
-              <div className="mt-6 rounded-2xl border border-error/20 bg-error/5 p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-error">Janela crítica</p>
-                <p className="mt-2 text-sm text-on-surface-variant">O incidente já foi bloqueado, então a prioridade agora é confirmar impacto, recorrência e necessidade de escalonamento adicional.</p>
-              </div>
-              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <MetricCard label="Usuário" value="m.almeida" />
-                <MetricCard label="Origem" value="Frankfurt" />
-                <MetricCard label="Status" value="Bloqueado" valueClassName="text-emerald-500" />
-              </div>
-              <div className="mt-8 rounded-xl border-l-4 border-error bg-surface-container-low p-5 font-mono text-[12px] text-error">
-                [ALERT] Login suspeito bloqueado automaticamente
-                <br />
-                [IP] 91.223.144.18
-                <br />
-                [ACTION] Sessão encerrada e credencial marcada para revisão
-              </div>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <button className="rounded-xl bg-error px-5 py-3 text-sm font-bold text-on-error">Escalar incidente</button>
-                <button className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface">Forçar reset de credencial</button>
-                <Link href="/notificacoes/detalhes/filtro-seguranca" className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface">Voltar à timeline</Link>
-              </div>
-            </article>
-            <aside className="space-y-6">
-              <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-                <h3 className="font-headline text-lg font-bold text-white">Evidências a cruzar</h3>
-                <div className="mt-4 space-y-3">
-                  {["IP e ASN de origem", "Eventos do mesmo usuário nas últimas 24h", "Mudanças recentes de permissão", "Downloads incomuns ou falhas de MFA"].map((item) => (
-                    <div key={item} className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">{item}</div>
-                  ))}
-                </div>
-              </article>
-              <article className="rounded-2xl border border-error/10 bg-error/5 p-6 shadow-panel">
-                <p className="text-xs font-bold uppercase tracking-widest text-error">Escalonamento</p>
-                <p className="mt-3 text-sm leading-relaxed text-on-surface-variant">
-                  Se houver correlação com outras tentativas ou acesso real a ativo sensível, o caso deve sair da Central e entrar em fluxo formal de incidente.
-                </p>
-              </article>
-            </aside>
           </section>
         </div>
       </main>
@@ -1410,68 +1102,11 @@ function CarregarAnterioresPage() {
   );
 }
 
-function BaixarPdfSemanalPage() {
-  return (
-    <>
-      <SecureTopbar placeholder="Baixar resumo semanal..." />
-      <main className="min-h-screen bg-surface p-8">
-        <div className="space-y-8">
-          <DetailsBreadcrumb current="Relatório Semanal em PDF" />
-          <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-            <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
-              <SecurePageHeader
-                title="Relatório Semanal"
-                subtitle="Resumo automatizado da semana com indicadores de segurança, acessos, documentos e pendências operacionais."
-              />
-              <div className="mt-6 rounded-2xl border border-primary/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-primary">Resumo executivo</p>
-                <p className="mt-2 text-sm text-on-surface-variant">Essa versão compacta é pensada para liderança, customer success e preparação de piloto com cliente.</p>
-              </div>
-              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <MetricCard label="Páginas" value="12" />
-                <MetricCard label="Período" value="7 dias" />
-                <MetricCard label="Alertas no topo" value="3" valueClassName="text-tertiary" />
-              </div>
-              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-                {weeklyBlocks.map((block) => (
-                  <article key={block.title} className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-5">
-                    <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">{block.title}</p>
-                    <p className="mt-2 text-base font-bold text-white">{block.stat}</p>
-                    <p className="mt-2 text-sm text-on-surface-variant">{block.note}</p>
-                  </article>
-                ))}
-              </div>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <button className="rounded-xl bg-primary px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20">Gerar PDF agora</button>
-                <Link href="/notificacoes/detalhes/exportar-relatorio" className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50">
-                  Exportar relatório completo
-                </Link>
-              </div>
-            </article>
-            <aside className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
-              <h3 className="font-headline text-lg font-bold text-white">Uso recomendado</h3>
-              <div className="mt-4 space-y-3">
-                {["Compartilhar com liderança e customer success.", "Anexar em ciclos semanais de revisão.", "Usar como preparação para auditorias e pilotos."].map((item) => (
-                  <div key={item} className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">{item}</div>
-                ))}
-              </div>
-            </aside>
-          </section>
-        </div>
-      </main>
-    </>
-  );
-}
-
 export default async function NotificacoesDetalhePage({ params }: PageProps) {
   const { slug } = await params;
 
   if (slug === "exportar-relatorio") {
     return <ExportarRelatorioPage />;
-  }
-
-  if (slug === "historico-completo") {
-    return <HistoricoCompletoPage />;
   }
 
   if (slug === "filtro-seguranca") {
@@ -1490,36 +1125,12 @@ export default async function NotificacoesDetalhePage({ params }: PageProps) {
     return <FiltroDocumentosPage />;
   }
 
-  if (slug === "filtros-avancados") {
-    return <FiltrosAvancadosPage />;
-  }
-
-  if (slug === "gerenciar-acesso") {
-    return <GerenciarAcessoPage />;
-  }
-
-  if (slug === "recursos-acesso") {
-    return <RecursosAcessoPage />;
-  }
-
   if (slug === "ignorar-solicitacao") {
     return <IgnorarSolicitacaoPage />;
   }
 
-  if (slug === "iniciar-resposta") {
-    return <IniciarRespostaPage />;
-  }
-
-  if (slug === "investigar-incidente") {
-    return <InvestigarIncidentePage />;
-  }
-
   if (slug === "carregar-anteriores") {
     return <CarregarAnterioresPage />;
-  }
-
-  if (slug === "baixar-pdf-semanal") {
-    return <BaixarPdfSemanalPage />;
   }
 
   notFound();

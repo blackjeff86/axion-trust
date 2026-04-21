@@ -42,7 +42,7 @@ const QUESTIONNAIRE_REVIEW_STORAGE_KEY = "axion-trust-dd-questionnaire-review";
 const ASSESSMENT_LABELS: Record<Exclude<AnalystAssessmentStatus, null>, string> = {
   atende: "Atende",
   parcial: "Atende parcialmente",
-  "nao-atende": "Nao atende",
+  "nao-atende": "Não atende",
   na: "N/A",
 };
 
@@ -55,7 +55,7 @@ const ASSESSMENT_POINTS: Record<Exclude<AnalystAssessmentStatus, null>, number> 
 
 function getRiskFromScore(score: number): SupplierRisk {
   if (score >= 75) {
-    return "Risco Critico";
+    return "Risco Crítico";
   }
 
   if (score >= 50) {
@@ -63,7 +63,7 @@ function getRiskFromScore(score: number): SupplierRisk {
   }
 
   if (score >= 25) {
-    return "Medio Risco";
+    return "Médio Risco";
   }
 
   return "Baixo Risco";
@@ -267,7 +267,7 @@ export default function SupplierQuestionnaireDetailPage() {
     () => supplier?.questionnaireRuns.find((run) => run.questionnaireId === questionnaireId) ?? null,
     [questionnaireId, supplier?.questionnaireRuns],
   );
-  const isQuestionnaireClosed = questionnaireRun?.status === "Concluido";
+  const isQuestionnaireClosed = questionnaireRun?.status === "Concluído";
 
   const answeredCount = useMemo(() => {
     if (!questionnaireRun || questions.length === 0) {
@@ -369,7 +369,7 @@ export default function SupplierQuestionnaireDetailPage() {
       return;
     }
 
-    const refreshed = updateSupplierQuestionnaireRunStatus(supplier.slug, questionnaireId, "Concluido");
+    const refreshed = updateSupplierQuestionnaireRunStatus(supplier.slug, questionnaireId, "Concluído");
 
     if (!refreshed) {
       return;
@@ -383,7 +383,7 @@ export default function SupplierQuestionnaireDetailPage() {
       return;
     }
 
-    const refreshed = updateSupplierQuestionnaireRunStatus(supplier.slug, questionnaireId, "Em avaliacao");
+    const refreshed = updateSupplierQuestionnaireRunStatus(supplier.slug, questionnaireId, "Em avaliação");
 
     if (!refreshed) {
       return;
@@ -408,10 +408,10 @@ export default function SupplierQuestionnaireDetailPage() {
         <main className="min-h-screen bg-surface p-8">
           <section className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
             <h2 className="mb-2 font-headline text-2xl font-extrabold text-on-surface">
-              Questionario nao encontrado
+              Questionário não encontrado
             </h2>
             <p className="mb-6 text-sm text-on-surface-variant">
-              Nao localizamos este questionario enviado para o fornecedor selecionado.
+              Não localizamos este questionário enviado para o fornecedor selecionado.
             </p>
             <Link
               href={`/due-diligence-terceiros/fornecedor/${slug}`}
@@ -447,8 +447,8 @@ export default function SupplierQuestionnaireDetailPage() {
               </div>
 
               <SecurePageHeader
-                title="Acompanhamento do Questionario"
-                subtitle="Visao do analista sobre respostas, evidencias, complementos solicitados e progresso do fornecedor neste questionario especifico."
+                title="Acompanhamento do Questionário"
+                subtitle="Visão do analista sobre respostas, evidências, complementos solicitados e progresso do fornecedor neste questionário específico."
               />
             </div>
 
@@ -492,7 +492,7 @@ export default function SupplierQuestionnaireDetailPage() {
                   </div>
                   <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
                     <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-500">
-                      Ultima atualizacao
+                      Última atualização
                     </p>
                     <p className="text-sm font-semibold text-on-surface">
                       {questionnaireRun.lastUpdatedAt
@@ -618,7 +618,7 @@ export default function SupplierQuestionnaireDetailPage() {
                             )}
                             {reviewState.requestAdditionalEvidence ? (
                               <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-primary">
-                                Solicitacao complementar ativa
+                                Solicitação complementar ativa
                               </span>
                             ) : null}
                           </div>
@@ -630,7 +630,7 @@ export default function SupplierQuestionnaireDetailPage() {
                                   rule_settings
                                 </span>
                                 <h5 className="text-sm font-bold text-on-surface">
-                                  Avaliacao do analista
+                                  Avaliação do analista
                                 </h5>
                               </div>
 
@@ -671,7 +671,7 @@ export default function SupplierQuestionnaireDetailPage() {
                                     "nao-atende",
                                   )}`}
                                 >
-                                  Nao atende
+                                  Não atende
                                 </button>
 
                                 <button
@@ -694,7 +694,7 @@ export default function SupplierQuestionnaireDetailPage() {
                                   Parcial = {ASSESSMENT_POINTS.parcial} pts de risco
                                 </div>
                                 <div className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-2 text-rose-700">
-                                  Nao atende = {ASSESSMENT_POINTS["nao-atende"]} pts de risco
+                                  Não atende = {ASSESSMENT_POINTS["nao-atende"]} pts de risco
                                 </div>
                                 <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-slate-700">
                                   N/A = {ASSESSMENT_POINTS.na} pt
@@ -706,7 +706,7 @@ export default function SupplierQuestionnaireDetailPage() {
                               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                   <p className="text-sm font-bold text-on-surface">
-                                    Solicitar evidencias adicionais
+                                    Solicitar evidências adicionais
                                   </p>
                                   <p className="text-xs text-on-surface-variant">
                                     Marque esta opcao quando a resposta precisar de complemento,
@@ -729,7 +729,7 @@ export default function SupplierQuestionnaireDetailPage() {
                                   }`}
                                 >
                                   {reviewState.requestAdditionalEvidence
-                                    ? "Solicitacao ativa"
+                                    ? "Solicitação ativa"
                                     : "Solicitar complemento"}
                                 </button>
                               </div>
@@ -744,7 +744,7 @@ export default function SupplierQuestionnaireDetailPage() {
                                         rate_review
                                       </span>
                                       <h6 className="text-sm font-bold text-on-surface">
-                                        Solicitacao do analista
+                                        Solicitação do analista
                                       </h6>
                                     </div>
 
@@ -856,7 +856,7 @@ export default function SupplierQuestionnaireDetailPage() {
                               </>
                             ) : (
                               <div className="mt-4 rounded-xl border border-dashed border-outline-variant/20 bg-surface-container-low px-4 py-5 text-sm text-on-surface-variant">
-                                Os campos de solicitacao, devolutiva e evidencias adicionais ficam visiveis somente apos o analista ativar <span className="font-semibold text-on-surface">Solicitar complemento</span>.
+                                Os campos de solicitação, devolutiva e evidências adicionais ficam visíveis somente após o analista ativar <span className="font-semibold text-on-surface">Solicitar complemento</span>.
                               </div>
                             )}
                           </div>
@@ -933,7 +933,7 @@ export default function SupplierQuestionnaireDetailPage() {
 
                   <div className="rounded-xl border border-rose-100 bg-rose-50 p-4">
                     <p className="text-[11px] font-bold uppercase tracking-widest text-rose-700">
-                      Nao atende
+                      Não atende
                     </p>
                     <p className="mt-1 text-2xl font-extrabold text-rose-700">
                       {assessmentSummary.naoAtende}
@@ -1060,7 +1060,7 @@ export default function SupplierQuestionnaireDetailPage() {
                 <div className="mb-4 flex items-center gap-2">
                   <span className="material-symbols-outlined text-primary">fact_check</span>
                   <h3 className="font-headline text-lg font-bold text-on-surface">
-                    Acoes do analista
+                    Ações do analista
                   </h3>
                 </div>
 
@@ -1076,7 +1076,7 @@ export default function SupplierQuestionnaireDetailPage() {
                           : "bg-primary/10 text-primary"
                       }`}
                     >
-                      {isQuestionnaireClosed ? "Encerrado" : "Em avaliacao"}
+                      {isQuestionnaireClosed ? "Encerrado" : "Em avaliação"}
                     </span>
                     <span className="text-sm text-on-surface-variant">
                       {isQuestionnaireClosed

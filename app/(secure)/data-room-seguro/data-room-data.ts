@@ -1,13 +1,13 @@
 export type TrustDocumentCategory =
   | "Compliance"
-  | "Relatorios de Seguranca"
-  | "Politicas"
+  | "Relatórios de Segurança"
+  | "Políticas"
   | "Privacidade"
   | "Financeiro";
 
-export type TrustDocumentVisibility = "Publico" | "Privado";
+export type TrustDocumentVisibility = "Público" | "Privado";
 
-export type TrustDocumentStatus = "Publicado" | "Pendente de aprovacao" | "Rascunho";
+export type TrustDocumentStatus = "Publicado" | "Pendente de aprovação" | "Rascunho";
 
 export type AccessRequestStatus = "Pendente" | "Aprovado" | "Negado";
 
@@ -73,17 +73,17 @@ export const DATA_ROOM_STORAGE_KEY = "axion-trust-data-room";
 const workspace: DataRoomWorkspace = {
   title: "Data Room Seguro",
   subtitle:
-    "Gerencie os documentos que ficam disponiveis no Trust Center, organize por categoria e defina se cada item e publico, privado ou acessivel por solicitacao.",
+    "Gerencie os documentos que ficam disponíveis no Trust Center, organize por categoria e defina se cada item é público, privado ou acessível por solicitação.",
   note:
-    "A referencia de produto aqui e o Trust Center: publicar documentos certos, nas categorias certas, com politica clara de acesso e aprovacao.",
+    "A referência de produto aqui é o Trust Center: publicar documentos certos, nas categorias certas, com política clara de acesso e aprovação.",
   publishingMode: "approval_required",
-  categories: ["Compliance", "Relatorios de Seguranca", "Politicas", "Privacidade", "Financeiro"],
+  categories: ["Compliance", "Relatórios de Segurança", "Políticas", "Privacidade", "Financeiro"],
   documents: [
     {
       id: "doc-soc2",
       slug: "soc2-report",
       name: "SOC_2_Type_II_Report.pdf",
-      description: "Relatorio SOC 2 atualizado para compartilhamento com clientes em fase avancada.",
+      description: "Relatório SOC 2 atualizado para compartilhamento com clientes em fase avançada.",
       category: "Compliance",
       visibility: "Privado",
       status: "Publicado",
@@ -96,7 +96,7 @@ const workspace: DataRoomWorkspace = {
       icon: "verified",
       iconClass: "text-primary",
       requiresApproval: true,
-      approvalRule: "Exigir aprovacao do time de GRC e NDA assinado.",
+      approvalRule: "Exigir aprovação do time de GRC e NDA assinado.",
       visibleInTrustCenter: true,
       ndaRequired: true,
       tags: ["SOC 2", "Auditoria", "Trust Center"],
@@ -105,8 +105,8 @@ const workspace: DataRoomWorkspace = {
       id: "doc-pen",
       slug: "pentest-summary",
       name: "Resumo_Pentest_Externos.pdf",
-      description: "Resumo executivo do ultimo pentest externo, sem detalhes sensiveis de exploracao.",
-      category: "Relatorios de Seguranca",
+      description: "Resumo executivo do último pentest externo, sem detalhes sensíveis de exploração.",
+      category: "Relatórios de Segurança",
       visibility: "Privado",
       status: "Publicado",
       version: "v3",
@@ -121,15 +121,15 @@ const workspace: DataRoomWorkspace = {
       approvalRule: "Liberar somente para oportunidades qualificadas e mediante NDA.",
       visibleInTrustCenter: false,
       ndaRequired: true,
-      tags: ["Pentest", "Seguranca"],
+      tags: ["Pentest", "Segurança"],
     },
     {
       id: "doc-policy",
       slug: "security-policy",
       name: "Politica_de_Seguranca_da_Informacao.pdf",
-      description: "Politica corporativa de seguranca publicada para consulta recorrente de clientes.",
-      category: "Politicas",
-      visibility: "Publico",
+      description: "Política corporativa de segurança publicada para consulta recorrente de clientes.",
+      category: "Políticas",
+      visibility: "Público",
       status: "Publicado",
       version: "v5.2",
       owner: "DPO Office",
@@ -140,10 +140,10 @@ const workspace: DataRoomWorkspace = {
       icon: "policy",
       iconClass: "text-secondary",
       requiresApproval: false,
-      approvalRule: "Documento publico, sem aprovacao previa.",
+      approvalRule: "Documento público, sem aprovação prévia.",
       visibleInTrustCenter: true,
       ndaRequired: false,
-      tags: ["Politica", "Seguranca"],
+      tags: ["Política", "Segurança"],
     },
     {
       id: "doc-dpa",
@@ -174,7 +174,7 @@ const workspace: DataRoomWorkspace = {
       description: "Visao financeira consolidada reservada para processos especificos de auditoria comercial.",
       category: "Financeiro",
       visibility: "Privado",
-      status: "Pendente de aprovacao",
+      status: "Pendente de aprovação",
       version: "v1.0",
       owner: "Controladoria",
       updatedAtLabel: "Hoje, 10:04",
@@ -183,7 +183,7 @@ const workspace: DataRoomWorkspace = {
       icon: "monitoring",
       iconClass: "text-amber-500",
       requiresApproval: true,
-      approvalRule: "Publicar apenas apos aprovacao do CFO e do time juridico.",
+      approvalRule: "Publicar apenas após aprovação do CFO e do time jurídico.",
       visibleInTrustCenter: false,
       ndaRequired: true,
       tags: ["Financeiro", "Restrito"],
@@ -192,9 +192,9 @@ const workspace: DataRoomWorkspace = {
       id: "doc-subprocessors",
       slug: "subprocessors-list",
       name: "Lista_de_Subprocessadores.pdf",
-      description: "Lista atualizada de subprocessadores para publicacao aberta no Trust Center.",
+      description: "Lista atualizada de subprocessadores para publicação aberta no Trust Center.",
       category: "Privacidade",
-      visibility: "Publico",
+      visibility: "Público",
       status: "Rascunho",
       version: "v2.0",
       owner: "Time de Privacidade",
@@ -204,7 +204,7 @@ const workspace: DataRoomWorkspace = {
       icon: "description",
       iconClass: "text-primary-container",
       requiresApproval: false,
-      approvalRule: "Publicacao aberta apos revisao editorial final.",
+      approvalRule: "Publicação aberta após revisão editorial final.",
       visibleInTrustCenter: false,
       ndaRequired: false,
       tags: ["Subprocessadores", "LGPD"],
@@ -217,8 +217,8 @@ const workspace: DataRoomWorkspace = {
       requester: "Mariana Costa",
       company: "Banco Global",
       email: "mariana@bancoglobal.com",
-      requestedAtLabel: "Ha 25 min",
-      reason: "Validacao de controles antes da renovacao contratual.",
+      requestedAtLabel: "Há 25 min",
+      reason: "Validação de controles antes da renovação contratual.",
       status: "Pendente",
     },
     {
@@ -238,7 +238,7 @@ const workspace: DataRoomWorkspace = {
       company: "North Metrics",
       email: "julia@northmetrics.com",
       requestedAtLabel: "Ontem, 17:22",
-      reason: "Due diligence de seguranca para onboarding enterprise.",
+      reason: "Due diligence de segurança para onboarding enterprise.",
       status: "Negado",
     },
   ],
@@ -248,7 +248,7 @@ const workspace: DataRoomWorkspace = {
       documentId: "doc-policy",
       actor: "Carlos Vieira",
       company: "Prospectly",
-      actionLabel: "Download publico",
+      actionLabel: "Download público",
       timeLabel: "Hoje, 09:42",
       tone: "emerald",
     },
@@ -257,7 +257,7 @@ const workspace: DataRoomWorkspace = {
       documentId: "doc-soc2",
       actor: "Amanda Reis",
       company: "Banco Global",
-      actionLabel: "Download apos aprovacao",
+      actionLabel: "Download após aprovação",
       timeLabel: "18/04/2026, 14:10",
       tone: "blue",
     },
@@ -275,7 +275,7 @@ const workspace: DataRoomWorkspace = {
       documentId: "doc-soc2",
       actor: "Marcos Lima",
       company: "Atlas Capital",
-      actionLabel: "Download apos aprovacao",
+      actionLabel: "Download após aprovação",
       timeLabel: "17/04/2026, 16:22",
       tone: "blue",
     },
@@ -284,7 +284,7 @@ const workspace: DataRoomWorkspace = {
       documentId: "doc-soc2",
       actor: "Fernanda Souza",
       company: "Banco Global",
-      actionLabel: "Download apos aprovacao",
+      actionLabel: "Download após aprovação",
       timeLabel: "16/04/2026, 09:18",
       tone: "emerald",
     },
@@ -293,12 +293,47 @@ const workspace: DataRoomWorkspace = {
       documentId: "doc-soc2",
       actor: "Ricardo Nunes",
       company: "Pine Ventures",
-      actionLabel: "Download apos aprovacao",
+      actionLabel: "Download após aprovação",
       timeLabel: "15/04/2026, 18:47",
       tone: "blue",
     },
   ],
 };
+
+function normalizeDataRoomCopy(value: string) {
+  return value
+    .replaceAll("Publico", "Público")
+    .replaceAll("publico", "público")
+    .replaceAll("Politicas", "Políticas")
+    .replaceAll("Politica", "Política")
+    .replaceAll("Seguranca", "Segurança")
+    .replaceAll("Informacao", "Informação")
+    .replaceAll("Pendente de aprovacao", "Pendente de aprovação")
+    .replaceAll("aprovacao", "aprovação")
+    .replaceAll("Nao", "Não")
+    .replaceAll("Obrigatorio", "Obrigatório")
+    .replaceAll("Relatorios", "Relatórios")
+    .replaceAll("Descricao", "Descrição")
+    .replaceAll("Visivel", "Visível");
+}
+
+function normalizeDataRoomInput<T>(value: T): T {
+  if (typeof value === "string") {
+    return normalizeDataRoomCopy(value) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeDataRoomInput(item)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [key, normalizeDataRoomInput(nestedValue)]),
+    ) as T;
+  }
+
+  return value;
+}
 
 export function getDataRoomWorkspace() {
   return workspace;
@@ -316,7 +351,7 @@ export function getDataRoomWorkspaceClient() {
   }
 
   try {
-    return JSON.parse(raw) as DataRoomWorkspace;
+    return normalizeDataRoomInput(JSON.parse(raw) as DataRoomWorkspace);
   } catch {
     return workspace;
   }
@@ -397,13 +432,13 @@ export function getDownloadEventsForDocument(documentId?: string | null) {
 }
 
 export function getVisibilityBadgeClass(value: TrustDocumentVisibility) {
-  if (value === "Publico") return "bg-emerald-100 text-emerald-700";
+  if (value === "Público") return "bg-emerald-100 text-emerald-700";
   return "bg-blue-100 text-blue-700";
 }
 
 export function getStatusBadgeClass(value: TrustDocumentStatus | AccessRequestStatus) {
   if (value === "Publicado" || value === "Aprovado") return "bg-emerald-100 text-emerald-700";
-  if (value === "Pendente de aprovacao" || value === "Pendente") return "bg-amber-100 text-amber-700";
+  if (value === "Pendente de aprovação" || value === "Pendente") return "bg-amber-100 text-amber-700";
   if (value === "Rascunho") return "bg-slate-100 text-slate-700";
   return "bg-rose-100 text-rose-700";
 }

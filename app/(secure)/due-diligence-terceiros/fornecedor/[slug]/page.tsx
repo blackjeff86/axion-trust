@@ -62,7 +62,7 @@ function EditableTextField({
           />
         )
       ) : (
-        <p className="text-sm text-on-surface">{value || "Nao informado"}</p>
+        <p className="text-sm text-on-surface">{value || "Não informado"}</p>
       )}
     </div>
   );
@@ -98,7 +98,7 @@ export default function FornecedorDetailPage() {
   const [draftSupplier, setDraftSupplier] = useState<SupplierProfile | null>(null);
   const [questionnaires, setQuestionnaires] = useState<QuestionnaireOption[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [feedback, setFeedback] = useState("Selecione os questionarios que este fornecedor deve receber.");
+  const [feedback, setFeedback] = useState("Selecione os questionários que este fornecedor deve receber.");
   const [newNote, setNewNote] = useState("");
   const [notes, setNotes] = useState<SupplierProfile["internalNotes"]>([]);
   const [isEditingSupplier, setIsEditingSupplier] = useState(false);
@@ -120,8 +120,8 @@ export default function FornecedorDetailPage() {
     setNotes(currentSupplier?.internalNotes ?? []);
     setFeedback(
       currentSupplier?.lifecycleStatus === "pendente-envio"
-        ? "Selecione os questionarios que este fornecedor deve receber."
-        : "Acompanhe abaixo somente os questionarios enviados e o progresso de resposta.",
+        ? "Selecione os questionários que este fornecedor deve receber."
+        : "Acompanhe abaixo somente os questionários enviados e o progresso de resposta.",
     );
   }, [slug]);
 
@@ -164,8 +164,8 @@ export default function FornecedorDetailPage() {
     setSelectedIds(refreshed.assignedQuestionnaireIds);
     setFeedback(
       selectedIds.length > 0
-        ? `${selectedIds.length} questionario(s) vinculados. Agora voce ja pode compartilhar com o fornecedor.`
-        : "Nenhum questionario vinculado no momento. Selecione pelo menos um template para prosseguir.",
+        ? `${selectedIds.length} questionário(s) vinculados. Agora você já pode compartilhar com o fornecedor.`
+        : "Nenhum questionário vinculado no momento. Selecione pelo menos um template para prosseguir.",
     );
   }
 
@@ -175,7 +175,7 @@ export default function FornecedorDetailPage() {
     }
 
     if (selectedIds.length === 0) {
-      setFeedback("Selecione ao menos um questionario antes de compartilhar com o fornecedor.");
+      setFeedback("Selecione ao menos um questionário antes de compartilhar com o fornecedor.");
       return;
     }
 
@@ -184,7 +184,7 @@ export default function FornecedorDetailPage() {
     setSupplier(refreshed);
     setDraftSupplier(refreshed);
     setSelectedIds(refreshed.assignedQuestionnaireIds);
-    setFeedback("Questionarios compartilhados. Agora a ficha mostra somente os envios e seus respectivos progressos.");
+    setFeedback("Questionários compartilhados. Agora a ficha mostra somente os envios e seus respectivos progressos.");
   }
 
   function handlePublishNote() {
@@ -273,7 +273,7 @@ export default function FornecedorDetailPage() {
 
     setSupplier(refreshed);
     setDraftSupplier(refreshed);
-    setFeedback(`Link do questionario enviado para ${email}.`);
+    setFeedback(`Link do questionário enviado para ${email}.`);
   }
 
   function handleAddCertification() {
@@ -315,10 +315,10 @@ export default function FornecedorDetailPage() {
 
             <section className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel">
               <h2 className="mb-2 font-headline text-2xl font-extrabold text-on-surface">
-                Fornecedor nao encontrado
+                Fornecedor não encontrado
               </h2>
               <p className="mb-6 max-w-2xl text-sm text-on-surface-variant">
-                Nao localizamos este cadastro na sua base local. Se ele acabou de ser criado, tente voltar para a
+                Não localizamos este cadastro na sua base local. Se ele acabou de ser criado, tente voltar para a
                 lista e abrir novamente.
               </p>
               <Link
@@ -354,7 +354,7 @@ export default function FornecedorDetailPage() {
 
               <SecurePageHeader
                 title="Detalhamento do Fornecedor"
-                subtitle="Revise perfil operacional, evidencias de conformidade e defina quais questionarios existentes serao enviados para este fornecedor."
+                subtitle="Revise perfil operacional, evidências de conformidade e defina quais questionários existentes serão enviados para este fornecedor."
               />
             </div>
 
@@ -366,7 +366,7 @@ export default function FornecedorDetailPage() {
                     className="inline-flex items-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-200"
                   >
                     <span className="material-symbols-outlined text-base">close</span>
-                    Cancelar edicao
+                    Cancelar edição
                   </button>
                   <button
                     onClick={handleSaveSupplier}
@@ -391,7 +391,7 @@ export default function FornecedorDetailPage() {
                 className="inline-flex items-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-200"
               >
                 <span className="material-symbols-outlined text-base">post_add</span>
-                Criar novo questionario
+                Criar novo questionário
               </Link>
               {isPendingSend ? (
                 <button
@@ -399,7 +399,7 @@ export default function FornecedorDetailPage() {
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-container px-6 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-base">send</span>
-                  Compartilhar questionarios
+                  Compartilhar questionários
                 </button>
               ) : null}
             </div>
@@ -454,7 +454,7 @@ export default function FornecedorDetailPage() {
                           value={profile.headquartersCountry}
                           onChange={(event) => updateDraft("headquartersCountry", event.target.value)}
                           className="w-32 rounded-lg border border-outline-variant/20 bg-surface-container-low px-2 py-1 text-xs text-on-surface outline-none focus:border-primary"
-                          placeholder="Pais"
+                          placeholder="País"
                         />
                       </div>
                     ) : (
@@ -468,7 +468,7 @@ export default function FornecedorDetailPage() {
               </div>
 
               <div className="grid grid-cols-1 gap-4 pt-2 md:grid-cols-3">
-                <EditableTextField editing={isEditingSupplier} label="Dominio" value={profile.domain} onChange={(value) => updateDraft("domain", value)} />
+                <EditableTextField editing={isEditingSupplier} label="Domínio" value={profile.domain} onChange={(value) => updateDraft("domain", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Tipo" value={profile.supplierType} onChange={(value) => updateDraft("supplierType", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Criticidade" value={profile.criticality} onChange={(value) => updateDraft("criticality", value)} />
               </div>
@@ -488,7 +488,7 @@ export default function FornecedorDetailPage() {
 
           <section className="grid grid-cols-12 gap-6">
             <div className="col-span-12 rounded-xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel md:col-span-4">
-              <p className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-400">Score Geral de Avaliacao</p>
+              <p className="mb-6 text-xs font-bold uppercase tracking-widest text-slate-400">Score Geral de Avaliação</p>
               <div className="relative mx-auto flex h-40 w-40 items-center justify-center">
                 <svg className="h-full w-full -rotate-90 transform">
                   <circle cx="80" cy="80" r="70" fill="transparent" stroke="currentColor" strokeWidth="8" className="text-surface-container-high" />
@@ -506,7 +506,7 @@ export default function FornecedorDetailPage() {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-5xl font-black text-on-surface">{hasScore ? supplier.score : "--"}</span>
-                  <span className="text-xs font-bold uppercase tracking-tight text-slate-500">indice de 100</span>
+                  <span className="text-xs font-bold uppercase tracking-tight text-slate-500">índice de 100</span>
                 </div>
               </div>
 
@@ -516,7 +516,7 @@ export default function FornecedorDetailPage() {
                   <p className="text-lg font-bold text-on-surface">{typeof supplier.previousScore === "number" ? supplier.previousScore : "--"}</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xs font-medium text-slate-500">Tendencia</p>
+                  <p className="text-xs font-medium text-slate-500">Tendência</p>
                   <p className="flex items-center justify-center gap-1 text-lg font-bold text-primary">
                     <span className="material-symbols-outlined text-sm">{(supplier.trend ?? 0) >= 0 ? "trending_up" : "trending_down"}</span>
                     {typeof supplier.trend === "number" ? `${supplier.trend > 0 ? "+" : ""}${supplier.trend}` : "--"}
@@ -530,9 +530,9 @@ export default function FornecedorDetailPage() {
                 <>
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <h3 className="font-headline text-lg font-bold text-on-surface">Questionarios disponiveis para envio</h3>
+                      <h3 className="font-headline text-lg font-bold text-on-surface">Questionários disponíveis para envio</h3>
                       <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
-                        Escolha aqui quais templates existentes farao parte da trilha deste fornecedor antes do primeiro envio.
+                        Escolha aqui quais templates existentes farão parte da trilha deste fornecedor antes do primeiro envio.
                       </p>
                     </div>
                     <div className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-3 text-sm text-on-surface">{feedback}</div>
@@ -560,7 +560,7 @@ export default function FornecedorDetailPage() {
                                   {questionnaire.version}
                                 </span>
                                 <span className="rounded-full bg-surface-container-lowest px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                                  {questionnaire.source === "catalogo" ? "Catalogo da plataforma" : "Template interno"}
+                                  {questionnaire.source === "catalogo" ? "Catálogo da plataforma" : "Template interno"}
                                 </span>
                               </div>
                               <p className="text-sm text-on-surface-variant">{questionnaire.category}</p>
@@ -576,7 +576,7 @@ export default function FornecedorDetailPage() {
 
                   <div className="flex flex-col gap-4 rounded-xl border border-outline-variant/15 bg-surface-container-low p-5 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-500">Questionarios selecionados</p>
+                      <p className="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-500">Questionários selecionados</p>
                       <div className="flex flex-wrap gap-2">
                         {assignedQuestionnaires.length > 0 ? (
                           assignedQuestionnaires.map((questionnaire) => (
@@ -585,7 +585,7 @@ export default function FornecedorDetailPage() {
                             </span>
                           ))
                         ) : (
-                          <span className="text-sm text-on-surface-variant">Nenhum questionario associado ainda.</span>
+                          <span className="text-sm text-on-surface-variant">Nenhum questionário associado ainda.</span>
                         )}
                       </div>
                     </div>
@@ -595,14 +595,14 @@ export default function FornecedorDetailPage() {
                         className="inline-flex items-center justify-center gap-2 rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-200"
                       >
                         <span className="material-symbols-outlined text-base">save</span>
-                        Salvar selecao
+                        Salvar seleção
                       </button>
                       <button
                         onClick={handleSendQuestionnaires}
                         className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-container px-5 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-[0.98]"
                       >
                         <span className="material-symbols-outlined text-base">send</span>
-                        Compartilhar questionarios
+                        Compartilhar questionários
                       </button>
                     </div>
                   </div>
@@ -611,9 +611,9 @@ export default function FornecedorDetailPage() {
                 <>
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div>
-                      <h3 className="font-headline text-lg font-bold text-on-surface">Questionarios enviados ao fornecedor</h3>
+                      <h3 className="font-headline text-lg font-bold text-on-surface">Questionários enviados ao fornecedor</h3>
                       <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
-                        A partir deste ponto, a analise acompanha somente os questionarios ja compartilhados e o andamento de preenchimento.
+                        A partir deste ponto, a análise acompanha somente os questionários já compartilhados e o andamento de preenchimento.
                       </p>
                     </div>
                     <div className="rounded-xl border border-primary/10 bg-primary/5 px-4 py-3 text-sm text-on-surface">{feedback}</div>
@@ -634,10 +634,10 @@ export default function FornecedorDetailPage() {
                                   {item.status}
                                 </span>
                               </div>
-                              <p className="text-sm text-on-surface-variant">{item.questionnaire?.category ?? "Categoria nao informada"}</p>
+                              <p className="text-sm text-on-surface-variant">{item.questionnaire?.category ?? "Categoria não informada"}</p>
                               <div className="flex flex-wrap items-center gap-4 text-xs text-on-surface-variant">
                                 <span>Enviado em: {item.sentAt ? new Date(item.sentAt).toLocaleDateString("pt-BR") : "--"}</span>
-                                <span>Ultima atualizacao: {item.lastUpdatedAt ? new Date(item.lastUpdatedAt).toLocaleDateString("pt-BR") : "--"}</span>
+                                <span>Última atualização: {item.lastUpdatedAt ? new Date(item.lastUpdatedAt).toLocaleDateString("pt-BR") : "--"}</span>
                               </div>
                             </div>
 
@@ -662,7 +662,7 @@ export default function FornecedorDetailPage() {
                       ))
                     ) : (
                       <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-5 text-sm text-on-surface-variant">
-                        Nenhum questionario enviado foi encontrado para este fornecedor.
+                        Nenhum questionário enviado foi encontrado para este fornecedor.
                       </div>
                     )}
                   </div>
@@ -674,28 +674,28 @@ export default function FornecedorDetailPage() {
           <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
             <article className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel xl:col-span-2">
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="font-headline text-lg font-bold text-on-surface">Ficha de cadastro e evidencias</h3>
+                <h3 className="font-headline text-lg font-bold text-on-surface">Ficha de cadastro e evidências</h3>
                 <span className="rounded-full bg-surface-container-low px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Perfil do fornecedor</span>
               </div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <EditableTextField editing={isEditingSupplier} label="Razao social" value={profile.legalName} onChange={(value) => updateDraft("legalName", value)} />
+                <EditableTextField editing={isEditingSupplier} label="Razão social" value={profile.legalName} onChange={(value) => updateDraft("legalName", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Tax ID / CNPJ" value={profile.taxId} onChange={(value) => updateDraft("taxId", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Nome do contato principal" value={profile.primaryContactName} onChange={(value) => updateDraft("primaryContactName", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Cargo do contato principal" value={profile.primaryContactRole} onChange={(value) => updateDraft("primaryContactRole", value)} />
                 <EditableTextField editing={isEditingSupplier} label="E-mail do contato principal" value={profile.primaryContactEmail} onChange={(value) => updateDraft("primaryContactEmail", value)} />
-                <EditableTextField editing={isEditingSupplier} label="E-mail de seguranca" value={profile.securityContactEmail} onChange={(value) => updateDraft("securityContactEmail", value)} />
+                <EditableTextField editing={isEditingSupplier} label="E-mail de segurança" value={profile.securityContactEmail} onChange={(value) => updateDraft("securityContactEmail", value)} />
                 <EditableTextField editing={isEditingSupplier} label="E-mail de privacidade" value={profile.privacyContactEmail} onChange={(value) => updateDraft("privacyContactEmail", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Escopo de acesso" value={profile.accessScope} onChange={(value) => updateDraft("accessScope", value)} multiline rows={3} />
-                <EditableTextField editing={isEditingSupplier} label="Classificacao de dados" value={profile.dataClassification} onChange={(value) => updateDraft("dataClassification", value)} multiline rows={3} />
-                <EditableTextField editing={isEditingSupplier} label="Modelo de integracao" value={profile.integrationType} onChange={(value) => updateDraft("integrationType", value)} />
-                <EditableTextField editing={isEditingSupplier} label="Hosting model" value={profile.hostingModel} onChange={(value) => updateDraft("hostingModel", value)} />
+                <EditableTextField editing={isEditingSupplier} label="Classificação de dados" value={profile.dataClassification} onChange={(value) => updateDraft("dataClassification", value)} multiline rows={3} />
+                <EditableTextField editing={isEditingSupplier} label="Modelo de integração" value={profile.integrationType} onChange={(value) => updateDraft("integrationType", value)} />
+                <EditableTextField editing={isEditingSupplier} label="Modelo de hospedagem" value={profile.hostingModel} onChange={(value) => updateDraft("hostingModel", value)} />
                 <EditableTextField editing={isEditingSupplier} label="Website" value={profile.website} onChange={(value) => updateDraft("website", value)} />
                 <div className="md:col-span-2">
-                  <EditableTextField editing={isEditingSupplier} label="Servicos prestados" value={profile.servicesProvided} onChange={(value) => updateDraft("servicesProvided", value)} multiline rows={4} />
+                  <EditableTextField editing={isEditingSupplier} label="Serviços prestados" value={profile.servicesProvided} onChange={(value) => updateDraft("servicesProvided", value)} multiline rows={4} />
                 </div>
                 <div className="md:col-span-2 rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
-                  <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">Certificacoes declaradas</p>
+                  <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">Certificações declaradas</p>
                   <div className="flex flex-wrap gap-2">
                     {profile.certifications.length > 0 ? (
                       profile.certifications.map((certification) => (
@@ -709,7 +709,7 @@ export default function FornecedorDetailPage() {
                         </span>
                       ))
                     ) : (
-                      <span className="text-sm text-on-surface-variant">Nenhuma certificacao registrada.</span>
+                      <span className="text-sm text-on-surface-variant">Nenhuma certificação registrada.</span>
                     )}
                   </div>
                   {isEditingSupplier ? (
@@ -719,7 +719,7 @@ export default function FornecedorDetailPage() {
                         value={newCertification}
                         onChange={(event) => setNewCertification(event.target.value)}
                         className="flex-1 rounded-xl border border-outline-variant/20 bg-surface-container-lowest px-3 py-2 text-sm text-on-surface outline-none focus:border-primary"
-                        placeholder="Adicionar certificacao"
+                        placeholder="Adicionar certificação"
                       />
                       <button
                         type="button"
@@ -734,7 +734,7 @@ export default function FornecedorDetailPage() {
               </div>
 
               <div className="mt-6 rounded-xl border border-outline-variant/15 bg-surface-container-low p-5">
-                <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">Evidencias de conformidade</p>
+                <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">Evidências de conformidade</p>
                 <div className="space-y-3">
                   {supplier.evidences.length > 0 ? (
                     supplier.evidences.map((evidence) => (
@@ -753,7 +753,7 @@ export default function FornecedorDetailPage() {
                     ))
                   ) : (
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4 text-sm text-on-surface-variant">
-                      Ainda nao existem evidencias anexadas para este fornecedor.
+                      Ainda não existem evidências anexadas para este fornecedor.
                     </div>
                   )}
                 </div>
@@ -764,18 +764,18 @@ export default function FornecedorDetailPage() {
               <article className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
                 <h3 className="mb-4 font-headline text-lg font-bold text-on-surface">Resumo operacional</h3>
                 <div className="space-y-4 text-sm text-on-surface-variant">
-                  <EditableTextField editing={isEditingSupplier} label="Responsavel interno" value={profile.businessOwner} onChange={(value) => updateDraft("businessOwner", value)} />
-                  <EditableTextField editing={isEditingSupplier} label="Regioes ativas" value={profile.activeRegions} onChange={(value) => updateDraft("activeRegions", value)} multiline rows={3} />
-                  <EditableTextField editing={isEditingSupplier} label="Paises de operacao" value={profile.countriesOfOperation} onChange={(value) => updateDraft("countriesOfOperation", value)} multiline rows={3} />
+                  <EditableTextField editing={isEditingSupplier} label="Responsável interno" value={profile.businessOwner} onChange={(value) => updateDraft("businessOwner", value)} />
+                  <EditableTextField editing={isEditingSupplier} label="Regiões ativas" value={profile.activeRegions} onChange={(value) => updateDraft("activeRegions", value)} multiline rows={3} />
+                  <EditableTextField editing={isEditingSupplier} label="Países de operação" value={profile.countriesOfOperation} onChange={(value) => updateDraft("countriesOfOperation", value)} multiline rows={3} />
                   <EditableTextField editing={isEditingSupplier} label="Subsegmento" value={profile.subsegment} onChange={(value) => updateDraft("subsegment", value)} />
-                  <EditableTextField editing={isEditingSupplier} label="Observacoes" value={profile.notes} onChange={(value) => updateDraft("notes", value)} multiline rows={4} />
+                  <EditableTextField editing={isEditingSupplier} label="Observações" value={profile.notes} onChange={(value) => updateDraft("notes", value)} multiline rows={4} />
                 </div>
               </article>
 
               <article className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
                 <div className="mb-4 flex items-center gap-3">
                   <span className="material-symbols-outlined text-primary">group</span>
-                  <h3 className="font-headline text-lg font-bold text-on-surface">Usuarios do fornecedor</h3>
+                  <h3 className="font-headline text-lg font-bold text-on-surface">Usuários do fornecedor</h3>
                 </div>
 
                 <div className="space-y-3">
@@ -787,15 +787,15 @@ export default function FornecedorDetailPage() {
                       <div key={user.email} className="flex items-center justify-between gap-3 rounded-xl border border-outline-variant/15 bg-surface-container-low p-3">
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <p className="text-sm font-semibold text-on-surface">{user.email || "E-mail nao informado"}</p>
+                            <p className="text-sm font-semibold text-on-surface">{user.email || "E-mail não informado"}</p>
                             <span className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest ${getAccessUserBadgeClass(user.invitationStatus)}`}>
                               {user.invitationStatus === "enviado" ? "Link enviado" : "Pendente"}
                             </span>
                           </div>
                           <p className="text-xs text-on-surface-variant">
                             {user.invitationStatus === "enviado"
-                              ? `Ultimo envio: ${user.invitationSentAt ? new Date(user.invitationSentAt).toLocaleDateString("pt-BR") : "agora"}`
-                              : "Conta habilitada, aguardando envio do link do questionario."}
+                              ? `Último envio: ${user.invitationSentAt ? new Date(user.invitationSentAt).toLocaleDateString("pt-BR") : "agora"}`
+                              : "Conta habilitada, aguardando envio do link do questionário."}
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -804,8 +804,8 @@ export default function FornecedorDetailPage() {
                               type="button"
                               onClick={() => handleSendAccessInvite(user.email)}
                               className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-primary/40 bg-primary text-white shadow-sm shadow-primary/20 transition hover:scale-[0.98] hover:bg-primary-container focus:outline-none focus:ring-2 focus:ring-primary/30"
-                              aria-label={`Enviar link do questionario para ${user.email}`}
-                              title="Enviar link do questionario"
+                              aria-label={`Enviar link do questionário para ${user.email}`}
+                              title="Enviar link do questionário"
                             >
                               <svg
                                 aria-hidden="true"
@@ -836,13 +836,13 @@ export default function FornecedorDetailPage() {
                     )})
                   ) : (
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4 text-sm text-on-surface-variant">
-                      Nenhum usuario adicional cadastrado para acessar os questionarios.
+                      Nenhum usuário adicional cadastrado para acessar os questionários.
                     </div>
                   )}
 
                   {isEditingSupplier ? (
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
-                      <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">Adicionar novo usuario</p>
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-widest text-slate-500">Adicionar novo usuário</p>
                       <div className="flex flex-col gap-3 sm:flex-row">
                         <input
                           type="email"
@@ -856,7 +856,7 @@ export default function FornecedorDetailPage() {
                           onClick={handleAddAccessUser}
                           className="rounded-xl bg-primary px-4 py-2 text-sm font-bold text-on-primary transition hover:bg-primary-container"
                         >
-                          Adicionar usuario
+                          Adicionar usuário
                         </button>
                       </div>
                     </div>
@@ -896,7 +896,7 @@ export default function FornecedorDetailPage() {
                       value={newNote}
                       onChange={(event) => setNewNote(event.target.value)}
                       className="w-full rounded-xl border border-outline-variant/15 bg-surface-container-lowest p-4 text-sm text-on-surface placeholder:text-on-surface-variant"
-                      placeholder="Adicionar comentario interno sobre este fornecedor..."
+                      placeholder="Adicionar comentário interno sobre este fornecedor..."
                     />
                     <div className="mt-3 flex justify-end">
                       <button

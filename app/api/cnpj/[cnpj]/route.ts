@@ -42,7 +42,7 @@ type MappedSupplierSeed = {
   activeRegions: string;
   servicesProvided: string;
   countriesOfOperation: string;
-  risk: "Baixo Risco" | "Medio Risco" | "Alto Risco" | "Risco Critico";
+  risk: "Baixo Risco" | "Médio Risco" | "Alto Risco" | "Risco Crítico";
   source: "brasilapi" | "fallback";
 };
 
@@ -67,7 +67,7 @@ const localFallbackByCnpj: Record<string, MappedSupplierSeed> = {
     activeRegions: "Brasil e Mexico",
     servicesProvided: "Operacao de fulfillment, despacho e atualizacao de tracking.",
     countriesOfOperation: "Brasil, Mexico",
-    risk: "Medio Risco",
+    risk: "Médio Risco",
     source: "fallback",
   },
 };
@@ -175,7 +175,7 @@ function mapBrasilApiToSupplierSeed(payload: BrasilApiCnpjResponse): MappedSuppl
     activeRegions: payload.uf?.trim() || "Brasil",
     servicesProvided: activity,
     countriesOfOperation: "Brasil",
-    risk: "Medio Risco",
+    risk: "Médio Risco",
     source: "brasilapi",
   };
 }
@@ -224,7 +224,7 @@ export async function GET(_: Request, { params }: { params: Promise<{ cnpj: stri
   }
 
   return NextResponse.json(
-    { error: "Nao foi possivel localizar dados para este CNPJ no momento." },
+    { error: "Não foi possível localizar dados para este CNPJ no momento." },
     { status: 404 },
   );
 }

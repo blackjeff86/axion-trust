@@ -2,7 +2,7 @@
 
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 
-const tabs = ["Organizacao", "Usuarios", "Dominio", "Integracoes", "Politicas do Sistema"];
+const tabs = ["Organização", "Usuários", "Domínio", "Integrações", "Políticas do Sistema"];
 
 const members = [
   {
@@ -37,7 +37,7 @@ const members = [
 export default function ConfiguracoesPage() {
   return (
     <>
-      <SecureTopbar placeholder="Pesquisar configuracoes internas..." />
+      <SecureTopbar placeholder="Pesquisar configurações internas..." />
 
       <main className="min-h-screen p-8">
         <header className="mb-10">
@@ -87,7 +87,7 @@ export default function ConfiguracoesPage() {
                   <input type="text" value="Ricardo Menezes" readOnly className="w-full rounded-lg border-none bg-surface-container-low p-3 text-on-surface" />
                 </div>
                 <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">Email operacional</label>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-on-surface-variant">E-mail operacional</label>
                   <input type="email" value="ops@axiontrust.io" readOnly className="w-full rounded-lg border-none bg-surface-container-low p-3 text-on-surface" />
                 </div>
               </div>
@@ -109,10 +109,10 @@ export default function ConfiguracoesPage() {
                 <table className="w-full text-left">
                   <thead>
                     <tr className="border-b border-outline-variant/10 text-xs uppercase tracking-widest text-slate-500">
-                      <th className="pb-4 font-bold">Usuario</th>
+                      <th className="pb-4 font-bold">Usuário</th>
                       <th className="pb-4 font-bold">Acesso</th>
                       <th className="pb-4 font-bold">Status</th>
-                      <th className="pb-4 text-right font-bold">Acao</th>
+                      <th className="pb-4 text-right font-bold">Ação</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/5">
@@ -141,7 +141,7 @@ export default function ConfiguracoesPage() {
                           </div>
                         </td>
                         <td className="py-4 text-right">
-                          <button className="text-slate-600 transition-colors hover:text-white" aria-label="Abrir menu de acoes">
+                          <button className="text-slate-600 transition-colors hover:text-white" aria-label="Abrir menu de ações">
                             <span className="material-symbols-outlined">more_vert</span>
                           </button>
                         </td>
@@ -205,7 +205,7 @@ export default function ConfiguracoesPage() {
             <div className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
               <div className="mb-4 flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">language</span>
-                <h4 className="text-sm font-bold text-white">Dominio Customizado</h4>
+                <h4 className="text-sm font-bold text-white">Domínio Customizado</h4>
               </div>
               <div className="mb-4 rounded-lg bg-surface-container p-3 font-mono text-xs text-primary-fixed">trust.axiontech.com.br</div>
               <p className="mb-4 text-[11px] leading-relaxed text-slate-500">
@@ -219,7 +219,7 @@ export default function ConfiguracoesPage() {
             <div className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
               <div className="mb-4 flex items-center gap-3">
                 <span className="material-symbols-outlined text-primary">hub</span>
-                <h4 className="text-sm font-bold text-white">Integracoes</h4>
+                <h4 className="text-sm font-bold text-white">Integrações</h4>
               </div>
               <div className="space-y-3 text-sm text-on-surface-variant">
                 <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3">
@@ -227,12 +227,12 @@ export default function ConfiguracoesPage() {
                   <span className="font-semibold text-emerald-500">Ativo</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3">
-                  <span>Notificacoes por e-mail</span>
+                  <span>Notificações por e-mail</span>
                   <span className="font-semibold text-emerald-500">Ativo</span>
                 </div>
                 <div className="flex items-center justify-between rounded-lg bg-surface-container-low p-3">
                   <span>SIEM / Log export</span>
-                  <span className="font-semibold text-slate-400">Nao configurado</span>
+                  <span className="font-semibold text-slate-400">Não configurado</span>
                 </div>
               </div>
             </div>
@@ -256,12 +256,12 @@ export default function ConfiguracoesPage() {
         <footer className="sticky bottom-8 mt-12 flex items-center justify-between rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel backdrop-blur-md">
           <div className="flex items-center gap-2 text-slate-500">
             <span className="material-symbols-outlined text-sm">history</span>
-            <span className="text-[10px] font-bold uppercase tracking-widest">Ultima alteracao: hoje as 14:32</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">Última alteração: hoje às 14:32</span>
           </div>
           <div className="flex gap-4">
             <button className="px-6 py-2 text-sm font-semibold text-on-surface-variant transition-colors hover:text-white">Descartar</button>
             <button className="rounded-lg bg-primary px-8 py-2 text-sm font-bold text-on-primary-container shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-              Salvar Todas as Alteracoes
+              Salvar Todas as Alterações
             </button>
           </div>
         </footer>

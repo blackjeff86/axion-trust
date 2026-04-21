@@ -1,6 +1,6 @@
 import { STORAGE_KEY as TEMPLATE_STORAGE_KEY, type SavedTemplate } from "./novo-questionario/template-builder-data";
 
-export type SupplierRisk = "Baixo Risco" | "Medio Risco" | "Alto Risco" | "Risco Critico";
+export type SupplierRisk = "Baixo Risco" | "Médio Risco" | "Alto Risco" | "Risco Crítico";
 export type SupplierLifecycleStatus =
   | "pendente-envio"
   | "questionarios-enviados"
@@ -9,12 +9,12 @@ export type SupplierLifecycleStatus =
   | "concluido"
   | "vencido";
 export type QuestionnaireRunStatus =
-  | "Nao iniciado"
+  | "Não iniciado"
   | "Enviado"
   | "Em preenchimento"
   | "Respondido"
-  | "Em avaliacao"
-  | "Concluido"
+  | "Em avaliação"
+  | "Concluído"
   | "Vencido";
 
 export type SupplierQuestionnaireRun = {
@@ -110,6 +110,65 @@ export type QuestionnaireOption = {
 
 export const SUPPLIER_STORAGE_KEY = "axion-trust-dd-suppliers";
 
+function normalizeSupplierCopy(value: string) {
+  return value
+    .replaceAll("sensiveis", "sensíveis")
+    .replaceAll("privilegio", "privilégio")
+    .replaceAll("segregacao", "segregação")
+    .replaceAll("criticos", "críticos")
+    .replaceAll("orquestracao", "orquestração")
+    .replaceAll("monitoramento continuo", "monitoramento contínuo")
+    .replaceAll("renovacao", "renovação")
+    .replaceAll("Certificacao", "Certificação")
+    .replaceAll("Valido", "Válido")
+    .replaceAll("Invasao", "Invasão")
+    .replaceAll("Previsao", "Previsão")
+    .replaceAll("ha ", "há ")
+    .replaceAll("Logistica", "Logística")
+    .replaceAll("Roteirizacao", "Roteirização")
+    .replaceAll("Sao Paulo", "São Paulo")
+    .replaceAll("Media", "Média")
+    .replaceAll("operacao", "operação")
+    .replaceAll("Operacao", "Operação")
+    .replaceAll("Mexico", "México")
+    .replaceAll("atualizacao", "atualização")
+    .replaceAll("Ativacao", "Ativação")
+    .replaceAll("audiencia", "audiência")
+    .replaceAll("Canada", "Canadá")
+    .replaceAll("comprovacao", "comprovação")
+    .replaceAll("Andre", "André")
+    .replaceAll("sensivel", "sensível")
+    .replaceAll("Tokenizacao", "Tokenização")
+    .replaceAll("autorizacao", "autorização")
+    .replaceAll("Autorizacao", "Autorização")
+    .replaceAll("questionario", "questionário")
+    .replaceAll("questionarios", "questionários")
+    .replaceAll("concluido", "concluído")
+    .replaceAll("definicao", "definição")
+    .replaceAll("avaliacao", "avaliação")
+    .replaceAll("pendencia", "pendência")
+    .replaceAll("critica", "crítica")
+    .replaceAll("segmentacao", "segmentação");
+}
+
+function normalizeSupplierInput<T>(value: T): T {
+  if (typeof value === "string") {
+    return normalizeSupplierCopy(value) as T;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => normalizeSupplierInput(item)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, nestedValue]) => [key, normalizeSupplierInput(nestedValue)]),
+    ) as T;
+  }
+
+  return value;
+}
+
 export const defaultSuppliers: SupplierProfile[] = [
   {
     slug: "stellar-cloud-solutions",
@@ -131,17 +190,17 @@ export const defaultSuppliers: SupplierProfile[] = [
     businessOwner: "Carlos Mendes",
     criticality: "Alta",
     integrationType: "API + Infraestrutura compartilhada",
-    dataClassification: "Dados corporativos e logs sensiveis",
-    accessScope: "Acesso operacional sem privilegio de escrita",
-    hostingModel: "Multi-tenant com segregacao logica",
+    dataClassification: "Dados corporativos e logs sensíveis",
+    accessScope: "Acesso operacional sem privilégio de escrita",
+    hostingModel: "Multi-tenant com segregação lógica",
     activeRegions: "EUA, Brasil e Irlanda",
-    servicesProvided: "Hospedagem de workloads criticos, observabilidade e orquestracao de containers.",
+    servicesProvided: "Hospedagem de workloads críticos, observabilidade e orquestração de containers.",
     countriesOfOperation: "Estados Unidos, Brasil, Irlanda",
     certifications: ["SOC 2 Type II", "ISO 27001", "CSA STAR"],
     accessUsers: [
       { email: "melissa@stellar-cloud.com", invitationStatus: "enviado", invitationSentAt: "2026-04-10T12:00:00.000Z" },
     ],
-    notes: "Fornecedor tier 1 com monitoramento continuo e renovacao anual de controles.",
+    notes: "Fornecedor tier 1 com monitoramento contínuo e renovação anual de controles.",
     risk: "Baixo Risco",
     lifecycleStatus: "concluido",
     status: "Finalizado em 12/10/2023",
@@ -150,7 +209,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     trend: 4,
     evidences: [
       {
-        title: "Relatorio SOC 2 Tipo II",
+        title: "Relatório SOC 2 Tipo II",
         meta: "Validade: 12/2024 • Emitido por Deloitte LLP",
         icon: "verified",
         status: "Auditado",
@@ -158,16 +217,16 @@ export const defaultSuppliers: SupplierProfile[] = [
         actionIcon: "download",
       },
       {
-        title: "Certificacao ISO/IEC 27001",
+        title: "Certificação ISO/IEC 27001",
         meta: "Validade: 06/2025 • Infraestrutura Global",
         icon: "policy",
-        status: "Valido",
+        status: "Válido",
         statusClass: "bg-secondary-container/30 text-on-secondary-container",
         actionIcon: "download",
       },
       {
-        title: "Teste de Invasao (Pentest)",
-        meta: "Em processamento • Previsao 48h",
+        title: "Teste de Invasão (Pentest)",
+        meta: "Em processamento • Previsão 48h",
         icon: "description",
         status: "Pendente",
         statusClass: "bg-tertiary-container/20 text-tertiary",
@@ -178,16 +237,16 @@ export const defaultSuppliers: SupplierProfile[] = [
     internalNotes: [
       {
         author: "Ana Martins",
-        time: "ha 2 horas",
+        time: "há 2 horas",
         content:
-          "Controles de criptografia em repouso revisados no SOC 2 e alinhados com nossa politica de classificacao de dados. Recomendo aprovacao para o projeto Phoenix.",
+          "Controles de criptografia em repouso revisados no SOC 2 e alinhados com nossa política de classificação de dados. Recomendo aprovação para o projeto Phoenix.",
       },
     ],
     assignedQuestionnaireIds: ["catalog-security-base"],
     questionnaireRuns: [
       {
         questionnaireId: "catalog-security-base",
-        status: "Concluido",
+        status: "Concluído",
         progress: 100,
         sentAt: "2026-04-10T12:00:00.000Z",
         dueAt: "2026-04-17T12:00:00.000Z",
@@ -202,10 +261,10 @@ export const defaultSuppliers: SupplierProfile[] = [
     displayName: "Prime Logistics Int.",
     domain: "primelog.io",
     website: "https://primelog.io",
-    supplierType: "Logistica",
+    supplierType: "Logística",
     segment: "Logistics Platform",
-    subsegment: "Roteirizacao e fulfillment",
-    headquartersCity: "Sao Paulo",
+    subsegment: "Roteirização e fulfillment",
+    headquartersCity: "São Paulo",
     headquartersCountry: "Brasil",
     taxId: "BR-12.334.991/0001-20",
     primaryContactName: "Roberto Farias",
@@ -214,22 +273,22 @@ export const defaultSuppliers: SupplierProfile[] = [
     securityContactEmail: "seguranca@primelog.io",
     privacyContactEmail: "privacidade@primelog.io",
     businessOwner: "Luciana Prado",
-    criticality: "Media",
+    criticality: "Média",
     integrationType: "SFTP + API de pedidos",
-    dataClassification: "Dados de operacao e PII limitada",
+    dataClassification: "Dados de operação e PII limitada",
     accessScope: "Leitura de pedidos e eventos",
     hostingModel: "Cloud dedicada",
-    activeRegions: "Brasil e Mexico",
-    servicesProvided: "Operacao de fulfillment, despacho e atualizacao de tracking.",
-    countriesOfOperation: "Brasil, Mexico",
+    activeRegions: "Brasil e México",
+    servicesProvided: "Operação de fulfillment, despacho e atualização de tracking.",
+    countriesOfOperation: "Brasil, México",
     certifications: ["ISO 27001"],
     accessUsers: [
       { email: "roberto@primelog.io", invitationStatus: "enviado", invitationSentAt: "2026-04-09T13:00:00.000Z" },
     ],
-    notes: "Questionario em revisao pelo time de compliance.",
-    risk: "Medio Risco",
+    notes: "Questionário em revisão pelo time de compliance.",
+    risk: "Médio Risco",
     lifecycleStatus: "em-avaliacao",
-    status: "Em Revisao",
+    status: "Em Revisão",
     score: 74,
     previousScore: 70,
     trend: 4,
@@ -239,7 +298,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     questionnaireRuns: [
       {
         questionnaireId: "catalog-security-base",
-        status: "Em avaliacao",
+        status: "Em avaliação",
         progress: 75,
         sentAt: "2026-04-09T13:00:00.000Z",
         dueAt: "2026-04-16T13:00:00.000Z",
@@ -256,7 +315,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     website: "https://datastream.mkt",
     supplierType: "Marketing Tech",
     segment: "AdTech Services",
-    subsegment: "Ativacao e analytics",
+    subsegment: "Ativação e analytics",
     headquartersCity: "Austin",
     headquartersCountry: "Estados Unidos",
     taxId: "US-22-1942741",
@@ -269,17 +328,17 @@ export const defaultSuppliers: SupplierProfile[] = [
     criticality: "Alta",
     integrationType: "Tag manager + data sync",
     dataClassification: "Dados de clientes e analytics",
-    accessScope: "Eventos e segmentos de audiencia",
+    accessScope: "Eventos e segmentos de audiência",
     hostingModel: "SaaS multi-tenant",
-    activeRegions: "EUA e Canada",
-    servicesProvided: "Gestao de audiencias, analytics e ativacao de campanhas.",
-    countriesOfOperation: "Estados Unidos, Canada",
-    certifications: ["Sem comprovacao recente"],
+    activeRegions: "EUA e Canadá",
+    servicesProvided: "Gestão de audiências, analytics e ativação de campanhas.",
+    countriesOfOperation: "Estados Unidos, Canadá",
+    certifications: ["Sem comprovação recente"],
     accessUsers: [
       { email: "rachel@datastream.mkt", invitationStatus: "enviado", invitationSentAt: "2026-03-20T12:00:00.000Z" },
     ],
-    notes: "Pendencias de due diligence em aberto e evidencias vencidas.",
-    risk: "Risco Critico",
+    notes: "Pendências de due diligence em aberto e evidências vencidas.",
+    risk: "Risco Crítico",
     lifecycleStatus: "vencido",
     status: "Vencido (Atraso 15 dias)",
     score: 42,
@@ -312,7 +371,7 @@ export const defaultSuppliers: SupplierProfile[] = [
     headquartersCity: "Lisboa",
     headquartersCountry: "Portugal",
     taxId: "PT-508194221",
-    primaryContactName: "Andre Costa",
+    primaryContactName: "André Costa",
     primaryContactRole: "Partnership Manager",
     primaryContactEmail: "andre@nexus.pay",
     securityContactEmail: "security@nexus.pay",
@@ -320,17 +379,17 @@ export const defaultSuppliers: SupplierProfile[] = [
     businessOwner: "Renata Queiroz",
     criticality: "Alta",
     integrationType: "API transacional",
-    dataClassification: "Dados financeiros e PII sensivel",
-    accessScope: "Tokenizacao e autorizacao",
+    dataClassification: "Dados financeiros e PII sensível",
+    accessScope: "Tokenização e autorização",
     hostingModel: "Cloud regulada",
     activeRegions: "Portugal, Espanha e Brasil",
-    servicesProvided: "Autorizacao de pagamentos e monitoramento antifraude.",
+    servicesProvided: "Autorização de pagamentos e monitoramento antifraude.",
     countriesOfOperation: "Portugal, Espanha, Brasil",
     certifications: ["PCI-DSS", "ISO 27001"],
     accessUsers: [
       { email: "andre@nexus.pay", invitationStatus: "enviado", invitationSentAt: "2026-04-12T16:00:00.000Z" },
     ],
-    notes: "Fornecedor aguardando envio e resposta do questionario atual.",
+    notes: "Fornecedor aguardando envio e resposta do questionário atual.",
     risk: "Alto Risco",
     lifecycleStatus: "questionarios-enviados",
     status: "Enviado (Aguardando Resposta)",
@@ -357,21 +416,21 @@ export const defaultSuppliers: SupplierProfile[] = [
 export const questionnaireCatalog: QuestionnaireOption[] = [
   {
     id: "catalog-security-base",
-    name: "Due Diligence - Seguranca Base",
-    category: "Seguranca da Informacao",
+    name: "Due Diligence - Segurança Base",
+    category: "Segurança da Informação",
     version: "v2.1",
     source: "catalogo",
   },
   {
     id: "catalog-privacy-lgpd",
-    name: "Avaliacao de Privacidade e LGPD",
+    name: "Avaliação de Privacidade e LGPD",
     category: "Privacidade",
     version: "v1.8",
     source: "catalogo",
   },
   {
     id: "catalog-bcp",
-    name: "Continuidade de Negocios e Resiliencia",
+    name: "Continuidade de Negócios e Resiliência",
     category: "Continuidade",
     version: "v1.3",
     source: "catalogo",
@@ -382,18 +441,18 @@ export function getLifecycleStatusLabel(status: SupplierLifecycleStatus) {
   if (status === "pendente-envio") return "Pendente de Envio";
   if (status === "questionarios-enviados") return "Enviado (Aguardando Resposta)";
   if (status === "em-preenchimento") return "Em Preenchimento";
-  if (status === "em-avaliacao") return "Em Revisao";
+  if (status === "em-avaliacao") return "Em Revisão";
   if (status === "concluido") return "Finalizado";
   return "Vencido";
 }
 
 export function getLifecycleStatusDescription(status: SupplierLifecycleStatus) {
-  if (status === "pendente-envio") return "Cadastro concluido e aguardando definicao de questionarios.";
-  if (status === "questionarios-enviados") return "Questionarios compartilhados com o fornecedor.";
-  if (status === "em-preenchimento") return "Fornecedor respondendo o questionario e anexando evidencias.";
-  if (status === "em-avaliacao") return "Time interno revisando respostas e evidencias recebidas.";
-  if (status === "concluido") return "Fluxo encerrado com avaliacao consolidada.";
-  return "Prazo expirado ou pendencia critica em aberto.";
+  if (status === "pendente-envio") return "Cadastro concluído e aguardando definição de questionários.";
+  if (status === "questionarios-enviados") return "Questionários compartilhados com o fornecedor.";
+  if (status === "em-preenchimento") return "Fornecedor respondendo o questionário e anexando evidências.";
+  if (status === "em-avaliacao") return "Time interno revisando respostas e evidências recebidas.";
+  if (status === "concluido") return "Fluxo encerrado com avaliação consolidada.";
+  return "Prazo expirado ou pendência crítica em aberto.";
 }
 
 function getInitial(name: string) {
@@ -414,11 +473,11 @@ export function getRiskClass(risk: SupplierRisk) {
     return "bg-primary/10 text-primary border-primary/20";
   }
 
-  if (risk === "Medio Risco") {
+  if (risk === "Médio Risco") {
     return "bg-tertiary/10 text-tertiary border-tertiary/20";
   }
 
-  if (risk === "Risco Critico") {
+  if (risk === "Risco Crítico") {
     return "bg-error/10 text-error border-error/20";
   }
 
@@ -427,7 +486,7 @@ export function getRiskClass(risk: SupplierRisk) {
 
 export function getStatusDot(status: string) {
   if (status.includes("Finalizado")) return "bg-primary";
-  if (status.includes("Revisao")) return "bg-tertiary";
+  if (status.includes("Revisão")) return "bg-tertiary";
   if (status.includes("Vencido")) return "bg-error";
   return "bg-orange-400";
 }
@@ -451,8 +510,8 @@ export function getScoreColor(score?: number) {
 
 export function getInitialColor(risk: SupplierRisk) {
   if (risk === "Baixo Risco") return "text-primary";
-  if (risk === "Medio Risco") return "text-tertiary";
-  if (risk === "Risco Critico") return "text-error";
+  if (risk === "Médio Risco") return "text-tertiary";
+  if (risk === "Risco Crítico") return "text-error";
   return "text-on-primary-fixed-variant";
 }
 
@@ -486,7 +545,7 @@ function readStoredSuppliersUnsafe() {
   }
 
   try {
-    return (JSON.parse(raw) as Partial<SupplierProfile>[]).map(normalizeSupplierProfile);
+    return (normalizeSupplierInput(JSON.parse(raw) as Partial<SupplierProfile>[]) as Partial<SupplierProfile>[]).map(normalizeSupplierProfile);
   } catch {
     return [];
   }
@@ -500,7 +559,7 @@ function inferLifecycleStatus(status?: string, assignedQuestionnaireIds?: string
   }
 
   if (status.includes("Finalizado")) return "concluido";
-  if (status.includes("Revisao")) return "em-avaliacao";
+  if (status.includes("Revisão")) return "em-avaliacao";
   if (status.includes("Vencido")) return "vencido";
   if (status.includes("Preench")) return "em-preenchimento";
   if (status.includes("Enviado") || status.includes("Resposta")) return "questionarios-enviados";
@@ -523,9 +582,9 @@ function buildRunsFromAssignments(
     questionnaireId,
     status:
       lifecycleStatus === "concluido"
-        ? "Concluido"
+        ? "Concluído"
         : lifecycleStatus === "em-avaliacao"
-          ? "Em avaliacao"
+          ? "Em avaliação"
           : lifecycleStatus === "em-preenchimento"
             ? "Em preenchimento"
             : lifecycleStatus === "vencido"
@@ -596,8 +655,8 @@ function normalizeSupplierProfile(profile: Partial<SupplierProfile>): SupplierPr
     domain: profile.domain ?? "",
     website: profile.website ?? "",
     supplierType: profile.supplierType ?? "SaaS / Plataforma",
-    segment: profile.segment ?? "Fornecedor sem segmentacao",
-    subsegment: profile.subsegment ?? "Nao informado",
+    segment: profile.segment ?? "Fornecedor sem segmentação",
+    subsegment: profile.subsegment ?? "Não informado",
     headquartersCity: profile.headquartersCity ?? "",
     headquartersCountry: profile.headquartersCountry ?? "Brasil",
     taxId: profile.taxId ?? "",
@@ -607,7 +666,7 @@ function normalizeSupplierProfile(profile: Partial<SupplierProfile>): SupplierPr
     securityContactEmail: profile.securityContactEmail ?? "",
     privacyContactEmail: profile.privacyContactEmail ?? "",
     businessOwner: profile.businessOwner ?? "",
-    criticality: profile.criticality ?? "Media",
+    criticality: profile.criticality ?? "Média",
     integrationType: profile.integrationType ?? "API",
     dataClassification: profile.dataClassification ?? "Dados corporativos e PII",
     accessScope: profile.accessScope ?? "Acesso somente leitura",
@@ -618,7 +677,7 @@ function normalizeSupplierProfile(profile: Partial<SupplierProfile>): SupplierPr
     certifications: profile.certifications ?? [],
     accessUsers: normalizeAccessUsers(profile.accessUsers, profile.primaryContactEmail),
     notes: profile.notes ?? "",
-    risk: profile.risk ?? "Medio Risco",
+    risk: profile.risk ?? "Médio Risco",
     lifecycleStatus,
     status: profile.status ?? getLifecycleStatusLabel(lifecycleStatus),
     score: profile.score,
@@ -725,15 +784,15 @@ export function updateSupplierQuestionnaireRunStatus(
   const updatedSupplier: SupplierProfile = {
     ...target,
     lifecycleStatus:
-      status === "Concluido"
+      status === "Concluído"
         ? "concluido"
-        : status === "Em avaliacao"
+        : status === "Em avaliação"
           ? "em-avaliacao"
           : target.lifecycleStatus,
     status:
-      status === "Concluido"
+      status === "Concluído"
         ? getLifecycleStatusLabel("concluido")
-        : status === "Em avaliacao"
+        : status === "Em avaliação"
           ? getLifecycleStatusLabel("em-avaliacao")
           : target.status,
     questionnaireRuns: target.questionnaireRuns.map((run) =>
@@ -741,7 +800,7 @@ export function updateSupplierQuestionnaireRunStatus(
         ? {
             ...run,
             status,
-            progress: status === "Concluido" ? 100 : run.progress,
+            progress: status === "Concluído" ? 100 : run.progress,
             lastUpdatedAt: now,
           }
         : run,
@@ -779,8 +838,8 @@ export function markSupplierAccessUserInviteSent(slug: string, email: string) {
 }
 
 export function getQuestionnaireRunStatusClass(status: QuestionnaireRunStatus) {
-  if (status === "Concluido") return "bg-emerald-100 text-emerald-700";
-  if (status === "Em avaliacao") return "bg-primary/10 text-primary";
+  if (status === "Concluído") return "bg-emerald-100 text-emerald-700";
+  if (status === "Em avaliação") return "bg-primary/10 text-primary";
   if (status === "Respondido") return "bg-secondary-container/30 text-on-secondary-container";
   if (status === "Em preenchimento") return "bg-amber-100 text-amber-700";
   if (status === "Vencido") return "bg-error/10 text-error";

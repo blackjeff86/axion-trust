@@ -84,8 +84,8 @@ function DataRoomSeguroPageContent() {
   );
 
   const totalPublished = workspace.documents.filter((document) => document.status === "Publicado").length;
-  const totalPending = workspace.documents.filter((document) => document.status === "Pendente de aprovacao").length;
-  const totalPublic = workspace.documents.filter((document) => document.visibility === "Publico").length;
+  const totalPending = workspace.documents.filter((document) => document.status === "Pendente de aprovação").length;
+  const totalPublic = workspace.documents.filter((document) => document.visibility === "Público").length;
   const totalApprovalFlow = workspace.documents.filter((document) => document.requiresApproval).length;
 
   return (
@@ -112,7 +112,7 @@ function DataRoomSeguroPageContent() {
                 className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
               >
                 <span className="material-symbols-outlined mr-2 align-middle text-base">approval</span>
-                Fila de aprovacoes
+                Fila de aprovações
               </Link>
             </div>
           </section>
@@ -167,16 +167,16 @@ function DataRoomSeguroPageContent() {
                     <label className="block">
                       <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Tipo de acesso</span>
                       <select name="visibility" defaultValue={selectedVisibility} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary">
-                        {["Todos", "Publico", "Privado"].map((visibility) => (
+                        {["Todos", "Público", "Privado"].map((visibility) => (
                           <option key={visibility} value={visibility}>{visibility}</option>
                         ))}
                       </select>
                     </label>
 
                     <label className="block">
-                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Status de publicacao</span>
+                      <span className="mb-2 block text-[11px] font-bold uppercase tracking-widest text-slate-500">Status de publicação</span>
                       <select name="status" defaultValue={selectedStatus} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm font-semibold text-on-surface outline-none transition focus:border-primary">
-                        {["Todos", "Publicado", "Pendente de aprovacao", "Rascunho"].map((status) => (
+                        {["Todos", "Publicado", "Pendente de aprovação", "Rascunho"].map((status) => (
                           <option key={status} value={status}>{status}</option>
                         ))}
                       </select>
@@ -208,7 +208,7 @@ function DataRoomSeguroPageContent() {
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Acesso</th>
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Status</th>
                       <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500">Downloads</th>
-                      <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Acoes</th>
+                      <th className="px-6 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-500">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-outline-variant/10">
@@ -270,7 +270,7 @@ function DataRoomSeguroPageContent() {
 
                   <div className="mt-8 grid grid-cols-2 gap-3">
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Versao</p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Versão</p>
                       <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.version}</p>
                     </div>
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
@@ -278,7 +278,7 @@ function DataRoomSeguroPageContent() {
                       <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.owner}</p>
                     </div>
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
-                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Atualizacao</p>
+                      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">Atualização</p>
                       <p className="mt-1 text-sm font-semibold text-on-surface">{selectedDocument.updatedAtLabel}</p>
                     </div>
                     <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low p-4">
@@ -291,14 +291,14 @@ function DataRoomSeguroPageContent() {
                     <p className="text-sm font-bold text-on-surface">Modelo de acesso</p>
                     <p className="mt-2 text-sm text-on-surface-variant">{selectedDocument.approvalRule}</p>
                     <div className="mt-3 space-y-2 text-xs text-on-surface-variant">
-                      <p>Visivel no Trust Center: {selectedDocument.visibleInTrustCenter ? "Sim" : "Nao"}</p>
-                      <p>Exige aprovacao: {selectedDocument.requiresApproval ? "Sim" : "Nao"}</p>
-                      <p>NDA: {selectedDocument.ndaRequired ? "Obrigatorio" : "Nao obrigatorio"}</p>
+                      <p>Visível no Trust Center: {selectedDocument.visibleInTrustCenter ? "Sim" : "Não"}</p>
+                      <p>Exige aprovação: {selectedDocument.requiresApproval ? "Sim" : "Não"}</p>
+                      <p>NDA: {selectedDocument.ndaRequired ? "Obrigatório" : "Não obrigatório"}</p>
                     </div>
                   </div>
 
                   <div className="mt-8">
-                    <p className="mb-3 text-sm font-bold text-on-surface">Ultimas solicitacoes</p>
+                    <p className="mb-3 text-sm font-bold text-on-surface">Últimas solicitações</p>
                     <div className="space-y-3">
                       {selectedRequests.length > 0 ? (
                         selectedRequests.map((request) => (
@@ -311,7 +311,7 @@ function DataRoomSeguroPageContent() {
                           </div>
                         ))
                       ) : (
-                        <div className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">Nenhuma solicitacao recente para este documento.</div>
+                        <div className="rounded-xl bg-surface-container-low p-4 text-sm text-on-surface-variant">Nenhuma solicitação recente para este documento.</div>
                       )}
                     </div>
                   </div>

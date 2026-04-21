@@ -47,7 +47,7 @@ function buildQuestion(type: QuestionType, sectionId: string): Question {
       type,
       title: "Nova pergunta de validacao",
       required: true,
-      options: ["Sim", "Nao"],
+      options: ["Sim", "Não"],
       evidenceHint: "Defina abaixo as regras que devem abrir novas perguntas.",
     };
   }
@@ -120,9 +120,9 @@ export default function NovoQuestionarioPage() {
       );
       setRules(parsed.rules);
       setLastSavedAt(parsed.savedAt);
-      setFeedback(`Ultimo ${parsed.saveMode === "rascunho" ? "rascunho" : "template"} carregado automaticamente.`);
+      setFeedback(`Último ${parsed.saveMode === "rascunho" ? "rascunho" : "template"} carregado automaticamente.`);
     } catch {
-      setFeedback("Nao foi possivel recuperar o ultimo template salvo.");
+      setFeedback("Não foi possível recuperar o último template salvo.");
     }
   }, []);
 
@@ -291,7 +291,7 @@ export default function NovoQuestionarioPage() {
 
   return (
     <>
-      <SecureTopbar placeholder="Buscar perguntas, secoes ou evidencias..." />
+      <SecureTopbar placeholder="Buscar perguntas, seções ou evidências..." />
 
       <main className="min-h-screen bg-surface p-8">
         <div className="space-y-8">
@@ -303,12 +303,12 @@ export default function NovoQuestionarioPage() {
                   Due Diligence de Terceiros
                 </Link>
                 <span className="material-symbols-outlined text-sm">chevron_right</span>
-                <span className="font-semibold text-on-surface">Novo Questionario</span>
+                <span className="font-semibold text-on-surface">Novo Questionário</span>
               </div>
 
               <SecurePageHeader
-                title="Novo Questionario de Fornecedor"
-                subtitle="Monte formularios no estilo Typeform com perguntas dinamicas, logica de resposta e recebimento estruturado de evidencias."
+                title="Novo Questionário de Fornecedor"
+                subtitle="Monte formulários no estilo Typeform com perguntas dinâmicas, lógica de resposta e recebimento estruturado de evidências."
               />
             </div>
 
@@ -337,7 +337,7 @@ export default function NovoQuestionarioPage() {
           <section className="rounded-2xl border border-primary/10 bg-primary/5 px-4 py-3 text-sm text-on-surface shadow-panel">
             <div className="flex flex-col gap-1 md:flex-row md:items-center md:justify-between">
               <p>{feedback}</p>
-              <p className="text-xs text-on-surface-variant">{lastSavedAt ? `Ultimo salvamento: ${lastSavedAt}` : "Ainda nao salvo"}</p>
+              <p className="text-xs text-on-surface-variant">{lastSavedAt ? `Último salvamento: ${lastSavedAt}` : "Ainda não salvo"}</p>
             </div>
           </section>
 
@@ -345,7 +345,7 @@ export default function NovoQuestionarioPage() {
             <div className="space-y-6 xl:col-span-8">
               <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
                 <div className="mb-6 flex items-center justify-between">
-                  <h3 className="font-headline text-lg font-bold text-white">Configuracao do Template</h3>
+                  <h3 className="font-headline text-lg font-bold text-white">Configuração do Template</h3>
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">
                     Etapa 1
                   </span>
@@ -369,14 +369,14 @@ export default function NovoQuestionarioPage() {
                       onChange={(event) => setConfig((current) => ({ ...current, category: event.target.value }))}
                       className="w-full rounded-lg border border-outline-variant/20 bg-surface-container-lowest px-3 py-2.5 text-sm text-on-surface focus:border-primary focus:outline-none"
                     >
-                      <option>Seguranca da Informacao</option>
+                      <option>Segurança da Informação</option>
                       <option>Privacidade e LGPD</option>
                       <option>Governanca e Riscos</option>
                     </select>
                   </label>
 
                   <label className="space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Versao do Template</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Versão do Template</span>
                     <input
                       type="text"
                       value={config.version}
@@ -421,7 +421,7 @@ export default function NovoQuestionarioPage() {
                 <div className="mb-6 rounded-xl border border-slate-100/50 bg-surface-container-low p-4 shadow-panel">
                   <div className="mb-4 flex items-center justify-between">
                     <div>
-                      <h4 className="font-headline text-base font-bold text-white">Secoes do Questionario</h4>
+                      <h4 className="font-headline text-base font-bold text-white">Seções do Questionário</h4>
                       <p className="text-sm text-on-surface-variant">Agrupe perguntas por blocos tematicos antes de usar o template nos fornecedores.</p>
                     </div>
                     <button
@@ -581,7 +581,7 @@ export default function NovoQuestionarioPage() {
                                   <div className="mt-4 rounded-lg border border-outline-variant/20 bg-surface p-3">
                                     <p className="mb-2 text-[11px] font-bold uppercase tracking-widest text-slate-500">Expansao Condicional</p>
                                     <p className="text-xs text-on-surface-variant">
-                                      Use as regras laterais para decidir quais perguntas aparecem quando a resposta for Sim ou Nao.
+                                      Use as regras laterais para decidir quais perguntas aparecem quando a resposta for Sim ou Não.
                                     </p>
                                   </div>
                                 ) : null}
@@ -670,7 +670,7 @@ export default function NovoQuestionarioPage() {
                           <td className="px-4 py-3">
                             <span
                               className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
-                                evidence.required === "Obrigatorio"
+                                evidence.required === "Obrigatório"
                                   ? "bg-error/10 text-error"
                                   : "bg-secondary-container/30 text-on-secondary-container"
                               }`}
@@ -775,7 +775,7 @@ export default function NovoQuestionarioPage() {
                 <ul className="space-y-2 text-sm text-on-surface-variant">
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
-                    {sections.length} secoes configuradas
+                    {sections.length} seções configuradas
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
@@ -783,7 +783,7 @@ export default function NovoQuestionarioPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
-                    {evidences.filter((evidence) => evidence.required === "Obrigatorio").length} evidencias obrigatorias definidas
+                    {evidences.filter((evidence) => evidence.required === "Obrigatório").length} evidências obrigatórias definidas
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">check_circle</span>

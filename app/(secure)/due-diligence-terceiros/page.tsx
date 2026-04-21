@@ -16,14 +16,14 @@ export default function DueDiligencePage() {
 
   const kpis = useMemo(() => {
     const total = suppliers.length;
-    const critical = suppliers.filter((supplier) => supplier.risk === "Alto Risco" || supplier.risk === "Risco Critico").length;
+    const critical = suppliers.filter((supplier) => supplier.risk === "Alto Risco" || supplier.risk === "Risco Crítico").length;
     const pending = suppliers.filter(
       (supplier) =>
         supplier.status.includes("Pendente") ||
         supplier.status.includes("Aguardando") ||
         supplier.status.includes("Cadastro") ||
         supplier.status.includes("Preenchimento") ||
-        supplier.status.includes("Revisao"),
+        supplier.status.includes("Revisão"),
     ).length;
     const scores = suppliers.map((supplier) => supplier.score).filter((score): score is number => typeof score === "number");
     const avgScore = scores.length ? Math.round(scores.reduce((acc, score) => acc + score, 0) / scores.length) : 0;

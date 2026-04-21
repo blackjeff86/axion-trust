@@ -35,14 +35,14 @@ import {
 } from "./trust-theme";
 
 const certificationIconOptions = [
-  { value: "security", label: "Seguranca", iconClass: "text-blue-400 bg-blue-500/10" },
-  { value: "verified", label: "Validacao", iconClass: "text-emerald-500 bg-emerald-500/10" },
+  { value: "security", label: "Segurança", iconClass: "text-blue-400 bg-blue-500/10" },
+  { value: "verified", label: "Validação", iconClass: "text-emerald-500 bg-emerald-500/10" },
   { value: "workspace_premium", label: "Selo premium", iconClass: "text-amber-500 bg-amber-500/10" },
   { value: "analytics", label: "Auditoria", iconClass: "text-primary bg-primary/10" },
   { value: "gavel", label: "Compliance legal", iconClass: "text-tertiary bg-tertiary/10" },
-  { value: "shield", label: "Protecao", iconClass: "text-cyan-500 bg-cyan-500/10" },
+  { value: "shield", label: "Proteção", iconClass: "text-cyan-500 bg-cyan-500/10" },
   { value: "fact_check", label: "Conformidade", iconClass: "text-violet-500 bg-violet-500/10" },
-  { value: "policy", label: "Politicas", iconClass: "text-slate-500 bg-slate-500/10" },
+  { value: "policy", label: "Políticas", iconClass: "text-slate-500 bg-slate-500/10" },
 ];
 
 export default function BuilderTrustCenterPage() {
@@ -145,7 +145,7 @@ export default function BuilderTrustCenterPage() {
     const defaultIcon = certificationIconOptions[0];
     const newCertification: BuilderCertification = {
       id: `custom-cert-${Date.now()}`,
-      label: `Nova certificacao ${nextIndex}`,
+      label: `Nova certificação ${nextIndex}`,
       icon: defaultIcon.value,
       iconClass: defaultIcon.iconClass,
       checked: true,
@@ -176,7 +176,7 @@ export default function BuilderTrustCenterPage() {
     const newFaqItem: BuilderFaqItem = {
       id: `faq-${Date.now()}`,
       question: `Nova pergunta frequente ${nextIndex}`,
-      answer: "Escreva aqui a resposta que sera exibida no portal publico.",
+      answer: "Escreva aqui a resposta que será exibida no portal público.",
     };
 
     setSettings((currentSettings) => ({
@@ -252,14 +252,14 @@ export default function BuilderTrustCenterPage() {
 
   return (
     <>
-      <SecureTopbar placeholder="Buscar blocos, secoes ou documentos..." />
+      <SecureTopbar placeholder="Buscar blocos, seções ou documentos..." />
 
       <main className="min-h-screen bg-surface p-8">
         <header className="mb-12 flex flex-col justify-between gap-6 xl:flex-row xl:items-end">
           <div>
             <h2 className="mb-2 font-headline text-3xl font-extrabold tracking-tight text-white">Builder do Trust Center</h2>
             <p className="max-w-2xl text-on-surface-variant">
-              Monte a pagina publica do Trust da sua empresa: identidade visual, secoes exibidas, certificacoes, documentos e FAQ.
+              Monte a página pública do Trust da sua empresa: identidade visual, seções exibidas, certificações, documentos e FAQ.
             </p>
             <button
               type="button"
@@ -300,10 +300,10 @@ export default function BuilderTrustCenterPage() {
 
         <div className="mb-6 flex flex-wrap gap-3 text-xs text-slate-500">
           <span className="rounded-full bg-surface-container-low px-4 py-2">
-            Ultimo rascunho: {formatMetaDate(publicationMeta.draftSavedAt) ?? "ainda nao salvo"}
+            Último rascunho: {formatMetaDate(publicationMeta.draftSavedAt) ?? "ainda não salvo"}
           </span>
           <span className="rounded-full bg-surface-container-low px-4 py-2">
-            Ultima publicacao: {formatMetaDate(publicationMeta.publishedAt) ?? "nao publicada"}
+            Última publicação: {formatMetaDate(publicationMeta.publishedAt) ?? "não publicada"}
           </span>
         </div>
 
@@ -316,12 +316,12 @@ export default function BuilderTrustCenterPage() {
                   Identidade Visual do Trust
                 </h3>
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
-                  Configure a marca e toda a narrativa principal da pagina publica: como o Trust aparece no header,
-                  qual mensagem abre a pagina e quais sinais de confianca reforcam a proposta logo no primeiro bloco.
+                  Configure a marca e toda a narrativa principal da página pública: como o Trust aparece no header,
+                  qual mensagem abre a página e quais sinais de confiança reforçam a proposta logo no primeiro bloco.
                 </p>
               </div>
               <span className="self-start rounded-full bg-primary/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-primary xl:self-auto">
-                Marca + narrativa publica
+                Marca + narrativa pública
               </span>
             </div>
 
@@ -349,7 +349,7 @@ export default function BuilderTrustCenterPage() {
                     </div>
 
                     <div className="rounded-[24px] border border-outline-variant/10 bg-[linear-gradient(180deg,rgba(248,251,255,0.92)_0%,rgba(255,255,255,0.96)_100%)] p-5">
-                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Nome de Exibicao</label>
+                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Nome de Exibição</label>
                       <input
                         type="text"
                         value={settings.displayName}
@@ -364,7 +364,7 @@ export default function BuilderTrustCenterPage() {
                     </div>
 
                     <div className="rounded-[24px] border border-outline-variant/10 bg-[linear-gradient(180deg,rgba(248,251,255,0.92)_0%,rgba(255,255,255,0.96)_100%)] p-5">
-                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Descricao publica</label>
+                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Descrição pública</label>
                       <textarea
                         rows={5}
                         onChange={(event) =>
@@ -387,8 +387,8 @@ export default function BuilderTrustCenterPage() {
                       </div>
                       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                         {[
-                          { id: "icon", label: "Icone compacto", description: "Marca resumida em um bloco visual menor." },
-                          { id: "wordmark", label: "Wordmark ampliado", description: "Nome da marca com mais presenca no header." },
+                          { id: "icon", label: "Ícone compacto", description: "Marca resumida em um bloco visual menor." },
+                          { id: "wordmark", label: "Wordmark ampliado", description: "Nome da marca com mais presença no header." },
                         ].map((option) => {
                           const isActive = settings.logoMode === option.id;
 
@@ -429,10 +429,10 @@ export default function BuilderTrustCenterPage() {
                   <div className="mb-6 flex items-center justify-between gap-4">
                     <div>
                       <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Hero editor</p>
-                      <h4 className="mt-2 text-xl font-bold text-slate-950">Mensagem principal da pagina</h4>
+                      <h4 className="mt-2 text-xl font-bold text-slate-950">Mensagem principal da página</h4>
                     </div>
                     <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-700">
-                      Conteudo de venda do cliente
+                      Conteúdo de venda do cliente
                     </div>
                   </div>
 
@@ -470,7 +470,7 @@ export default function BuilderTrustCenterPage() {
                     </div>
 
                     <div className="mt-4">
-                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Titulo principal</label>
+                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Título principal</label>
                       <textarea
                         rows={5}
                         value={settings.heroTitle}
@@ -486,7 +486,7 @@ export default function BuilderTrustCenterPage() {
 
                     <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">CTA primario</label>
+                        <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">CTA primário</label>
                         <input
                           type="text"
                           value={settings.primaryCtaLabel}
@@ -501,7 +501,7 @@ export default function BuilderTrustCenterPage() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">CTA secundario</label>
+                        <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">CTA secundário</label>
                         <input
                           type="text"
                           value={settings.secondaryCtaLabel}
@@ -520,7 +520,7 @@ export default function BuilderTrustCenterPage() {
                   <div className="mt-6 rounded-[24px] border border-outline-variant/10 bg-white p-5">
                     <div className="mb-5 flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Sinais de confianca</p>
+                        <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Sinais de confiança</p>
                         <h5 className="mt-2 text-base font-bold text-slate-950">Cards de apoio do hero</h5>
                       </div>
                       <div className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-700">
@@ -589,10 +589,10 @@ export default function BuilderTrustCenterPage() {
               <div>
                 <h3 className="flex items-center gap-2 font-headline text-lg font-bold">
                   <span className="material-symbols-outlined text-primary">palette</span>
-                  Paleta da Pagina Trust
+                  Paleta da Página Trust
                 </h3>
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-500">
-                  Defina o sistema visual da pagina publica. Essas cores alimentam badges, botoes, header, blocos de apoio
+                  Defina o sistema visual da página pública. Essas cores alimentam badges, botões, header, blocos de apoio
                   e a atmosfera geral do preview que o cliente final vai enxergar.
                 </p>
               </div>
@@ -604,11 +604,11 @@ export default function BuilderTrustCenterPage() {
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
               <div className="rounded-[28px] border border-outline-variant/10 bg-[linear-gradient(180deg,rgba(247,250,255,0.96)_0%,rgba(255,255,255,0.98)_100%)] p-6 shadow-[0_18px_40px_rgba(15,23,42,0.04)]">
                 <div className="mb-5">
-                  <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Leitura rapida</p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Leitura rápida</p>
                   <h4 className="mt-2 text-xl font-bold text-slate-950">Como a paleta se distribui</h4>
                   <p className="mt-3 text-sm leading-6 text-slate-500">
-                    Use este bloco como referencia visual antes de abrir o preview completo. A ideia aqui e entender rapidamente
-                    se a combinacao esta sofisticada, legivel e coerente com a marca do cliente.
+                    Use este bloco como referência visual antes de abrir o preview completo. A ideia aqui é entender rapidamente
+                    se a combinação está sofisticada, legível e coerente com a marca do cliente.
                   </p>
                 </div>
 
@@ -630,8 +630,8 @@ export default function BuilderTrustCenterPage() {
                       </span>
                     </div>
                     <div className="mt-4 rounded-2xl p-4" style={{ backgroundColor: "#ffffffE6" }}>
-                      <p className="text-sm font-bold text-slate-900">Preview rapido</p>
-                      <p className="mt-2 text-xs leading-5 text-slate-500">Botao, badge, fundo e areas suaves representados em escala reduzida.</p>
+                      <p className="text-sm font-bold text-slate-900">Preview rápido</p>
+                      <p className="mt-2 text-xs leading-5 text-slate-500">Botão, badge, fundo e áreas suaves representados em escala reduzida.</p>
                       <div className="mt-4 flex flex-wrap gap-2">
                         <span className="rounded-full px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em]" style={{ backgroundColor: theme.secondary, color: getContrastColor(theme.secondary) }}>
                           Badge
@@ -755,7 +755,7 @@ export default function BuilderTrustCenterPage() {
           <section className="col-span-12 self-start rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel lg:col-span-6">
             <h3 className="mb-6 flex items-center gap-2 font-headline text-lg font-bold">
               <span className="material-symbols-outlined text-primary">view_quilt</span>
-              Secoes exibidas
+              Seções exibidas
             </h3>
 
             <div className="space-y-4">
@@ -782,7 +782,7 @@ export default function BuilderTrustCenterPage() {
           <section className="col-span-12 rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel lg:col-span-6">
             <h3 className="mb-6 flex items-center gap-2 font-headline text-lg font-bold">
               <span className="material-symbols-outlined text-primary">verified</span>
-              Certificacoes
+              Certificações
             </h3>
 
             <div className="space-y-4">
@@ -802,7 +802,7 @@ export default function BuilderTrustCenterPage() {
                       <div className="flex-1 space-y-3">
                         <div>
                           <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                            Nome da certificacao
+                            Nome da certificação
                           </label>
                           <input
                             type="text"
@@ -815,7 +815,7 @@ export default function BuilderTrustCenterPage() {
 
                         <div>
                           <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                            Icone da certificacao
+                            Ícone da certificação
                           </label>
                           <select
                             value={certification.icon}
@@ -861,7 +861,7 @@ export default function BuilderTrustCenterPage() {
                 onClick={addCertification}
                 className="mt-2 block w-full rounded-lg border-2 border-dashed border-outline-variant py-3 text-center text-xs font-bold uppercase tracking-widest text-slate-500 transition-all hover:border-primary hover:text-primary"
               >
-                Adicionar Certificacao
+                Adicionar Certificação
               </button>
             </div>
           </section>
@@ -903,8 +903,8 @@ export default function BuilderTrustCenterPage() {
                       </span>
                       <span className="mb-1 text-[9px] font-bold uppercase text-slate-500">Acesso</span>
                       <div className="flex items-center gap-2">
-                        <span className={`text-[10px] font-bold ${document.visibility === "Publico" ? "text-primary" : "text-slate-500"}`}>
-                          {document.visibility.toUpperCase()}
+                        <span className={`text-[10px] font-bold ${document.visibility === "Público" ? "text-primary" : "text-slate-500"}`}>
+                          {document.visibility === "Público" ? "PÚBLICO" : document.visibility.toUpperCase()}
                         </span>
                         <button
                           type="button"
@@ -944,12 +944,12 @@ export default function BuilderTrustCenterPage() {
           <section className="col-span-12 rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-8 shadow-panel lg:col-span-6">
             <h3 className="mb-6 flex items-center gap-2 font-headline text-lg font-bold">
               <span className="material-symbols-outlined text-primary">mail</span>
-              Atalhos e Contato Publico
+              Atalhos e Contato Público
             </h3>
 
             <div className="space-y-6">
               <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">E-mail de Contato de Seguranca</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">E-mail de Contato de Segurança</label>
                 <div className="relative">
                   <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-xl text-slate-500">alternate_email</span>
                   <input
@@ -964,11 +964,11 @@ export default function BuilderTrustCenterPage() {
                     className="w-full rounded-lg border-none bg-surface-container-lowest p-3 pl-12 text-on-surface transition-all ring-primary/50 focus:ring-2"
                   />
                 </div>
-                <p className="mt-2 text-[11px] italic text-slate-600">Este e-mail sera exibido publicamente para reportes de vulnerabilidade.</p>
+                <p className="mt-2 text-[11px] italic text-slate-600">Este e-mail será exibido publicamente para reportes de vulnerabilidade.</p>
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">Tempo Medio de Resposta (SLA)</label>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">Tempo Médio de Resposta (SLA)</label>
                 <select
                   className="w-full rounded-lg border-none bg-surface-container-lowest p-3 text-on-surface transition-all ring-primary/50 focus:ring-2"
                   value={settings.responseSla}
@@ -980,8 +980,8 @@ export default function BuilderTrustCenterPage() {
                   }
                 >
                   <option>Menos de 24 horas</option>
-                  <option>Ate 48 horas</option>
-                  <option>Ate 5 dias uteis</option>
+                  <option>Até 48 horas</option>
+                  <option>Até 5 dias úteis</option>
                 </select>
               </div>
             </div>
@@ -995,7 +995,7 @@ export default function BuilderTrustCenterPage() {
 
             <div className="space-y-4">
               <div className="rounded-2xl border border-outline-variant/10 bg-surface-container-low p-4">
-                <p className="text-sm font-semibold text-slate-900">Perguntas e respostas publicas</p>
+                <p className="text-sm font-semibold text-slate-900">Perguntas e respostas públicas</p>
                 <p className="mt-1 text-xs leading-5 text-slate-500">
                   Preencha a pergunta que o cliente costuma fazer e a resposta que deve aparecer no preview.
                 </p>
@@ -1011,7 +1011,7 @@ export default function BuilderTrustCenterPage() {
                       </div>
                       <div>
                         <p className="text-sm font-bold text-slate-900">Item do FAQ</p>
-                        <p className="text-xs text-slate-500">Conteudo exibido na pagina publica</p>
+                        <p className="text-xs text-slate-500">Conteúdo exibido na página pública</p>
                       </div>
                     </div>
                     <button
@@ -1032,18 +1032,18 @@ export default function BuilderTrustCenterPage() {
                         value={item.question}
                         onChange={(event) => updateFaqItem(index, "question", event.target.value)}
                         className="w-full rounded-xl border border-outline-variant/10 bg-surface-container-lowest px-4 py-3 text-sm text-on-surface outline-none transition focus:border-primary"
-                        placeholder="Ex.: Como voces tratam incidentes de seguranca?"
+                        placeholder="Ex.: Como vocês tratam incidentes de segurança?"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Resposta publica</label>
+                      <label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500">Resposta pública</label>
                       <textarea
                         rows={4}
                         value={item.answer}
                         onChange={(event) => updateFaqItem(index, "answer", event.target.value)}
                         className="w-full resize-none rounded-xl border border-outline-variant/10 bg-surface-container-lowest px-4 py-3 text-sm leading-6 text-on-surface outline-none transition focus:border-primary"
-                        placeholder="Explique de forma clara o texto que sera mostrado ao visitante."
+                        placeholder="Explique de forma clara o texto que será mostrado ao visitante."
                       />
                     </div>
                   </div>
@@ -1062,17 +1062,17 @@ export default function BuilderTrustCenterPage() {
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3">
               <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
-              <span className="text-sm font-medium text-slate-400">Portal Publico Online</span>
+              <span className="text-sm font-medium text-slate-400">Portal Público Online</span>
             </div>
             <div className="h-8 w-px bg-outline-variant/20" />
             <div>
-              <span className="mb-1 block text-xs font-bold uppercase text-slate-500">Ultima Publicacao</span>
-              <span className="text-sm font-medium">Ha 2 horas por Joao Silva</span>
+              <span className="mb-1 block text-xs font-bold uppercase text-slate-500">Última Publicação</span>
+              <span className="text-sm font-medium">Há 2 horas por João Silva</span>
             </div>
           </div>
 
           <div className="text-right">
-            <p className="mb-1 text-xs font-bold text-slate-500">Status da Pagina Trust</p>
+            <p className="mb-1 text-xs font-bold text-slate-500">Status da Página Trust</p>
             <div className="h-1.5 w-48 overflow-hidden rounded-full bg-surface-container-highest">
               <div className="h-full w-[85%] bg-primary" />
             </div>

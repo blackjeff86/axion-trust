@@ -101,7 +101,7 @@ const initialState: SupplierFormState = {
   countriesOfOperation: "",
   certifications: [],
   notes: "",
-  risk: "Medio Risco",
+    risk: "Médio Risco",
 };
 
 export default function NovoFornecedorPage() {
@@ -144,7 +144,7 @@ export default function NovoFornecedorPage() {
 
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-        setFeedback(payload?.error || "Nao foi possivel consultar o CNPJ agora.");
+        setFeedback(payload?.error || "Não foi possível consultar o CNPJ agora.");
         return;
       }
 
@@ -200,7 +200,7 @@ export default function NovoFornecedorPage() {
       website: form.website || `https://${form.domain}`,
       supplierType: form.supplierType,
       segment: form.segment || "Fornecedor sem segmentacao",
-      subsegment: form.subsegment || "Nao informado",
+      subsegment: form.subsegment || "Não informado",
       headquartersCity: form.headquartersCity,
       headquartersCountry: form.headquartersCountry,
       taxId: form.taxId,
@@ -290,7 +290,7 @@ export default function NovoFornecedorPage() {
 
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <label className="space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Razao social</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Razão social</span>
                     <input value={form.legalName} onChange={(event) => updateField("legalName", event.target.value)} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm" />
                   </label>
                   <label className="space-y-2">
@@ -298,7 +298,7 @@ export default function NovoFornecedorPage() {
                     <input value={form.displayName} onChange={(event) => updateField("displayName", event.target.value)} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm" />
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Dominio principal</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Domínio principal</span>
                     <input value={form.domain} onChange={(event) => updateField("domain", event.target.value)} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm" placeholder="empresa.com" />
                   </label>
                   <label className="space-y-2">
@@ -379,9 +379,9 @@ export default function NovoFornecedorPage() {
                     <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Risco inicial</span>
                     <select value={form.risk} onChange={(event) => updateField("risk", event.target.value as SupplierProfile["risk"])} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm">
                       <option>Baixo Risco</option>
-                      <option>Medio Risco</option>
+                      <option>Médio Risco</option>
                       <option>Alto Risco</option>
-                      <option>Risco Critico</option>
+                      <option>Risco Crítico</option>
                     </select>
                   </label>
                   <label className="space-y-2">
@@ -394,7 +394,7 @@ export default function NovoFornecedorPage() {
                     </select>
                   </label>
                   <label className="space-y-2">
-                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Classificacao de dados</span>
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Classificação de dados</span>
                     <select value={form.dataClassification} onChange={(event) => updateField("dataClassification", event.target.value)} className="w-full rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-3 text-sm">
                       <option>Dados corporativos e PII</option>
                       <option>Dados financeiros</option>
@@ -440,7 +440,7 @@ export default function NovoFornecedorPage() {
                     <div className="mb-4">
                       <h4 className="font-headline text-base font-bold text-white">Contato do fornecedor</h4>
                       <p className="text-sm text-on-surface-variant">
-                        Pessoa ou area responsavel por responder o questionario e coordenar evidencias.
+                        Pessoa ou área responsável por responder o questionário e coordenar evidências.
                       </p>
                     </div>
 
@@ -488,7 +488,7 @@ export default function NovoFornecedorPage() {
 
               <article className="rounded-2xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
                 <div className="mb-6 flex items-center justify-between">
-                  <h3 className="font-headline text-lg font-bold text-white">Certificacoes e observacoes</h3>
+                  <h3 className="font-headline text-lg font-bold text-white">Certificações e observações</h3>
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-primary">Etapa 4</span>
                 </div>
 
@@ -541,7 +541,7 @@ export default function NovoFornecedorPage() {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">check_circle</span>
-                    Regioes de operacao, modelo de hospedagem e certificacoes declaradas
+                    Regiões de operação, modelo de hospedagem e certificações declaradas
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="material-symbols-outlined text-sm text-primary">check_circle</span>

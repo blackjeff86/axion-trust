@@ -4,124 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
-
-const initialPendingRequests = [
-  {
-    id: "req-1",
-    requester: "Mariana Costa",
-    email: "mariana@bancoglobal.com",
-    company: "Banco Global",
-    document: "SOC_2_Type_II_Report.pdf",
-    requestedAt: "Ha 25 min",
-    reason: "Validacao de controles antes da renovacao contratual.",
-    documentType: "Documento privado",
-    reviewTag: null,
-  },
-  {
-    id: "req-2",
-    requester: "Igor Mota",
-    email: "igor@retailwave.com",
-    company: "Retail Wave",
-    document: "Data_Processing_Addendum.pdf",
-    requestedAt: "Hoje, 08:35",
-    reason: "Checklist de privacidade para assinatura do MSA.",
-    documentType: "Documento privado",
-    reviewTag: null,
-  },
-];
-
-const initialApprovedAccesses = [
-  {
-    id: "acc-1",
-    requester: "Amanda Reis",
-    email: "amanda@bancoglobal.com",
-    company: "Banco Global",
-    document: "SOC_2_Type_II_Report.pdf",
-    approvedAt: "18/04/2026, 14:02",
-    expiresAt: "18/04/2027",
-    status: "Ativo",
-    statusClass: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    id: "acc-2",
-    requester: "Ricardo Nunes",
-    email: "ricardo@pineventures.com",
-    company: "Pine Ventures",
-    document: "Resumo_Pentest_Externos.pdf",
-    approvedAt: "15/04/2026, 18:40",
-    expiresAt: "15/04/2027",
-    status: "Ativo",
-    statusClass: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    id: "acc-3",
-    requester: "Fernanda Souza",
-    email: "fernanda@bancoglobal.com",
-    company: "Banco Global",
-    document: "SOC_2_Type_II_Report.pdf",
-    approvedAt: "16/04/2026, 09:11",
-    expiresAt: "16/04/2027",
-    status: "Ativo",
-    statusClass: "bg-emerald-100 text-emerald-700",
-  },
-];
-
-type PendingRequest = {
-  id: string;
-  requester: string;
-  email: string;
-  company: string;
-  document: string;
-  requestedAt: string;
-  reason: string;
-  documentType: string;
-  reviewTag: string | null;
-};
-
-type ApprovedAccess = (typeof initialApprovedAccesses)[number];
-
-type DeniedAccess = PendingRequest & {
-  deniedAt: string;
-};
-
-const STORAGE_KEY = "axion-trust-gestao-acessos";
-
-type AccessManagementState = {
-  pendingRequests: PendingRequest[];
-  approvedAccesses: ApprovedAccess[];
-  deniedAccesses: DeniedAccess[];
-};
-
-const defaultState: AccessManagementState = {
-  pendingRequests: initialPendingRequests,
-  approvedAccesses: initialApprovedAccesses,
-  deniedAccesses: [],
-};
-
-function getInitialState(): AccessManagementState {
-  if (typeof window === "undefined") {
-    return defaultState;
-  }
-
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-
-  if (!raw) {
-    return defaultState;
-  }
-
-  try {
-    const parsed = JSON.parse(raw) as AccessManagementState;
-
-    const hasAnyData =
-      (parsed.pendingRequests?.length ?? 0) > 0 ||
-      (parsed.approvedAccesses?.length ?? 0) > 0 ||
-      (parsed.deniedAccesses?.length ?? 0) > 0;
-
-    return hasAnyData ? parsed : defaultState;
-  } catch {
-    return defaultState;
-  }
-}
+import {
+  defaultAccessManagementState,
+  getAccessManagementStateClient,
+  STORAGE_KEY,
+  type ApprovedAccess,
+  type DeniedAccess,
+  type PendingRequest,
+} from "./access-data";
 
 export default function GestaoAcessosPage() {
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
@@ -129,7 +19,7 @@ export default function GestaoAcessosPage() {
   const [deniedAccesses, setDeniedAccesses] = useState<DeniedAccess[]>([]);
 
   useEffect(() => {
-    const state = getInitialState();
+    const state = getAccessManagementStateClient();
     setPendingRequests(state.pendingRequests);
     setApprovedAccesses(state.approvedAccesses);
     setDeniedAccesses(state.deniedAccesses);
@@ -240,9 +130,9 @@ export default function GestaoAcessosPage() {
   }
 
   function handleRestoreMocks() {
-    setPendingRequests(defaultState.pendingRequests);
-    setApprovedAccesses(defaultState.approvedAccesses);
-    setDeniedAccesses(defaultState.deniedAccesses);
+    setPendingRequests(defaultAccessManagementState.pendingRequests);
+    setApprovedAccesses(defaultAccessManagementState.approvedAccesses);
+    setDeniedAccesses(defaultAccessManagementState.deniedAccesses);
   }
 
   return (
@@ -311,7 +201,7 @@ export default function GestaoAcessosPage() {
           <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
               <div>
-                <h3 className="font-headline text-lg font-bold text-white">Solicitacoes pendentes</h3>
+                <h3 className="font-headline text-lg font-bold text-white">Solicitações pendentes</h3>
                 <p className="mt-1 text-sm text-on-surface-variant">
                   Pedidos criados quando um terceiro tenta baixar um documento privado do Trust.
                 </p>
@@ -423,7 +313,7 @@ export default function GestaoAcessosPage() {
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Aprovado em</th>
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Expira em</th>
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Status</th>
-                    <th className="px-8 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Acoes</th>
+                    <th className="px-8 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/10">

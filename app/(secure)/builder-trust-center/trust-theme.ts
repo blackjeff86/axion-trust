@@ -15,20 +15,20 @@ export const TRUST_THEME_LABELS: Record<
     description: "Usada em badges, destaques e elementos de apoio da marca.",
   },
   secondary: {
-    title: "Secundaria",
-    description: "Usada em tabs ativas, chips e areas suaves de destaque.",
+    title: "Secundária",
+    description: "Usada em tabs ativas, chips e áreas suaves de destaque.",
   },
   button: {
-    title: "Botoes",
-    description: "Cor principal dos CTAs visiveis para o visitante.",
+    title: "Botões",
+    description: "Cor principal dos CTAs visíveis para o visitante.",
   },
   surface: {
     title: "Fundo",
-    description: "Base visual das secoes publicas e respiro da pagina.",
+    description: "Base visual das seções públicas e respiro da página.",
   },
   header: {
     title: "Header",
-    description: "Faixas de cabecalho, hero e areas institucionais.",
+    description: "Faixas de cabeçalho, hero e áreas institucionais.",
   },
 };
 

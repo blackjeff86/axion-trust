@@ -25,9 +25,9 @@ const trustNavigation = ["Overview", "Compliance", "Privacidade", "Documentos", 
 
 const requestAccessSteps = [
   "Selecione um documento privado e clique em solicitar acesso.",
-  "Informe seus dados profissionais e o contexto da sua analise.",
-  "Nossa equipe revisa a solicitacao e valida o perfil de acesso.",
-  "Depois da aprovacao, o material fica disponivel conforme a politica definida pela empresa.",
+  "Informe seus dados profissionais e o contexto da sua análise.",
+  "Nossa equipe revisa a solicitação e valida o perfil de acesso.",
+  "Depois da aprovação, o material fica disponível conforme a política definida pela empresa.",
 ];
 
 function buildThemeStyles(theme: TrustTheme) {
@@ -54,7 +54,7 @@ export function BuilderTrustPreviewPage() {
   const [settings, setSettings] = useState<BuilderSettings>(DEFAULT_BUILDER_SETTINGS);
   const [dataRoomWorkspace, setDataRoomWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspace());
   const [documentViewMode, setDocumentViewMode] = useState<"grid" | "list">("grid");
-  const [selectedDocumentCategory, setSelectedDocumentCategory] = useState<"Todos" | "Compliance" | "Privacidade" | "Politicas">("Todos");
+  const [selectedDocumentCategory, setSelectedDocumentCategory] = useState<"Todos" | "Compliance" | "Privacidade" | "Políticas">("Todos");
 
   useEffect(() => {
     setTheme(loadTrustTheme());
@@ -94,7 +94,7 @@ export function BuilderTrustPreviewPage() {
         )
         .map((document) => ({
         ...document,
-        visibility: document.visibility === "Publico" ? "Público" : "Privado",
+        visibility: document.visibility === "Público" ? "Público" : "Privado",
       })),
     [dataRoomWorkspace.documents, selectedDocumentCategory],
   );
@@ -103,10 +103,10 @@ export function BuilderTrustPreviewPage() {
       trustDocuments.map((document) => ({
         title: document.name,
         category: document.category,
-        access: document.visibility === "Público" ? "Publico" : "Privado",
+        access: document.visibility === "Público" ? "Público" : "Privado",
         description: document.visibility === "Público"
-          ? "Documento visivel no Trust para download imediato."
-          : "Documento privado que exige liberacao do administrador do Trust.",
+          ? "Documento visível no Trust para download imediato."
+          : "Documento privado que exige liberação do administrador do Trust.",
       })),
     [trustDocuments],
   );
@@ -160,7 +160,7 @@ export function BuilderTrustPreviewPage() {
                     Preview desktop
                   </span>
                   <span className="rounded-full bg-surface-container-highest px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
-                    Documentos público + privado
+                    Documentos públicos + privados
                   </span>
                 </div>
               </div>
@@ -276,11 +276,11 @@ export function BuilderTrustPreviewPage() {
                               </div>
                               <h3 className="text-base font-bold text-slate-950">{item.label}</h3>
                               <p className="mt-2 text-sm leading-6 text-slate-600">
-                                Evidencia configurada no Builder e refletida automaticamente na pagina publica.
+                                Evidência configurada no Builder e refletida automaticamente na página pública.
                               </p>
                               <div className="mt-4 flex items-center gap-2 text-xs font-semibold text-slate-500">
                                 <span className="material-symbols-outlined text-base text-emerald-600">verified</span>
-                                Evidencia visivel no Trust publico
+                                Evidência visível no Trust público
                               </div>
                             </div>
                           ))}
@@ -296,7 +296,7 @@ export function BuilderTrustPreviewPage() {
                           <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-500">Biblioteca do Trust</p>
                           <h2 className="mt-2 font-headline text-3xl font-bold text-slate-950">Documentos organizados por categoria</h2>
                           <p className="mt-2 max-w-2xl text-sm text-slate-600">
-                            Um visitante entende rápido o que pode baixar agora e o que depende de autorização do administrador do Trust.
+                            Explore políticas, evidências e materiais institucionais organizados para facilitar sua avaliação de segurança e conformidade.
                           </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
@@ -304,7 +304,7 @@ export function BuilderTrustPreviewPage() {
                             { label: "Todos", value: "Todos" as const },
                             { label: "Compliance", value: "Compliance" as const },
                             { label: "Privacidade", value: "Privacidade" as const },
-                            { label: "Políticas", value: "Politicas" as const },
+                            { label: "Políticas", value: "Políticas" as const },
                           ].map((filter) => (
                             <span
                               key={filter.value}
@@ -355,7 +355,7 @@ export function BuilderTrustPreviewPage() {
                                 </span>
                                 <span
                                   className="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-widest"
-                                  style={doc.access === "Publico" ? { backgroundColor: "#d1fae5", color: "#047857" } : { backgroundColor: styles.secondaryTint, color: styles.primaryText }}
+                                  style={doc.access === "Público" ? { backgroundColor: "#d1fae5", color: "#047857" } : { backgroundColor: styles.secondaryTint, color: styles.primaryText }}
                                 >
                                   {doc.access}
                                 </span>
@@ -365,7 +365,7 @@ export function BuilderTrustPreviewPage() {
                             <div className="mt-5 flex items-center justify-between border-t border-slate-200 pt-4">
                               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Atualizado em Abril/2026</span>
                               <button className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-50">
-                                {doc.access === "Publico" ? "Download" : "Solicitar acesso"}
+                                {doc.access === "Público" ? "Download" : "Solicitar acesso"}
                               </button>
                             </div>
                           </article>
@@ -443,8 +443,8 @@ export function BuilderTrustPreviewPage() {
                         <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-slate-500">Acesso privado</p>
                         <h2 className="mt-2 font-headline text-3xl font-bold text-slate-950">Como solicitar materiais restritos</h2>
                         <p className="mt-4 text-sm leading-7 text-slate-600">
-                          Alguns documentos exigem validacao antes do download. Use este fluxo para solicitar acesso ao material correto
-                          e falar diretamente com o time responsavel pelo Trust.
+                          Alguns documentos exigem validação antes do download. Use este fluxo para solicitar acesso ao material correto
+                          e falar diretamente com o time responsável pelo Trust.
                         </p>
 
                         <div className="mt-6 space-y-3">
@@ -459,9 +459,9 @@ export function BuilderTrustPreviewPage() {
                         </div>
 
                         <div className="mt-6 rounded-2xl p-5" style={{ backgroundColor: styles.secondaryTint }}>
-                          <p className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: styles.primaryText }}>Contato para acesso e seguranca</p>
+                          <p className="text-[11px] font-bold uppercase tracking-[0.22em]" style={{ color: styles.primaryText }}>Contato para acesso e segurança</p>
                           <p className="mt-2 text-lg font-bold text-slate-950">{settings.securityContactEmail}</p>
-                          <p className="mt-2 text-sm text-slate-600">Tempo medio de resposta: {settings.responseSla}.</p>
+                          <p className="mt-2 text-sm text-slate-600">Tempo médio de resposta: {settings.responseSla}.</p>
                         </div>
                       </article>
                       ) : null}
@@ -483,10 +483,10 @@ export function BuilderTrustPreviewPage() {
                         </div>
                         <div>
                           <p className="mt-1 text-sm text-slate-700">
-                            Servico fornecido pela AXION TRUST
+                            Serviço fornecido pela AXION TRUST
                           </p>
                           <p className="mt-1 text-sm text-slate-500">
-                            Transparencia, governanca e compartilhamento seguro de evidencias.
+                            Transparência, governança e compartilhamento seguro de evidências.
                           </p>
                         </div>
                       </div>
