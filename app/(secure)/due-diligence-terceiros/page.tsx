@@ -125,52 +125,59 @@ export default function DueDiligencePage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
+          <div className="overflow-hidden">
+            <table className="w-full table-fixed border-collapse text-left">
+              <colgroup>
+                <col className="w-[31%]" />
+                <col className="w-[17%]" />
+                <col className="w-[25%]" />
+                <col className="w-[27%]" />
+              </colgroup>
               <thead>
                 <tr className="bg-surface-container-low/50 text-xs font-bold uppercase tracking-wider text-on-surface-variant">
                   <th className="px-8 py-5">Fornecedor</th>
-                  <th className="px-6 py-5">Risco</th>
-                  <th className="px-6 py-5">Status</th>
-                  <th className="px-6 py-5">Security Score</th>
+                  <th className="px-4 py-5">Risco</th>
+                  <th className="px-4 py-5">Status</th>
+                  <th className="px-4 py-5">Security Score</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {suppliers.map((supplier) => (
                   <tr key={supplier.name} className="group transition-colors hover:bg-slate-50/50">
                     <td className="px-8 py-5">
-                      <div className="flex items-center gap-4">
-                        <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-surface-container-low font-bold ${supplier.initialColor}`}>
+                      <div className="flex min-w-0 items-center gap-4">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-surface-container-low font-bold ${supplier.initialColor}`}>
                           {supplier.initial}
                         </div>
-                        <div>
+                        <div className="min-w-0">
                           <Link
                             href={`/due-diligence-terceiros/fornecedor/${supplier.slug}`}
-                            className="font-bold text-white transition-colors hover:text-primary"
+                            className="block truncate font-bold text-white transition-colors hover:text-primary"
+                            title={supplier.name}
                           >
                             {supplier.name}
                           </Link>
-                          <p className="text-xs text-on-surface-variant">{supplier.domain}</p>
+                          <p className="truncate text-xs text-on-surface-variant" title={supplier.domain}>{supplier.domain}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <span className={`rounded-full px-3 py-1 text-[11px] font-extrabold uppercase ${supplier.riskClass}`}>
+                    <td className="px-4 py-5">
+                      <span className={`inline-flex max-w-full items-center justify-center whitespace-nowrap rounded-full px-3 py-1 text-center text-[10px] font-extrabold uppercase tracking-wide ${supplier.riskClass}`}>
                         {supplier.risk}
                       </span>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-2">
-                        <span className={`h-2 w-2 rounded-full ${supplier.statusDot}`} />
-                        <span className="text-sm">{supplier.status}</span>
+                    <td className="px-4 py-5">
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className={`h-2 w-2 shrink-0 rounded-full ${supplier.statusDot}`} />
+                        <span className="min-w-0 text-sm leading-5">{supplier.status}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-3 w-48">
-                        <div className="h-2 flex-grow overflow-hidden rounded-full bg-slate-100">
+                    <td className="px-4 py-5">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-100">
                           <div className={`h-full ${supplier.scoreColor}`} style={{ width: `${supplier.score ?? 0}%` }} />
                         </div>
-                        <span className="text-xs font-bold text-white">{supplier.score ?? "--"}</span>
+                        <span className="w-7 shrink-0 text-right text-xs font-bold text-white">{supplier.score ?? "--"}</span>
                       </div>
                     </td>
                   </tr>

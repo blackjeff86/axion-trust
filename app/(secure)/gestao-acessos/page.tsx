@@ -6,133 +6,54 @@ import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import {
   defaultAccessManagementState,
-  getAccessManagementStateClient,
-  STORAGE_KEY,
+  type AccessManagementState,
   type ApprovedAccess,
   type DeniedAccess,
   type PendingRequest,
 } from "./access-data";
 
 export default function GestaoAcessosPage() {
-  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
-  const [approvedAccesses, setApprovedAccesses] = useState<ApprovedAccess[]>([]);
-  const [deniedAccesses, setDeniedAccesses] = useState<DeniedAccess[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>(defaultAccessManagementState.pendingRequests);
+  const [approvedAccesses, setApprovedAccesses] = useState<ApprovedAccess[]>(defaultAccessManagementState.approvedAccesses);
+  const [deniedAccesses, setDeniedAccesses] = useState<DeniedAccess[]>(defaultAccessManagementState.deniedAccesses);
 
   useEffect(() => {
-    const state = getAccessManagementStateClient();
+    loadAccessState();
+  }, []);
+
+  function applyState(state: AccessManagementState) {
     setPendingRequests(state.pendingRequests);
     setApprovedAccesses(state.approvedAccesses);
     setDeniedAccesses(state.deniedAccesses);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({
-        pendingRequests,
-        approvedAccesses,
-        deniedAccesses,
-      }),
-    );
-  }, [approvedAccesses, deniedAccesses, pendingRequests]);
-
-  function handleApprove(request: PendingRequest) {
-    const approvedAt = new Date().toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    const expirationDate = new Date();
-    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
-
-    const expiresAt = expirationDate.toLocaleDateString("pt-BR");
-
-    setPendingRequests((current) => current.filter((item) => item.id !== request.id));
-    setApprovedAccesses((current) => [
-      {
-        id: `approved-${request.id}`,
-        requester: request.requester,
-        email: request.email,
-        company: request.company,
-        document: request.document,
-        approvedAt,
-        expiresAt,
-        status: "Ativo",
-        statusClass: "bg-emerald-100 text-emerald-700",
-      },
-      ...current,
-    ]);
   }
 
-  function handleDeny(request: PendingRequest) {
-    const deniedAt = new Date().toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  async function loadAccessState() {
+    const response = await fetch("/api/access-management", { cache: "no-store" });
+    if (!response.ok) return;
+    applyState((await response.json()) as AccessManagementState);
+  }
+
+  async function runAccessAction(action: "approve" | "deny" | "restore" | "revoke" | "reset", id?: string) {
+    const response = await fetch("/api/access-management/actions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, id }),
     });
 
-    setPendingRequests((current) => current.filter((item) => item.id !== request.id));
-    setDeniedAccesses((current) => [{ ...request, deniedAt }, ...current]);
+    if (!response.ok) return;
+    applyState((await response.json()) as AccessManagementState);
   }
 
   function handleReviewDenied(item: DeniedAccess) {
-    setDeniedAccesses((current) => current.filter((entry) => entry.id !== item.id));
-    setPendingRequests((current) => [
-      {
-        id: `reopened-${item.id}`,
-        requester: item.requester,
-        email: item.email,
-        company: item.company,
-        document: item.document,
-        requestedAt: item.deniedAt,
-        reason: item.reason,
-        documentType: item.documentType,
-        reviewTag: "Pedido retornado",
-      },
-      ...current,
-    ]);
+    runAccessAction("restore", item.id);
   }
 
   function handleRevokeAccess(access: ApprovedAccess) {
-    const deniedAt = new Date().toLocaleString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    setApprovedAccesses((current) => current.filter((item) => item.id !== access.id));
-    setDeniedAccesses((current) => [
-      {
-        id: `denied-${access.id}`,
-        requester: access.requester,
-        email: access.email,
-        company: access.company,
-        document: access.document,
-        requestedAt: access.approvedAt,
-        reason: "Acesso revogado manualmente pelo administrador do Trust.",
-        documentType: "Documento privado",
-        reviewTag: null,
-        deniedAt,
-      },
-      ...current,
-    ]);
+    runAccessAction("revoke", access.id);
   }
 
   function handleRestoreMocks() {
-    setPendingRequests(defaultAccessManagementState.pendingRequests);
-    setApprovedAccesses(defaultAccessManagementState.approvedAccesses);
-    setDeniedAccesses(defaultAccessManagementState.deniedAccesses);
+    runAccessAction("reset");
   }
 
   return (
@@ -260,7 +181,7 @@ export default function GestaoAcessosPage() {
                       href="#"
                       onClick={(event) => {
                         event.preventDefault();
-                        handleDeny(request);
+                            runAccessAction("deny", request.id);
                       }}
                       className="rounded-lg bg-error/10 p-2 text-error transition-all hover:bg-error/20"
                       title="Negar"
@@ -271,7 +192,7 @@ export default function GestaoAcessosPage() {
                       href="#"
                       onClick={(event) => {
                         event.preventDefault();
-                        handleApprove(request);
+                            runAccessAction("approve", request.id);
                       }}
                       className="min-w-[112px] rounded-lg bg-primary px-4 py-2 text-center text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:bg-primary-container"
                     >

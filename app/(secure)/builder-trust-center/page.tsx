@@ -6,7 +6,6 @@ import { SecureTopbar } from "@/components/layout/secure-topbar";
 import {
   getDataRoomWorkspace,
   getDataRoomWorkspaceClient,
-  updateTrustDocumentPublicationClient,
   type DataRoomWorkspace,
 } from "../data-room-seguro/data-room-data";
 import {
@@ -56,7 +55,17 @@ export default function BuilderTrustCenterPage() {
     setTheme(loadTrustTheme());
     setSettings(loadBuilderSettings());
     setPublicationMeta(loadBuilderPublicationMeta());
-    setDataRoomWorkspace(getDataRoomWorkspaceClient());
+    async function loadDataRoomWorkspace() {
+      try {
+        const response = await fetch("/api/data-room", { cache: "no-store" });
+        if (!response.ok) return;
+        setDataRoomWorkspace((await response.json()) as DataRoomWorkspace);
+      } catch {
+        setDataRoomWorkspace(getDataRoomWorkspaceClient());
+      }
+    }
+
+    loadDataRoomWorkspace();
     setHasHydrated(true);
   }, []);
 
@@ -157,9 +166,16 @@ export default function BuilderTrustCenterPage() {
     }));
   }
 
-  function toggleTrustDocumentPublication(documentId: string, published: boolean) {
-    const nextWorkspace = updateTrustDocumentPublicationClient(documentId, published);
-    setDataRoomWorkspace(nextWorkspace);
+  async function toggleTrustDocumentPublication(documentId: string, published: boolean) {
+    const response = await fetch(`/api/data-room/documents/${documentId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: published ? "Publicado" : "Rascunho" }),
+    });
+
+    if (!response.ok) return;
+
+    setDataRoomWorkspace((await response.json()) as DataRoomWorkspace);
   }
 
   function updateFaqItem(index: number, field: "question" | "answer", value: string) {

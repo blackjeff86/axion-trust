@@ -7,36 +7,49 @@ type SecureTopbarProps = {
   placeholder?: string;
 };
 
-export function SecureTopbar(_: SecureTopbarProps) {
-  const normalizedPlaceholder = "Buscar no sistema...";
+export function SecureTopbar({ placeholder }: SecureTopbarProps) {
+  const normalizedPlaceholder = placeholder ?? "Buscar no sistema...";
 
   return (
-    <header className="ax-topbar-shell sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-white/5 bg-slate-950/60 px-8 py-4 font-inter text-sm backdrop-blur-xl">
-      <div className="ax-topbar-search relative flex w-[28rem] items-center rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 py-2.5 shadow-[0_6px_18px_rgba(15,23,35,0.05)]">
-        <span className="material-symbols-outlined mr-3 text-outline">search</span>
+    <header className="ax-topbar-shell sticky top-0 z-50 flex h-16 w-full min-w-0 items-center gap-4 overflow-hidden border-b border-white/5 bg-slate-950/60 px-5 py-2 font-inter text-sm backdrop-blur-xl lg:px-8">
+      <div className="ax-topbar-search relative flex h-11 min-w-0 flex-1 items-center rounded-2xl border border-outline-variant/20 bg-surface-container-low px-4 shadow-[0_6px_18px_rgba(15,23,35,0.05)]">
+        <span className="material-symbols-outlined mr-3 shrink-0 text-outline">search</span>
         <input
-          className="w-full appearance-none border-none bg-transparent p-0 text-sm text-on-surface shadow-none outline-none ring-0 focus:bg-transparent focus:shadow-none focus:outline-none focus:ring-0"
+          className="min-w-0 flex-1 appearance-none border-none bg-transparent p-0 text-sm text-on-surface shadow-none outline-none ring-0 focus:bg-transparent focus:shadow-none focus:outline-none focus:ring-0"
           placeholder={normalizedPlaceholder}
           type="text"
         />
       </div>
 
-      <div className="flex items-center gap-4">
-        <button className="ax-topbar-icon rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 text-slate-400 shadow-[0_6px_18px_rgba(15,23,35,0.05)] transition-colors hover:text-blue-400">
+      <div className="flex min-w-0 shrink-0 items-center gap-2 lg:gap-3">
+        <button
+          aria-label="Abrir notificações"
+          className="ax-topbar-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-outline-variant/20 bg-surface-container-lowest text-slate-400 shadow-[0_6px_18px_rgba(15,23,35,0.05)] transition-colors hover:text-blue-400"
+          type="button"
+        >
           <span className="material-symbols-outlined">notifications</span>
         </button>
-        <button className="ax-topbar-icon rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-2.5 text-slate-400 shadow-[0_6px_18px_rgba(15,23,35,0.05)] transition-colors hover:text-blue-400">
+        <button
+          aria-label="Abrir ajuda"
+          className="ax-topbar-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-outline-variant/20 bg-surface-container-lowest text-slate-400 shadow-[0_6px_18px_rgba(15,23,35,0.05)] transition-colors hover:text-blue-400"
+          type="button"
+        >
           <span className="material-symbols-outlined">help_outline</span>
         </button>
         <ThemeModeToggle />
-        <div className="ax-topbar-profile group flex cursor-pointer items-center gap-3 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 py-2 shadow-[0_6px_18px_rgba(15,23,35,0.05)]">
+        <button
+          aria-label="Abrir menu do usuário Ricardo Menezes"
+          className="ax-topbar-profile group flex h-11 max-w-[11rem] shrink-0 cursor-pointer items-center gap-2 rounded-2xl border border-outline-variant/20 bg-surface-container-lowest px-2.5 text-left shadow-[0_6px_18px_rgba(15,23,35,0.05)] transition-colors hover:border-primary/40"
+          title="Ricardo Menezes - Admin / CISO"
+          type="button"
+        >
           <UserInitialsAvatar name="Ricardo Menezes" size="sm" />
-          <div className="hidden text-right md:block">
-            <p className="text-xs font-semibold text-white">Ricardo Menezes</p>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Admin / CISO</p>
+          <div className="hidden min-w-0 text-right 2xl:block">
+            <p className="truncate text-xs font-semibold leading-4 text-white">Ricardo Menezes</p>
+            <p className="truncate text-[10px] uppercase leading-4 tracking-[0.18em] text-slate-500">Admin / CISO</p>
           </div>
-          <span className="material-symbols-outlined text-slate-400 group-hover:text-blue-400">expand_more</span>
-        </div>
+          <span className="material-symbols-outlined shrink-0 text-slate-400 group-hover:text-blue-400">expand_more</span>
+        </button>
       </div>
     </header>
   );

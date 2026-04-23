@@ -7,7 +7,7 @@ import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import { MetricCard } from "@/components/ui/metric-card";
 import {
-  getAccessRequestsForDocument,
+  getDataRoomWorkspace,
   getDataRoomWorkspaceClient,
   getStatusBadgeClass,
   getVisibilityBadgeClass,
@@ -33,27 +33,25 @@ function buildRoomHref(filters: {
 
 function DataRoomSeguroPageContent() {
   const searchParams = useSearchParams();
-  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspaceClient());
+  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspace());
 
   useEffect(() => {
-    setWorkspace(getDataRoomWorkspaceClient());
-
-    function handleStorage(event: StorageEvent) {
-      if (event.key) {
+    async function loadWorkspace() {
+      try {
+        const response = await fetch("/api/data-room", { cache: "no-store" });
+        if (!response.ok) return;
+        setWorkspace((await response.json()) as DataRoomWorkspace);
+      } catch {
         setWorkspace(getDataRoomWorkspaceClient());
       }
     }
 
-    function handleFocus() {
-      setWorkspace(getDataRoomWorkspaceClient());
-    }
+    loadWorkspace();
 
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener("focus", handleFocus);
+    window.addEventListener("focus", loadWorkspace);
 
     return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("focus", loadWorkspace);
     };
   }, []);
 
@@ -79,7 +77,10 @@ function DataRoomSeguroPageContent() {
   );
 
   const selectedRequests = useMemo(
-    () => getAccessRequestsForDocument(selectedDocument?.id).slice(0, 3),
+    () =>
+      selectedDocument?.id
+        ? workspace.requests.filter((request) => request.documentId === selectedDocument.id).slice(0, 3)
+        : workspace.requests.slice(0, 3),
     [selectedDocument?.id, workspace.requests],
   );
 

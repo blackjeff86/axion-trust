@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import { getIntegrationSlugByName } from "./integration-detail-data";
@@ -105,7 +105,7 @@ const organizationFields = [
 
 const domainRecords: DnsRecord[] = [
   { host: "trust.axiontech.com.br", type: "CNAME", target: "cname.axiontrust.app", status: "Propagado" },
-  { host: "verify.axiontech.com.br", type: "TXT", target: "axion-site-verification=7ae29d", status: "Validado" },
+  { host: "verify.example.invalid", type: "TXT", target: "axion-site-verification=demo-placeholder", status: "Validado" },
   { host: "_acme-challenge", type: "TXT", target: "ssl-managed-by-axion", status: "Gerenciado" },
 ];
 
@@ -144,19 +144,19 @@ const integrationSetups: Record<string, IntegrationSetup> = {
   "Webhook de auditoria": {
     title: "Webhook de auditoria",
     subtitle: "Use este conector para entregar eventos críticos do AXION Trust para plataformas internas ou middleware do cliente.",
-    endpoint: "https://hooks.axiontech.com/auditoria",
-    authMethod: "Bearer token",
+    endpoint: "https://example.invalid/webhooks/auditoria",
+    authMethod: "Token demonstrativo",
     eventScope: "Acessos, exportações, publicações e incidentes",
     destination: "Barramento interno de auditoria",
     syncWindow: "Tempo real",
     extraLabel: "Segredo de assinatura",
-    extraValue: "whsec_axion_prod_92f1",
+    extraValue: "whsec_demo_placeholder",
     connectedApps: ["Slack", "Jira", "Google Drive"],
   },
   "Notificações por e-mail": {
     title: "Notificações por e-mail",
     subtitle: "Configure remetente, grupos de distribuição e regras de entrega para alertas operacionais da plataforma.",
-    endpoint: "smtp.axiontech.io:587",
+    endpoint: "smtp.example.invalid:587",
     authMethod: "SMTP autenticado",
     eventScope: "Solicitações de acesso, alertas e lembretes de revisão",
     destination: "ops@axiontrust.io; security@axiontrust.io",
@@ -168,8 +168,8 @@ const integrationSetups: Record<string, IntegrationSetup> = {
   "SIEM / Log export": {
     title: "SIEM / Log export",
     subtitle: "Centralize logs e eventos do AXION Trust em ferramentas externas para correlação, resposta e trilha forense.",
-    endpoint: "https://siem.axiontech.com/collector",
-    authMethod: "Token + allowlist de IP",
+    endpoint: "https://example.invalid/siem/collector",
+    authMethod: "Token demonstrativo + allowlist de IP",
     eventScope: "Logs administrativos, eventos de autenticação e downloads sensíveis",
     destination: "Splunk / Datadog / Stack nativa",
     syncWindow: "Janela de 5 minutos",
@@ -289,7 +289,7 @@ function getStatusDot(status: MemberStatus) {
   return "bg-rose-500";
 }
 
-export default function ConfiguracoesPage() {
+function ConfiguracoesPageContent() {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<SettingsTab>("Organização");
   const [isEditingOrganization, setIsEditingOrganization] = useState(false);
@@ -1692,5 +1692,13 @@ export default function ConfiguracoesPage() {
         </div>
       ) : null}
     </>
+  );
+}
+
+export default function ConfiguracoesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-surface" />}>
+      <ConfiguracoesPageContent />
+    </Suspense>
   );
 }

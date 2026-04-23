@@ -48,9 +48,9 @@ export const integrationDetails: IntegrationDetail[] = [
     category: "Auditoria e eventos",
     syncWindow: "Tempo real",
     primaryFields: [
-      { label: "Endpoint principal", value: "https://hooks.axiontech.com/auditoria" },
-      { label: "Método de autenticação", value: "Bearer token" },
-      { label: "Segredo de assinatura", value: "whsec_axion_prod_92f1" },
+      { label: "Endpoint principal", value: "https://example.invalid/webhooks/auditoria" },
+      { label: "Método de autenticação", value: "Token demonstrativo" },
+      { label: "Segredo de assinatura", value: "whsec_demo_placeholder" },
       { label: "Allowlist de IP", value: "34.112.10.0/24, 34.112.11.0/24" },
     ],
     deliveryFields: [
@@ -65,7 +65,7 @@ export const integrationDetails: IntegrationDetail[] = [
         purpose: "Alertar times de segurança e operação sobre eventos sensíveis.",
         setup: "Receber payload via middleware e reenviar para canal dedicado.",
         configFields: [
-          { label: "Webhook do Slack", value: "https://hooks.slack.com/services/AXION/AUDIT/SEC" },
+          { label: "Webhook do Slack", value: "https://example.invalid/slack/audit" },
           { label: "Canal padrão", value: "#axion-alertas" },
           { label: "Workspace", value: "AXION Security Ops" },
         ],
@@ -114,7 +114,7 @@ export const integrationDetails: IntegrationDetail[] = [
     category: "Alertas e comunicação",
     syncWindow: "Imediato",
     primaryFields: [
-      { label: "SMTP / provider", value: "smtp.axiontech.io:587" },
+      { label: "SMTP / provider", value: "smtp.example.invalid:587" },
       { label: "Remetente padrão", value: "alerts@axiontrust.io" },
       { label: "Reply-to operacional", value: "ops@axiontrust.io" },
       { label: "Domínio autenticado", value: "axiontrust.io (SPF + DKIM válidos)" },
@@ -180,7 +180,7 @@ export const integrationDetails: IntegrationDetail[] = [
     category: "Observabilidade e segurança",
     syncWindow: "Janela de 5 minutos",
     primaryFields: [
-      { label: "Collector endpoint", value: "https://siem.axiontech.com/collector" },
+      { label: "Collector endpoint", value: "https://example.invalid/siem/collector" },
       { label: "Método de ingestão", value: "HTTPS push + token" },
       { label: "Formato exportado", value: "JSON estruturado + enrichment de auditoria" },
       { label: "Retenção sugerida", value: "180 dias no destino" },
@@ -197,7 +197,7 @@ export const integrationDetails: IntegrationDetail[] = [
         purpose: "Receber alertas correlacionados e incidentes priorizados.",
         setup: "Encadear alertas do SIEM para canal crítico após parsing dos eventos.",
         configFields: [
-          { label: "Webhook do Slack", value: "https://hooks.slack.com/services/AXION/SIEM/ALERTS" },
+          { label: "Webhook do Slack", value: "https://example.invalid/slack/siem-alerts" },
           { label: "Canal padrão", value: "#siem-incidentes" },
           { label: "Filtro", value: "Somente eventos críticos e altos" },
         ],

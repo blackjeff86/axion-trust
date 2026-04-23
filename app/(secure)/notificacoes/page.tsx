@@ -5,11 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import {
-  getAccessManagementStateClient,
+  defaultAccessManagementState,
   type AccessManagementState,
 } from "../gestao-acessos/access-data";
 import {
-  getDataRoomWorkspaceClient,
+  getDataRoomWorkspace,
   type DataRoomWorkspace,
 } from "../data-room-seguro/data-room-data";
 
@@ -305,21 +305,29 @@ function buildTimelineActivities(workspace: DataRoomWorkspace, accessState: Acce
 export default function CentralDeAtividadesPage() {
   const [selectedCategory, setSelectedCategory] = useState<(typeof categoryOptions)[number]>("Todas");
   const [selectedPeriod, setSelectedPeriod] = useState<number>(7);
-  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspaceClient());
-  const [accessState, setAccessState] = useState<AccessManagementState>(getAccessManagementStateClient());
+  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspace());
+  const [accessState, setAccessState] = useState<AccessManagementState>(defaultAccessManagementState);
 
   useEffect(() => {
-    const refresh = () => {
-      setWorkspace(getDataRoomWorkspaceClient());
-      setAccessState(getAccessManagementStateClient());
-    };
+    async function refresh() {
+      const [dataRoomResponse, accessResponse] = await Promise.all([
+        fetch("/api/data-room", { cache: "no-store" }),
+        fetch("/api/access-management", { cache: "no-store" }),
+      ]);
+
+      if (dataRoomResponse.ok) {
+        setWorkspace((await dataRoomResponse.json()) as DataRoomWorkspace);
+      }
+
+      if (accessResponse.ok) {
+        setAccessState((await accessResponse.json()) as AccessManagementState);
+      }
+    }
 
     refresh();
-    window.addEventListener("storage", refresh);
     window.addEventListener("focus", refresh);
 
     return () => {
-      window.removeEventListener("storage", refresh);
       window.removeEventListener("focus", refresh);
     };
   }, []);

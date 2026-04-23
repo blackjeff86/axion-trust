@@ -6,15 +6,13 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import {
-  getAccessRequestsForDocument,
+  getDataRoomWorkspace,
   getDataRoomWorkspaceClient,
-  getDownloadEventsForDocument,
   getStatusBadgeClass,
   getToneClass,
-  getTrustDocumentById,
   getVisibilityBadgeClass,
-  updateTrustDocumentStatusClient,
   type DataRoomWorkspace,
+  type TrustDocumentStatus,
 } from "../../data-room-data";
 
 function buildBackHref(selected?: string | null) {
@@ -41,18 +39,37 @@ function DataRoomDetailPageContent() {
   const itemId = searchParams.get("item");
   const downloadSearch = (searchParams.get("downloadSearch") ?? "").trim().toLowerCase();
   const downloadMonth = searchParams.get("downloadMonth") ?? "Todos";
-  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspaceClient());
+  const [workspace, setWorkspace] = useState<DataRoomWorkspace>(getDataRoomWorkspace());
 
   useEffect(() => {
-    setWorkspace(getDataRoomWorkspaceClient());
-    const refresh = () => setWorkspace(getDataRoomWorkspaceClient());
-    window.addEventListener("storage", refresh);
+    async function refresh() {
+      try {
+        const response = await fetch("/api/data-room", { cache: "no-store" });
+        if (!response.ok) return;
+        setWorkspace((await response.json()) as DataRoomWorkspace);
+      } catch {
+        setWorkspace(getDataRoomWorkspaceClient());
+      }
+    }
+
+    refresh();
     window.addEventListener("focus", refresh);
     return () => {
-      window.removeEventListener("storage", refresh);
       window.removeEventListener("focus", refresh);
     };
   }, []);
+
+  async function updateDocumentStatus(documentId: string, status: TrustDocumentStatus) {
+    const response = await fetch(`/api/data-room/documents/${documentId}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) return;
+
+    setWorkspace((await response.json()) as DataRoomWorkspace);
+  }
 
   const document = useMemo(
     () => workspace.documents.find((entry) => entry.id === itemId) ?? workspace.documents[0] ?? null,
@@ -146,10 +163,7 @@ function DataRoomDetailPageContent() {
                         <div className="mt-5 flex flex-wrap gap-3">
                           <button
                             type="button"
-                            onClick={() => {
-                              const next = updateTrustDocumentStatusClient(entry.id, "Publicado");
-                              setWorkspace(next);
-                            }}
+                            onClick={() => updateDocumentStatus(entry.id, "Publicado")}
                             className="rounded-xl bg-gradient-to-r from-primary to-primary-container px-4 py-3 text-sm font-bold text-on-primary shadow-lg shadow-primary/20"
                           >
                             Aprovar e publicar
@@ -182,8 +196,8 @@ function DataRoomDetailPageContent() {
     notFound();
   }
 
-  const requests = getAccessRequestsForDocument(document.id);
-  const events = getDownloadEventsForDocument(document.id);
+  const requests = workspace.requests.filter((request) => request.documentId === document.id);
+  const events = workspace.downloadEvents.filter((event) => event.documentId === document.id);
   const baseDownloadEvents = events.filter((event) => event.actionLabel.toLowerCase().includes("download"));
   const monthOptions = Array.from(new Set(baseDownloadEvents.map((event) => getMonthKeyFromLabel(event.timeLabel)).filter(Boolean))) as string[];
   const downloadEvents = baseDownloadEvents
@@ -253,10 +267,7 @@ function DataRoomDetailPageContent() {
                 {workspace.publishingMode === "approval_required" ? (
                   <button
                     type="button"
-                    onClick={() => {
-                      const next = updateTrustDocumentStatusClient(document.id, "Pendente de aprovação");
-                      setWorkspace(next);
-                    }}
+                    onClick={() => updateDocumentStatus(document.id, "Pendente de aprovação")}
                     className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
                   >
                     Enviar para aprovação
@@ -264,10 +275,7 @@ function DataRoomDetailPageContent() {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => {
-                      const next = updateTrustDocumentStatusClient(document.id, "Publicado");
-                      setWorkspace(next);
-                    }}
+                    onClick={() => updateDocumentStatus(document.id, "Publicado")}
                     className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-5 py-3 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
                   >
                     Publicar no Trust

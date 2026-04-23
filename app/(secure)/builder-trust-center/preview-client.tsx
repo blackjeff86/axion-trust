@@ -59,7 +59,18 @@ export function BuilderTrustPreviewPage() {
   useEffect(() => {
     setTheme(loadTrustTheme());
     setSettings(loadBuilderSettings());
-    setDataRoomWorkspace(getDataRoomWorkspaceClient());
+
+    async function loadDataRoomWorkspace() {
+      try {
+        const response = await fetch("/api/data-room", { cache: "no-store" });
+        if (!response.ok) return;
+        setDataRoomWorkspace((await response.json()) as DataRoomWorkspace);
+      } catch {
+        setDataRoomWorkspace(getDataRoomWorkspaceClient());
+      }
+    }
+
+    loadDataRoomWorkspace();
 
     const handleStorage = (event: StorageEvent) => {
       if (event.key === TRUST_THEME_STORAGE_KEY) {
@@ -72,9 +83,11 @@ export function BuilderTrustPreviewPage() {
     };
 
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", loadDataRoomWorkspace);
 
     return () => {
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", loadDataRoomWorkspace);
     };
   }, []);
 

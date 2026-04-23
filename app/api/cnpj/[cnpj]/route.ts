@@ -46,6 +46,8 @@ type MappedSupplierSeed = {
   source: "brasilapi" | "fallback";
 };
 
+const BRASIL_API_TIMEOUT_MS = 5000;
+
 const localFallbackByCnpj: Record<string, MappedSupplierSeed> = {
   "12334991000120": {
     legalName: "Prime Logistics International Ltd.",
@@ -181,19 +183,27 @@ function mapBrasilApiToSupplierSeed(payload: BrasilApiCnpjResponse): MappedSuppl
 }
 
 async function fetchBrasilApiCnpj(cnpj: string) {
-  const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, {
-    cache: "no-store",
-    headers: {
-      Accept: "application/json",
-    },
-    next: { revalidate: 0 },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), BRASIL_API_TIMEOUT_MS);
 
-  if (!response.ok) {
-    return null;
+  try {
+    const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+      },
+      next: { revalidate: 0 },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return (await response.json()) as BrasilApiCnpjResponse;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return (await response.json()) as BrasilApiCnpjResponse;
 }
 
 export async function GET(_: Request, { params }: { params: Promise<{ cnpj: string }> }) {
