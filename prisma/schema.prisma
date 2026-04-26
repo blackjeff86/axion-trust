@@ -7,6 +7,44 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserType {
+  internal
+  external
+}
+
+enum OrganizationRole {
+  owner
+  admin
+  editor
+  viewer
+}
+
+enum MembershipStatus {
+  invited
+  active
+  suspended
+}
+
+enum AccessRequestStatus {
+  pending
+  approved
+  denied
+  cancelled
+}
+
+enum DocumentAccessGrantStatus {
+  active
+  expired
+  revoked
+}
+
+enum TrustDownloadAction {
+  download
+  preview
+  request_access
+  nda_accept
+}
+
 model Organization {
   id          String   @id @default(cuid())
   name        String
@@ -15,15 +53,57 @@ model Organization {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  trustCenterSettings TrustCenterSettings?
-  trustCenterTheme    TrustCenterTheme?
-  dataRoomSettings    DataRoomSettings?
-  documents           TrustDocument[]
-  accessRequests      AccessRequest[]
-  approvedAccesses    ApprovedAccess[]
-  suppliers           Supplier[]
-  integrations        Integration[]
-  activities          AuditActivity[]
+  trustCenterSettings  TrustCenterSettings?
+  trustCenterTheme     TrustCenterTheme?
+  dataRoomSettings     DataRoomSettings?
+  documents            TrustDocument[]
+  accessRequests       AccessRequest[]
+  documentAccessGrants DocumentAccessGrant[]
+  members              OrganizationMember[]
+  suppliers            Supplier[]
+  integrations         Integration[]
+  activities           AuditActivity[]
+}
+
+model User {
+  id              String    @id @default(cuid())
+  email           String    @unique
+  passwordHash    String
+  name            String
+  company         String?
+  title           String?
+  userType        UserType  @default(external)
+  emailVerifiedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  memberships        OrganizationMember[]
+  invitedMemberships OrganizationMember[]  @relation("MembershipInviter")
+  accessRequests     AccessRequest[]       @relation("AccessRequester")
+  documentGrants     DocumentAccessGrant[]
+  downloadEvents     TrustDownloadEvent[]
+  auditActivities    AuditActivity[]       @relation("AuditActor")
+}
+
+model OrganizationMember {
+  id              String           @id @default(cuid())
+  organizationId  String
+  userId          String
+  role            OrganizationRole
+  status          MembershipStatus @default(active)
+  title           String?
+  invitedByUserId String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  organization     Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user             User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  invitedByUser    User?                 @relation("MembershipInviter", fields: [invitedByUserId], references: [id], onDelete: SetNull)
+  reviewedRequests AccessRequest[]       @relation("AccessRequestReviewer")
+  grantedAccesses  DocumentAccessGrant[] @relation("GrantApprover")
+  auditActivities  AuditActivity[]       @relation("AuditActorMember")
+
+  @@unique([organizationId, userId])
 }
 
 model DataRoomSettings {
@@ -41,8 +121,8 @@ model DataRoomSettings {
 }
 
 model TrustCenterSettings {
-  id                   String   @id @default(cuid())
-  organizationId       String   @unique
+  id                   String    @id @default(cuid())
+  organizationId       String    @unique
   displayName          String
   publicDescription    String
   logoMode             String
@@ -55,14 +135,14 @@ model TrustCenterSettings {
   responseSla          String
   draftSavedAt         DateTime?
   publishedAt          DateTime?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  organization Organization                @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  heroSignals  TrustCenterHeroSignal[]
-  sections     TrustCenterSection[]
+  organization   Organization               @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  heroSignals    TrustCenterHeroSignal[]
+  sections       TrustCenterSection[]
   certifications TrustCenterCertification[]
-  faqItems     TrustCenterFaqItem[]
+  faqItems       TrustCenterFaqItem[]
 }
 
 model TrustCenterTheme {
@@ -91,18 +171,18 @@ model TrustCenterHeroSignal {
 }
 
 model TrustCenterSection {
-  id         String @id
-  settingsId String
-  title      String
+  id          String  @id
+  settingsId  String
+  title       String
   description String
-  enabled    Boolean
-  position   Int
+  enabled     Boolean
+  position    Int
 
   settings TrustCenterSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
 }
 
 model TrustCenterCertification {
-  id         String @id
+  id         String  @id
   settingsId String
   label      String
   icon       String
@@ -126,7 +206,7 @@ model TrustCenterFaqItem {
 model TrustDocument {
   id                   String   @id
   organizationId       String
-  slug                 String   @unique
+  slug                 String
   name                 String
   description          String
   category             String
@@ -148,98 +228,118 @@ model TrustDocument {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  organization   Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   accessRequests AccessRequest[]
+  accessGrants   DocumentAccessGrant[]
   downloadEvents TrustDownloadEvent[]
+
+  @@unique([organizationId, slug])
 }
 
 model AccessRequest {
-  id               String   @id
-  organizationId   String
-  documentId       String
-  requester        String
-  company          String
-  email            String
-  requestedAtLabel String
-  reason           String
-  status           String
-  documentType     String?
-  reviewTag        String?
-  deniedAt         String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 String              @id @default(cuid())
+  organizationId     String
+  documentId         String
+  requesterUserId    String?
+  requesterName      String
+  requesterEmail     String
+  requesterCompany   String
+  reason             String
+  status             AccessRequestStatus @default(pending)
+  requestedAt        DateTime            @default(now())
+  reviewedAt         DateTime?
+  reviewedByMemberId String?
+  ndaAcceptedAt      DateTime?
+  documentType       String?
+  reviewTag          String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
 
-  organization Organization  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  document     TrustDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  organization     Organization          @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  document         TrustDocument         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  requesterUser    User?                 @relation("AccessRequester", fields: [requesterUserId], references: [id], onDelete: SetNull)
+  reviewedByMember OrganizationMember?   @relation("AccessRequestReviewer", fields: [reviewedByMemberId], references: [id], onDelete: SetNull)
+  documentGrants   DocumentAccessGrant[]
 }
 
-model ApprovedAccess {
-  id             String   @id
-  organizationId String
-  requester      String
-  email          String
-  company        String
-  document       String
-  approvedAt     String
-  expiresAt      String
-  status         String
-  statusClass    String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+model DocumentAccessGrant {
+  id                String                    @id @default(cuid())
+  organizationId    String
+  documentId        String
+  userId            String
+  grantedByMemberId String?
+  sourceRequestId   String?
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  ndaAcceptedAt     DateTime?
+  status            DocumentAccessGrantStatus @default(active)
+  createdAt         DateTime                  @default(now())
+  updatedAt         DateTime                  @updatedAt
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization    Organization         @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  document        TrustDocument        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user            User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  grantedByMember OrganizationMember?  @relation("GrantApprover", fields: [grantedByMemberId], references: [id], onDelete: SetNull)
+  sourceRequest   AccessRequest?       @relation(fields: [sourceRequestId], references: [id], onDelete: SetNull)
+  downloadEvents  TrustDownloadEvent[]
+
+  @@unique([organizationId, documentId, userId])
 }
 
 model TrustDownloadEvent {
-  id          String @id
-  documentId  String
-  actor       String
-  company     String
-  actionLabel String
-  timeLabel   String
-  tone        String
+  id                String              @id @default(cuid())
+  documentId        String
+  userId            String?
+  actorNameSnapshot String?
+  emailSnapshot     String?
+  companySnapshot   String?
+  accessGrantId     String?
+  action            TrustDownloadAction
+  createdAt         DateTime            @default(now())
 
-  document TrustDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  document    TrustDocument        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  user        User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  accessGrant DocumentAccessGrant? @relation(fields: [accessGrantId], references: [id], onDelete: SetNull)
 }
 
 model Supplier {
-  id                       String   @id
-  organizationId           String
-  slug                     String   @unique
-  legalName                String
-  displayName              String
-  domain                   String
-  website                  String
-  supplierType             String
-  segment                  String
-  subsegment               String
-  headquartersCity         String
-  headquartersCountry      String
-  taxId                    String
-  primaryContactName       String
-  primaryContactRole       String
-  primaryContactEmail      String
-  securityContactEmail     String
-  privacyContactEmail      String
-  businessOwner            String
-  criticality              String
-  integrationType          String
-  dataClassification       String
-  accessScope              String
-  hostingModel             String
-  activeRegions            String
-  servicesProvided         String
-  countriesOfOperation     String
-  notes                    String
-  risk                     String
-  lifecycleStatus          String
-  status                   String
-  score                    Int?
-  previousScore            Int?
-  trend                    Int?
-  createdAtLabel           String
-  createdAt                DateTime @default(now())
-  updatedAt                DateTime @updatedAt
+  id                   String   @id
+  organizationId       String
+  slug                 String   @unique
+  legalName            String
+  displayName          String
+  domain               String
+  website              String
+  supplierType         String
+  segment              String
+  subsegment           String
+  headquartersCity     String
+  headquartersCountry  String
+  taxId                String
+  primaryContactName   String
+  primaryContactRole   String
+  primaryContactEmail  String
+  securityContactEmail String
+  privacyContactEmail  String
+  businessOwner        String
+  criticality          String
+  integrationType      String
+  dataClassification   String
+  accessScope          String
+  hostingModel         String
+  activeRegions        String
+  servicesProvided     String
+  countriesOfOperation String
+  notes                String
+  risk                 String
+  lifecycleStatus      String
+  status               String
+  score                Int?
+  previousScore        Int?
+  trend                Int?
+  createdAtLabel       String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
@@ -282,9 +382,13 @@ model AuditActivity {
   title          String
   description    String
   actor          String?
+  actorUserId    String?
+  actorMemberId  String?
   entityType     String?
   entityId       String?
   createdAt      DateTime @default(now())
 
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization Organization        @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  actorUser    User?               @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorMember  OrganizationMember? @relation("AuditActorMember", fields: [actorMemberId], references: [id], onDelete: SetNull)
 }

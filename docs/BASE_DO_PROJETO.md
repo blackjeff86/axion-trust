@@ -12,7 +12,11 @@ O estado atual do projeto e um MVP em transicao para produto funcional com persi
 - Roteamento: App Router, com grupo de rotas seguro em `app/(secure)`.
 - UI: componentes React e estilos Tailwind com tokens globais em CSS.
 - Persistencia: Prisma Client com SQLite local em `prisma/dev.db`.
-- Backend: rotas API internas para Data Room e Gestao de Acessos, alem da rota de consulta de CNPJ.
+- Autenticacao: Auth.js com login por email e senha, sessao JWT e tela de login em `/login`.
+- Multi-tenant: cada organizacao e um tenant isolado, com tenant ativo resolvido pela sessao autenticada.
+- Autorizacao: membros internos por tenant (`owner`, `admin`, `editor`, `viewer`) e grants externos por documento.
+- Testes MVP: rota interna `/teste-mvp` valida tenant ativo, papeis e endpoints principais usando tres tenants seedados.
+- Backend: rotas API internas autenticadas para Data Room, Gestao de Acessos, membros da organizacao e rotas publicas de request/NDA/download.
 - Ainda existem modulos parcialmente mockados/localStorage, principalmente Builder completo, Due Diligence e Configuracoes.
 
 ## Stack e comandos
@@ -25,6 +29,8 @@ As dependencias e scripts principais estao em `package.json`.
 - `tailwindcss`, `postcss` e `autoprefixer`: camada de estilos.
 - `eslint` e `eslint-config-next`: lint configurado pelo ecossistema Next.
 - `prisma` e `@prisma/client`: ORM e client tipado para banco relacional.
+- `next-auth`: Auth.js/NextAuth usado para login e sessao.
+- `bcryptjs`: hashing e verificacao de senha.
 - `tsx`: runner TypeScript usado no seed.
 
 Scripts disponiveis:
@@ -46,8 +52,8 @@ Configuracoes relevantes:
 - `tailwind.config.ts`: registra tokens de cor baseados em variaveis CSS e familias de fonte.
 - `postcss.config.js`: conecta Tailwind e Autoprefixer.
 - `eslint.config.mjs`: configuracao flat do ESLint usada por `npm run lint`.
-- `.env`: define `DATABASE_URL`. Nao deve ser versionado.
-- `.env.example`: exemplo versionado com `DATABASE_URL="file:./dev.db"`.
+- `.env`: define `DATABASE_URL` e `AUTH_SECRET`. Nao deve ser versionado.
+- `.env.example`: exemplo versionado com `DATABASE_URL="file:./dev.db"` e `AUTH_SECRET`.
 
 ## Banco de dados local
 
@@ -57,10 +63,16 @@ Arquivos principais:
 
 - `prisma/schema.prisma`: schema relacional usado pelo Prisma Client.
 - `prisma/migrations/20260421183100_init/migration.sql`: migracao SQL inicial versionada.
-- `prisma/seed.ts`: seed idempotente que carrega os dados demo a partir dos mocks existentes.
-- `scripts/db-migrate.mjs`: aplica as migracoes SQL no SQLite local usando `node:sqlite`.
+- `prisma/migrations/20260423120000_multi_tenant_access_model/migration.sql`: migracao que introduz autenticacao, membros por tenant, requests canonicos e grants por documento.
+- `prisma/migrations/migration_lock.toml`: trava do provider usado pelo Prisma Migrate.
+- `prisma/seed.ts`: seed idempotente com dois tenants demo, usuarios internos, guests externos, requests, grants, downloads e auditoria.
 - `lib/db.ts`: singleton do Prisma Client.
-- `lib/data/constants.ts`: constantes compartilhadas, incluindo a organizacao demo.
+- `auth.ts`: configuracao central do Auth.js com Credentials Provider.
+- `lib/auth-context.ts`: resolucao da sessao autenticada, tenant ativo e guards de autorizacao.
+- `lib/access-control.ts`: matriz central de permissoes do MVP e grupos de roles reutilizaveis por API/UI.
+- `lib/dev-access-profiles.ts`: catalogo server-side dos perfis rapidos de desenvolvimento, sem exposicao de senhas no client.
+- `lib/audit.ts`: helper para registrar eventos em `AuditActivity`.
+- `lib/user-accounts.ts`: provisionamento de usuarios externos e hashing de senha.
 - `lib/data/data-room.ts`: camada server-side de dados do Data Room.
 - `lib/data/access-management.ts`: camada server-side de dados da Gestao de Acessos.
 
@@ -78,7 +90,7 @@ DATABASE_URL="file:./dev.db"
 npm run db:generate
 ```
 
-3. Aplique a migracao local:
+3. Aplique as migracoes locais:
 
 ```bash
 npm run db:migrate
@@ -96,7 +108,7 @@ npm run db:seed
 npm run dev
 ```
 
-Observacao: o Prisma Client e usado normalmente pela aplicacao. A migracao local usa `scripts/db-migrate.mjs` porque o `prisma migrate dev/db push` apresentou erro vazio do schema engine neste ambiente Windows. A migracao SQL continua versionada em `prisma/migrations`.
+Observacao: o fluxo local agora usa o Prisma Migrate oficial com `prisma migrate deploy`. Quando o schema mudar, a nova migracao deve ser gerada e versionada em `prisma/migrations`.
 
 ## Mapa de pastas
 
@@ -106,13 +118,24 @@ Contem a aplicacao Next.js usando App Router.
 
 - `app/layout.tsx`: layout raiz, define idioma `pt-BR`, tema inicial `dark`, fontes Google (`Inter` e `Manrope`) e carrega `globals.css`.
 - `app/globals.css`: tokens visuais, temas claro/escuro, ajustes globais de superficie, borda, foco, scrollbar e overrides de classes Tailwind.
-- `app/(secure)/layout.tsx`: layout das telas internas, com `Sidebar` fixa e area principal deslocada.
+- `app/login/page.tsx`: entrada de autenticacao para usuarios internos e guests externos.
+- `app/(secure)/layout.tsx`: layout das telas internas; exige sessao valida e injeta o shell autenticado do tenant ativo.
 - `app/(secure)/page.tsx`: dashboard principal.
+- `app/(secure)/teste-mvp/page.tsx`: laboratorio interno para testar tenants, roles e endpoints principais do MVP.
 - `app/(secure)/*`: modulos funcionais do produto.
-- `app/api/data-room/route.ts`: leitura server-side do workspace do Data Room pelo banco.
+- `app/api/auth/[...nextauth]/route.ts`: endpoints do Auth.js.
+- `app/api/auth/active-organization/route.ts`: troca o tenant ativo quando o usuario possui membership na organizacao solicitada.
+- `app/api/auth/register/route.ts`: cadastro/claim de guest externo por email.
+- `app/api/auth/dev-access-profiles/route.ts`: lista metadados seguros dos perfis rapidos de desenvolvimento, incluindo papel, tenant, tipo de usuario e capacidades esperadas.
+- `app/api/data-room/route.ts`: leitura server-side do workspace do Data Room pelo tenant ativo.
 - `app/api/data-room/documents/[id]/status/route.ts`: mutation de status/publicacao de documento.
-- `app/api/access-management/route.ts`: leitura server-side de solicitacoes e acessos.
-- `app/api/access-management/actions/route.ts`: mutations de aprovar, negar, restaurar, revogar e resetar acessos.
+- `app/api/access-management/route.ts`: leitura server-side de requests e grants do tenant ativo.
+- `app/api/access-management/requests/[id]/review/route.ts`: aprovacao/negacao de requests por `owner/admin`.
+- `app/api/access-management/grants/[id]/revoke/route.ts`: revogacao de grant por `owner/admin`.
+- `app/api/org-members/route.ts`: listagem e convite de membros internos do tenant.
+- `app/api/public/documents/[id]/request-access/route.ts`: criacao de request externo por documento privado.
+- `app/api/public/access-requests/[id]/accept-nda/route.ts`: aceite de NDA pelo guest autenticado.
+- `app/api/public/documents/[id]/download/route.ts`: autorizacao de download publico ou por grant.
 - `app/api/cnpj/[cnpj]/route.ts`: endpoint server-side para consulta de CNPJ.
 
 ### `components`
@@ -120,6 +143,7 @@ Contem a aplicacao Next.js usando App Router.
 Componentes compartilhados da interface.
 
 - `components/layout`: casca de layout, sidebar, topbar e headers de pagina.
+- `components/auth`: formularios de login e cadastro externo.
 - `components/theme`: alternancia de tema claro/escuro.
 - `components/ui`: primitivas simples como card, metric card e avatar por iniciais.
 
@@ -131,12 +155,19 @@ Documentacao do projeto.
 - `BASE_DO_PROJETO.md`: este documento-base para orientacao tecnica local.
 - `RELATORIO_SEGURANCA.md`: analise de seguranca do estado atual, riscos aceitos em desenvolvimento e bloqueadores antes de piloto/producao.
 - `PLANO_MIGRACAO_MOCKS_PARA_APP_REAL.md`: plano futuro para remover mocks runtime, migrar dados de negocio para APIs/Prisma e preparar producao na Vercel com Postgres e Vercel Blob.
+- `MATRIZ_ACESSOS_MVP.md`: atribuicoes oficiais de `owner`, `admin`, `editor`, `viewer` e `guest` para o MVP.
+- `REVISAO_GERAL_MVP.md`: revisao geral da plataforma, correcoes aplicadas, validacoes e riscos remanescentes.
 
 ### `lib`
 
 Camada server-side compartilhada.
 
 - `lib/db.ts`: instancia global do Prisma Client.
+- `lib/access-control.ts`: matriz de permissoes, labels de roles e grupos como `tenantAdmins`, `tenantReaders` e `documentPublishers`.
+- `lib/auth-context.ts`: camada de sessao, guards e tenant context.
+- `lib/dev-access-profiles.ts`: definicoes server-side dos perfis `owner`, `admin`, `editor`, `viewer`, `admin` de outro tenant e `guest` externo usados apenas em desenvolvimento.
+- `lib/audit.ts`: helper de auditoria.
+- `lib/user-accounts.ts`: utilitarios para contas e hashes.
 - `lib/data`: consultas e mutations server-side por dominio.
 
 ### `prisma`
@@ -147,12 +178,6 @@ Schema, migracoes e seed do banco local.
 - `seed.ts`: carga demo idempotente.
 - `migrations`: SQL versionado.
 - `dev.db`: banco local gerado, ignorado pelo Git.
-
-### `scripts`
-
-Scripts auxiliares do projeto.
-
-- `db-migrate.mjs`: aplica as migracoes SQL locais no SQLite.
 
 ### `public`
 
@@ -229,8 +254,9 @@ Resumo:
 
 - Gerencia documentos do Trust Center/Data Room, categorias, visibilidade, status de publicacao, regras de aprovacao, NDA e eventos de download.
 - Le a lista de documentos, solicitacoes e eventos pelo endpoint `/api/data-room`.
-- Altera status/publicacao de documento pelo endpoint `/api/data-room/documents/[id]/status`.
+- Altera status/publicacao de documento pelo endpoint `/api/data-room/documents/[id]/status`, protegido por papel interno.
 - O Builder e o preview do Trust Center tambem consultam os documentos do Data Room pelo banco.
+- As rotas publicas de request, aceite de NDA e download ja validam acesso por documento; o storage binario do arquivo ainda ficara para a etapa de Vercel Blob.
 
 Modelos importantes:
 
@@ -305,18 +331,20 @@ Arquivos relevantes:
 
 Resumo:
 
-- Controla solicitacoes pendentes, acessos aprovados e acessos negados.
+- Controla requests pendentes, grants aprovados e solicitacoes negadas.
 - Le o estado pelo endpoint `/api/access-management`.
-- Acoes de aprovar, negar, restaurar, revogar e resetar sao persistidas no SQLite por `/api/access-management/actions`.
+- Requests sao revisados por `/api/access-management/requests/[id]/review`.
+- Grants sao revogados por `/api/access-management/grants/[id]/revoke`.
+- Convites de membros internos ficam em `/api/org-members`.
 - Detalhes por slug descrevem escopos de acoes como filtros, aprovacao, revogacao e novo acesso.
 
 Modelos importantes:
 
 - `PendingRequest`
-- `ApprovedAccess`
+- `AccessGrant`
 - `DeniedAccess`
 - `AccessManagementState`
-- Modelos Prisma relacionados: `AccessRequest`, `ApprovedAccess`, `AuditActivity`.
+- Modelos Prisma relacionados: `User`, `OrganizationMember`, `AccessRequest`, `DocumentAccessGrant`, `AuditActivity`.
 
 ### Notificacoes e Central de Atividades
 
@@ -398,12 +426,14 @@ Ha banco relacional local no estado atual. O SQLite armazena os dominios ja migr
 
 Persistido hoje no SQLite:
 
-- Organizacao demo.
+- Tres organizacoes demo (AXION, Orbit e Helio) para validar segregacao multi-tenant e cenarios de produto diferentes.
+- Usuarios internos e guests externos com identidade global por email.
+- Memberships internos por tenant.
 - Configuracoes base do Trust Center e tema.
 - Configuracoes do Data Room.
 - Documentos do Data Room.
-- Solicitacoes de acesso.
-- Acessos aprovados.
+- Solicitacoes de acesso canonicas.
+- Grants por documento para usuarios externos.
 - Eventos de download.
 - Fornecedores seedados.
 - Templates de questionario seedados.
@@ -412,9 +442,12 @@ Persistido hoje no SQLite:
 
 Fluxos ja conectados ao banco:
 
+- Login, sessao e shell interno do tenant ativo.
+- Troca de tenant ativo por `/api/auth/active-organization`, limitada a memberships do usuario.
 - Data Room Seguro: leitura de documentos/solicitacoes/eventos e alteracao de status de documento.
 - Builder/Preview do Trust Center: leitura de documentos do Data Room pelo banco.
-- Gestao de Acessos: leitura e acoes de aprovar, negar, restaurar, revogar e resetar.
+- Gestao de Acessos: leitura, aprovacao/negacao de requests e revogacao de grants.
+- Requests publicos, aceite de NDA e autorizacao de download por documento.
 - Notificacoes: leitura dos dados reais de Data Room e Gestao de Acessos.
 
 Ainda usa `localStorage` ou estado local:
@@ -435,7 +468,6 @@ Chaves de `localStorage` importantes:
 - `axion-trust-dd-suppliers`: fornecedores cadastrados/editados.
 - `axion-trust-dd-template-builder`: template salvo no builder de questionarios.
 - `axion-trust-dd-questionnaire-review`: avaliacoes de respostas por fornecedor/questionario.
-- `axion-trust-gestao-acessos`: solicitacoes e acessos aprovados/negados.
 
 Padrao recorrente:
 
@@ -454,9 +486,12 @@ Padrao novo para persistencia real:
 
 Layout:
 
-- `Sidebar`: menu lateral fixo com navegacao principal.
-- `SecureTopbar`: busca, notificacoes, ajuda, toggle de tema e perfil. Deve manter layout elastico com `min-w-0`, controles com dimensoes estaveis e truncamento/ocultacao de textos longos para evitar vazamento visual no canto direito.
+- `Sidebar`: menu lateral fixo com navegacao principal, tenant ativo e logout.
+- `SecureTopbar`: busca, notificacoes, ajuda, toggle de tema e perfil autenticado. Deve manter layout elastico com `min-w-0`, controles com dimensoes estaveis e truncamento/ocultacao de textos longos para evitar vazamento visual no canto direito.
 - `SecurePageHeader`: cabecalho padrao das telas internas.
+- `SecureShellProvider`: contexto client-side com usuario autenticado e tenant ativo.
+- `LoginForm`: login manual + botoes de acesso rapido por perfil em desenvolvimento. A tela chama `/api/auth/dev-access-profiles` para obter somente metadados seguros e autentica via `profileId` no Auth.js; email/senha nao ficam no bundle do client.
+- `TesteMvpPage`: pagina interna `/teste-mvp` que troca entre tenants disponiveis, chama endpoints reais e mostra a matriz de permissoes para o papel ativo.
 - `PageHeader` e `AppShell`: componentes presentes, mas menos usados no fluxo atual.
 
 Tema:
@@ -472,11 +507,14 @@ UI:
 
 ## Pontos de atencao
 
-- Nao existe autenticacao real, sessao, RBAC ou isolamento multiempresa.
-- Ja existe banco local, ORM e camada server-side parcial, mas ainda sem autenticacao/RBAC.
+- Ja existe autenticacao real com Auth.js, sessao JWT e guards server-side, mas ainda sem SSO, MFA, troca de tenant via UI ou fluxo de convite por email.
+- O acesso rapido por perfil e exclusivo de desenvolvimento: o endpoint `/api/auth/dev-access-profiles` retorna apenas metadados e o Credentials Provider aceita `profileId` somente quando `NODE_ENV !== "production"` ou `ENABLE_DEMO_ACCESS="true"`.
+- O isolamento multi-tenant ja existe nas APIs migradas, mas ainda depende de expandir esse padrao para Due Diligence, Builder completo e Configuracoes.
+- A UI ainda nao esconde/desabilita todas as acoes proibidas por role; os endpoints bloqueiam corretamente, mas alguns botoes podem terminar em erro `403`.
 - Parte dos fluxos ainda e simulada no client com `useState` e `localStorage`.
 - A unica integracao externa real e a consulta BrasilAPI na rota de CNPJ.
 - O app ainda depende de dados mockados embutidos em arquivos TypeScript para seed e para modulos nao migrados.
+- O endpoint publico de download ja faz autorizacao e auditoria, mas o storage binario dos documentos ainda nao esta conectado ao Vercel Blob.
 - Algumas telas grandes concentram muita responsabilidade em um unico arquivo, especialmente configuracoes, builder, detalhes de fornecedor, questionario e notificacoes.
 - Existem rotas de detalhe que funcionam como placeholders de escopo ou redirecionam para fluxos principais.
 - O projeto usa Material Symbols via stylesheet externo no `head`.
@@ -490,11 +528,10 @@ O relatorio detalhado esta em `docs/RELATORIO_SEGURANCA.md`.
 
 Resumo do estado atual:
 
-- A aplicacao funciona como MVP local, mas ainda nao esta pronta para piloto real ou producao.
-- As APIs internas de Data Room e Gestao de Acessos ainda nao possuem autenticacao, sessao, RBAC, CSRF ou rate limiting.
-- O isolamento por organizacao ainda depende da constante demo `DEFAULT_ORGANIZATION_ID`.
+- A aplicacao funciona como MVP local com autenticacao real, sessao JWT e isolamento por tenant nas APIs migradas.
+- Data Room, Gestao de Acessos, login, requests publicos, aceite de NDA e download por grant ja usam sessao/autorizacao real.
 - As mutations persistidas possuem validacao runtime manual inicial para acoes, ids, status e JSON invalido.
-- A auditoria atual registra eventos, mas ainda nao usa ator autenticado nem dados forenses como IP, user-agent, request id e before/after.
+- A auditoria agora registra ator autenticado quando a sessao existe, mas ainda nao captura IP, user-agent, request id e before/after.
 - Headers basicos de seguranca foram configurados no `next.config.ts`, com CSP mais permissiva em desenvolvimento para nao quebrar HMR.
 - `npm audit` apontou vulnerabilidades altas na cadeia de desenvolvimento do Prisma/effect, com correcao disponivel.
 - Valores mockados de integracoes foram trocados para placeholders claramente falsos e nunca devem ser substituidos por segredos reais no codigo ou seed.
@@ -510,9 +547,9 @@ Correcoes seguras ja aplicadas em modo desenvolvimento:
 
 Antes de qualquer piloto com cliente, tratar como bloqueadores:
 
-- Autenticacao real.
-- RBAC server-side.
-- Escopo por organizacao em todas as queries sensiveis.
+- MFA/SSO e gestao de tenant ativo por UI.
+- Expansao do RBAC server-side para todos os modulos ainda nao migrados.
+- Escopo por organizacao em todas as queries sensiveis restantes.
 - Validacao Zod ou equivalente nas APIs.
 - Protecao CSRF para mutations com sessao por cookie.
 - Rate limiting em rotas sensiveis.
@@ -533,6 +570,7 @@ Ao implementar novas funcionalidades, priorize estes cuidados:
 - Evitar misturar novas regras de negocio em componentes muito grandes quando houver chance de extrair para arquivo de dados/helper do modulo.
 - Tratar dados remanescentes em `localStorage` como temporarios e priorizar migracao para Prisma/API.
 - Usar `docs/PLANO_MIGRACAO_MOCKS_PARA_APP_REAL.md` como guia para a proxima etapa de migracao mock -> app real na Vercel.
+- Usar `docs/MATRIZ_ACESSOS_MVP.md` como fonte de verdade para permissoes antes de criar novas rotas ou botoes administrativos.
 - Criar novas tabelas no `schema.prisma`, gerar SQL em `prisma/migrations` e atualizar `prisma/seed.ts` quando o dado precisar existir no baseline demo.
 - Expor mutations por APIs internas ou Server Actions; nao chamar Prisma diretamente em Client Components.
 - Quando adicionar nova rota, registrar o link no `Sidebar` apenas se ela for uma area principal do produto.
@@ -540,16 +578,16 @@ Ao implementar novas funcionalidades, priorize estes cuidados:
 
 ## Status da ultima verificacao
 
-Verificacao realizada apos a criacao do banco local:
+Verificacao realizada apos a implementacao do modelo multi-tenant com Auth.js:
 
-- `npm run db:migrate`: passou e criou/aplicou a migracao local.
-- `npm run db:seed`: passou e carregou o baseline demo.
-- `/api/data-room`: respondeu `200` com 6 documentos e 3 solicitacoes.
-- `/api/access-management`: respondeu `200` com 1 pendente, 3 aprovados e 1 negado no baseline.
-- Mutation de publicar documento: respondeu `200` e atualizou `doc-fin` para `Publicado`.
-- Mutation de aprovar acesso: respondeu `200` e alterou contadores para 0 pendentes, 4 aprovados e 1 negado.
-- Mutation de reset de acessos: respondeu `200` e voltou para 1 pendente, 3 aprovados e 1 negado.
-- Paginas `/data-room-seguro`, `/gestao-acessos` e `/notificacoes`: responderam `200`.
+- `npm run db:migrate`: passou com `prisma migrate deploy`.
+- `npm run db:seed`: passou e carregou dois tenants demo, membros internos e guests externos.
+- `GET /api/access-management` sem sessao: respondeu `401`.
+- `GET /api/public/documents/doc-policy/download` sem sessao: respondeu `200` como documento publico.
+- Guest `amanda@bancoglobal.com`: conseguiu `200` para `doc-soc2` (AXION) e `orbit-doc-soc2` (Orbit), e recebeu `403` para `doc-pen` sem grant.
+- Admin AXION `ricardo.menezes@axiontrust.io`: recebeu somente dados do tenant AXION em `/api/access-management` (1 pendente, 3 grants ativos, 1 negado no baseline).
+- Admin Orbit `marina.duarte@orbitcloud.io`: recebeu somente dados do tenant Orbit em `/api/access-management` (0 pendentes, 1 grant ativo, 0 negados).
+- `POST /api/public/documents/doc-dpa/request-access`: respondeu `200` e o novo request apareceu no tenant AXION para o admin autenticado.
 - `npm run typecheck`: passou.
 - `npm run build`: passou.
 - `npm run lint`: passou com 6 warnings legados, sem erros.
@@ -559,3 +597,29 @@ Warnings conhecidos do lint:
 - Uso de `<img>` em telas existentes onde ainda nao foi trocado por `next/image`.
 - Dependencias de hooks em `gestao-acessos` e `notificacoes`.
 - Avisos de fonte no `app/layout.tsx` relacionados ao link manual de Material Symbols no `head`.
+
+Verificacao adicional realizada apos mover o acesso rapido para endpoint server-side:
+
+- `GET /api/auth/dev-access-profiles`: respondeu `200` com 6 perfis (`owner`, `admin`, `editor`, `viewer`, `admin` Orbit e `guest`) e sem retornar email ou senha.
+- Login via `profileId=axion-owner`: respondeu redirect `302`; `/api/access-management` respondeu `200`; `/api/org-members` respondeu `200`.
+- Login via `profileId=axion-admin`: respondeu redirect `302`; `/api/access-management` respondeu `200`; `/api/org-members` respondeu `200`.
+- Login via `profileId=axion-editor`: respondeu redirect `302`; `/api/access-management` respondeu `200`; `/api/org-members` respondeu `403`.
+- Login via `profileId=axion-viewer`: respondeu redirect `302`; `/api/access-management` respondeu `200`; `/api/org-members` respondeu `403`.
+- Login via `profileId=orbit-admin`: respondeu redirect `302`; `/api/access-management` respondeu `200`; `/api/org-members` respondeu `200` no tenant Orbit.
+- Login via `profileId=guest-external`: respondeu redirect `302`; `/api/access-management` respondeu `403`; `/api/org-members` respondeu `403`, preservando bloqueio de guest no app interno.
+- `npm run typecheck`: passou.
+- `npm run build`: passou.
+
+Verificacao adicional realizada apos a revisao geral do MVP:
+
+- `npm run db:seed`: passou com tres tenants demo (`org_axion_demo`, `org_orbit_demo`, `org_helio_demo`).
+- `GET /api/auth/dev-access-profiles`: respondeu `200` com 8 perfis e sem retornar email ou senha.
+- Perfil `qa-multitenant` autenticou via `profileId` e alternou tenant ativo por `/api/auth/active-organization`.
+- `qa-multitenant` em AXION como `owner`: `/teste-mvp`, `/api/data-room`, `/api/access-management` e `/api/org-members` responderam `200`.
+- `qa-multitenant` em Orbit como `admin`: `/teste-mvp`, `/api/data-room`, `/api/access-management` e `/api/org-members` responderam `200`.
+- `qa-multitenant` em Helio como `viewer`: `/teste-mvp`, `/api/data-room` e `/api/access-management` responderam `200`; `/api/org-members` respondeu `403`.
+- `profileId=axion-editor` tentando publicar documento em `/api/data-room/documents/doc-policy/status`: respondeu `403`.
+- `profileId=axion-admin` tentando convidar role `owner` por `/api/org-members`: respondeu `403`.
+- `profileId=orbit-admin` tentando revisar request ja aprovada `orbit-req-1`: respondeu `409`.
+- `npm run typecheck`: passou.
+- `npm run build`: passou e incluiu a rota `/teste-mvp`.

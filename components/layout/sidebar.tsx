@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
+import { useSecureShell } from "@/components/layout/secure-shell-context";
 import { UserInitialsAvatar } from "@/components/ui/user-initials-avatar";
 
 type NavItem = {
@@ -14,6 +16,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: "Dashboard", icon: "dashboard", href: "/", isAppRoute: true },
+  { label: "Teste MVP", icon: "science", href: "/teste-mvp", isAppRoute: true },
   { label: "Builder do Trust Center", icon: "construction", href: "/builder-trust-center", isAppRoute: true },
   { label: "Due Diligence de Terceiros", icon: "shield_person", href: "/due-diligence-terceiros", isAppRoute: true },
   { label: "Data Room Seguro", icon: "lock", href: "/data-room-seguro", isAppRoute: true },
@@ -24,6 +27,7 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const shell = useSecureShell();
 
   return (
     <aside className="ax-sidebar-shell fixed left-0 top-0 z-[60] flex h-screen w-72 flex-col border-r border-white/5 bg-slate-950/80 px-4 py-6 backdrop-blur-xl">
@@ -76,12 +80,27 @@ export function Sidebar() {
       </nav>
 
       <div className="mt-auto">
-        <div className="ax-sidebar-profile flex items-center gap-3 rounded-3xl border border-white/5 bg-surface-container-lowest p-4 shadow-[0_8px_20px_rgba(15,23,35,0.06)]">
-          <UserInitialsAvatar name="Ricardo Menezes" size="md" />
-          <div className="overflow-hidden">
-            <p className="truncate text-sm font-bold text-white">Ricardo Menezes</p>
-            <p className="truncate text-xs uppercase tracking-[0.18em] text-slate-500">Admin / CISO</p>
+        <div className="ax-sidebar-profile rounded-3xl border border-white/5 bg-surface-container-lowest p-4 shadow-[0_8px_20px_rgba(15,23,35,0.06)]">
+          <div className="flex items-center gap-3">
+            <UserInitialsAvatar name={shell.user.name} size="md" />
+            <div className="min-w-0 overflow-hidden">
+              <p className="truncate text-sm font-bold text-white">{shell.user.name}</p>
+              <p className="truncate text-xs uppercase tracking-[0.18em] text-slate-500">
+                {shell.organization.title ?? shell.organization.role ?? "Usuario"}
+              </p>
+            </div>
           </div>
+          <div className="mt-4 rounded-2xl border border-white/5 bg-white/5 px-3 py-2">
+            <p className="truncate text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Tenant ativo</p>
+            <p className="mt-1 truncate text-sm font-semibold text-slate-200">{shell.organization.displayName}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="mt-4 w-full rounded-2xl border border-white/10 bg-slate-900 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-300 transition-colors hover:border-primary/40 hover:text-white"
+          >
+            Encerrar sessao
+          </button>
         </div>
       </div>
     </aside>

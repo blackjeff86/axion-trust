@@ -201,7 +201,7 @@ function buildTimelineActivities(workspace: DataRoomWorkspace, accessState: Acce
     };
   });
 
-  const approvedPlatformAccessActivities: ActivityItem[] = accessState.approvedAccesses.map((access) => {
+  const approvedPlatformAccessActivities: ActivityItem[] = accessState.accessGrants.map((access) => {
     const daysAgo = getDaysAgoFromLabel(access.approvedAt);
     return {
       id: `approved-${access.id}`,

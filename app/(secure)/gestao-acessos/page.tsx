@@ -6,16 +6,17 @@ import { SecurePageHeader } from "@/components/layout/secure-page-header";
 import { SecureTopbar } from "@/components/layout/secure-topbar";
 import {
   defaultAccessManagementState,
+  type AccessGrant,
   type AccessManagementState,
-  type ApprovedAccess,
   type DeniedAccess,
   type PendingRequest,
 } from "./access-data";
 
 export default function GestaoAcessosPage() {
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>(defaultAccessManagementState.pendingRequests);
-  const [approvedAccesses, setApprovedAccesses] = useState<ApprovedAccess[]>(defaultAccessManagementState.approvedAccesses);
-  const [deniedAccesses, setDeniedAccesses] = useState<DeniedAccess[]>(defaultAccessManagementState.deniedAccesses);
+  const [accessGrants, setAccessGrants] = useState<AccessGrant[]>(defaultAccessManagementState.accessGrants);
+  const [deniedRequests, setDeniedRequests] = useState<DeniedAccess[]>(defaultAccessManagementState.deniedRequests);
+  const [stats, setStats] = useState(defaultAccessManagementState.stats);
 
   useEffect(() => {
     loadAccessState();
@@ -23,8 +24,9 @@ export default function GestaoAcessosPage() {
 
   function applyState(state: AccessManagementState) {
     setPendingRequests(state.pendingRequests);
-    setApprovedAccesses(state.approvedAccesses);
-    setDeniedAccesses(state.deniedAccesses);
+    setAccessGrants(state.accessGrants);
+    setDeniedRequests(state.deniedRequests);
+    setStats(state.stats);
   }
 
   async function loadAccessState() {
@@ -33,27 +35,24 @@ export default function GestaoAcessosPage() {
     applyState((await response.json()) as AccessManagementState);
   }
 
-  async function runAccessAction(action: "approve" | "deny" | "restore" | "revoke" | "reset", id?: string) {
-    const response = await fetch("/api/access-management/actions", {
+  async function reviewRequest(id: string, decision: "approve" | "deny") {
+    const response = await fetch(`/api/access-management/requests/${id}/review`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, id }),
+      body: JSON.stringify({ decision }),
     });
 
     if (!response.ok) return;
     applyState((await response.json()) as AccessManagementState);
   }
 
-  function handleReviewDenied(item: DeniedAccess) {
-    runAccessAction("restore", item.id);
-  }
+  async function handleRevokeAccess(access: AccessGrant) {
+    const response = await fetch(`/api/access-management/grants/${access.id}/revoke`, {
+      method: "POST",
+    });
 
-  function handleRevokeAccess(access: ApprovedAccess) {
-    runAccessAction("revoke", access.id);
-  }
-
-  function handleRestoreMocks() {
-    runAccessAction("reset");
+    if (!response.ok) return;
+    applyState((await response.json()) as AccessManagementState);
   }
 
   return (
@@ -63,18 +62,9 @@ export default function GestaoAcessosPage() {
       <main className="min-h-screen p-8">
         <div className="mb-10">
           <SecurePageHeader
-            title="Gestão de Acessos ao Trust"
-            subtitle="Acompanhe pedidos de acesso a documentos privados do Trust Center. O administrador do cliente decide quem pode baixar cada arquivo sensível, com validade padrão de 1 ano e ajuste manual quando necessário."
+            title="Gestao de Acessos ao Trust"
+            subtitle="Acompanhe pedidos de acesso a documentos privados do Trust Center. O administrador do cliente decide quem pode baixar cada arquivo sensivel, com validade padrao, expiracao e aceite de NDA quando necessario."
           />
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={handleRestoreMocks}
-              className="rounded-xl border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-sm font-bold text-on-surface transition-colors hover:bg-slate-50"
-            >
-              Restaurar dados mockados
-            </button>
-          </div>
         </div>
 
         <div className="mb-10 grid grid-cols-1 gap-6 md:grid-cols-4">
@@ -83,7 +73,7 @@ export default function GestaoAcessosPage() {
               <span className="material-symbols-outlined rounded-lg bg-primary/10 p-2 text-primary">pending_actions</span>
               <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-bold text-primary">PENDENTE</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">{pendingRequests.length}</div>
+            <div className="mb-1 text-2xl font-bold text-white">{stats.pending}</div>
             <div className="text-xs font-medium text-on-surface-variant">Novas solicitacoes</div>
           </div>
 
@@ -92,10 +82,8 @@ export default function GestaoAcessosPage() {
               <span className="material-symbols-outlined rounded-lg bg-green-400/10 p-2 text-green-400">verified</span>
               <span className="rounded-full bg-green-400/10 px-2 py-1 text-xs font-bold text-green-400">ATIVO</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">
-              {approvedAccesses.filter((item) => item.status === "Ativo").length}
-            </div>
-            <div className="text-xs font-medium text-on-surface-variant">Acessos liberados</div>
+            <div className="mb-1 text-2xl font-bold text-white">{stats.active}</div>
+            <div className="text-xs font-medium text-on-surface-variant">Grants ativos</div>
           </div>
 
           <div className="rounded-xl border border-slate-100/50 bg-surface-container-lowest p-6 shadow-panel">
@@ -103,9 +91,7 @@ export default function GestaoAcessosPage() {
               <span className="material-symbols-outlined rounded-lg bg-tertiary/10 p-2 text-tertiary">schedule</span>
               <span className="rounded-full bg-tertiary/10 px-2 py-1 text-xs font-bold text-tertiary">AVISO</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">
-              {approvedAccesses.filter((item) => item.status === "Expira em breve").length}
-            </div>
+            <div className="mb-1 text-2xl font-bold text-white">{stats.expiring}</div>
             <div className="text-xs font-medium text-on-surface-variant">Expirando em breve</div>
           </div>
 
@@ -113,7 +99,7 @@ export default function GestaoAcessosPage() {
             <div className="mb-4 flex items-start justify-between">
               <span className="material-symbols-outlined rounded-lg bg-error/10 p-2 text-error">history</span>
             </div>
-            <div className="mb-1 text-2xl font-bold text-white">452</div>
+            <div className="mb-1 text-2xl font-bold text-white">{stats.auditEvents}</div>
             <div className="text-xs font-medium text-on-surface-variant">Eventos auditados</div>
           </div>
         </div>
@@ -122,7 +108,7 @@ export default function GestaoAcessosPage() {
           <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
               <div>
-                <h3 className="font-headline text-lg font-bold text-white">Solicitações pendentes</h3>
+                <h3 className="font-headline text-lg font-bold text-white">Solicitacoes pendentes</h3>
                 <p className="mt-1 text-sm text-on-surface-variant">
                   Pedidos criados quando um terceiro tenta baixar um documento privado do Trust.
                 </p>
@@ -160,6 +146,9 @@ export default function GestaoAcessosPage() {
                           {request.reviewTag}
                         </span>
                       ) : null}
+                      <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold uppercase text-slate-700">
+                        NDA {request.ndaAcceptedAt ? "aceito" : "pendente"}
+                      </span>
                     </div>
 
                     <p className="mt-3 text-sm text-on-surface-variant">{request.reason}</p>
@@ -172,7 +161,9 @@ export default function GestaoAcessosPage() {
                     </div>
                     <div>
                       <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Decisao esperada</p>
-                      <p className="mt-1 text-sm text-on-surface-variant">Aprovar ou negar acesso ao download deste documento. Regra padrao: 1 ano de validade, com override manual pelo administrador.</p>
+                      <p className="mt-1 text-sm text-on-surface-variant">
+                        Aprovar ou negar acesso ao download deste documento. O grant e emitido por documento e nao abre o tenant inteiro.
+                      </p>
                     </div>
                   </div>
 
@@ -181,7 +172,7 @@ export default function GestaoAcessosPage() {
                       href="#"
                       onClick={(event) => {
                         event.preventDefault();
-                            runAccessAction("deny", request.id);
+                        reviewRequest(request.id, "deny");
                       }}
                       className="rounded-lg bg-error/10 p-2 text-error transition-all hover:bg-error/20"
                       title="Negar"
@@ -192,7 +183,7 @@ export default function GestaoAcessosPage() {
                       href="#"
                       onClick={(event) => {
                         event.preventDefault();
-                            runAccessAction("approve", request.id);
+                        reviewRequest(request.id, "approve");
                       }}
                       className="min-w-[112px] rounded-lg bg-primary px-4 py-2 text-center text-xs font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:bg-primary-container"
                     >
@@ -207,9 +198,9 @@ export default function GestaoAcessosPage() {
           <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
               <div>
-                <h3 className="font-headline text-lg font-bold text-white">Acessos já liberados</h3>
+                <h3 className="font-headline text-lg font-bold text-white">Grants ja liberados</h3>
                 <p className="mt-1 text-sm text-on-surface-variant">
-                  Pessoas e empresas terceiras que receberam permissão para baixar documentos privados.
+                  Pessoas e empresas terceiras que receberam permissao para baixar documentos privados.
                 </p>
               </div>
               <div className="flex items-center gap-4">
@@ -234,11 +225,11 @@ export default function GestaoAcessosPage() {
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Aprovado em</th>
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Expira em</th>
                     <th className="px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Status</th>
-                    <th className="px-8 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Ações</th>
+                    <th className="px-8 py-4 text-right text-[10px] font-bold uppercase tracking-widest text-slate-500">Acoes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-outline-variant/10">
-                  {approvedAccesses.map((item) => (
+                  {accessGrants.map((item) => (
                     <tr key={item.id} className="group transition-colors hover:bg-slate-50/50">
                       <td className="px-8 py-5">
                         <div>
@@ -250,7 +241,12 @@ export default function GestaoAcessosPage() {
                       </td>
                       <td className="px-8 py-5 text-sm text-on-surface">{item.document}</td>
                       <td className="px-8 py-5 text-xs text-on-surface-variant">{item.approvedAt}</td>
-                      <td className="px-8 py-5 text-xs font-medium text-white">{item.expiresAt}</td>
+                      <td className="px-8 py-5 text-xs font-medium text-white">
+                        <div>{item.expiresAt}</div>
+                        <div className="mt-1 text-[10px] font-medium text-slate-500">
+                          NDA: {item.ndaAcceptedAt ? "aceito" : "pendente"}
+                        </div>
+                      </td>
                       <td className="px-8 py-5">
                         <span className={`rounded-full px-3 py-1 text-[10px] font-extrabold uppercase tracking-tighter ${item.statusClass}`}>
                           {item.status}
@@ -273,7 +269,7 @@ export default function GestaoAcessosPage() {
 
             <div className="flex items-center justify-between border-t border-outline-variant/10 bg-surface-container-low/30 px-8 py-4">
               <p className="text-[11px] font-medium text-on-surface-variant">
-                Exibindo {approvedAccesses.length} acessos liberados
+                Exibindo {accessGrants.length} grants de documento
               </p>
               <div className="flex gap-2">
                 <Link href="/gestao-acessos/detalhes/paginacao-anterior" className="rounded bg-surface-container-high p-1.5 text-on-surface-variant hover:text-white">
@@ -289,16 +285,16 @@ export default function GestaoAcessosPage() {
           <div className="overflow-hidden rounded-2xl border border-slate-100/50 bg-surface-container-lowest shadow-panel">
             <div className="flex items-center justify-between border-b border-outline-variant/10 px-8 py-6">
               <div>
-                <h3 className="font-headline text-lg font-bold text-white">Acessos não liberados</h3>
+                <h3 className="font-headline text-lg font-bold text-white">Solicitacoes negadas</h3>
                 <p className="mt-1 text-sm text-on-surface-variant">
-                  Solicitações negadas pelo administrador do Trust.
+                  Solicitacoes negadas pelo administrador do Trust.
                 </p>
               </div>
             </div>
 
-            {deniedAccesses.length > 0 ? (
+            {deniedRequests.length > 0 ? (
               <div className="divide-y divide-outline-variant/10">
-                {deniedAccesses.map((item) => (
+                {deniedRequests.map((item) => (
                   <div key={item.id} className="grid grid-cols-1 gap-5 px-8 py-6 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1.8fr)_minmax(0,1.2fr)] lg:items-end">
                     <div>
                       <h4 className="text-sm font-semibold text-white">{item.requester}</h4>
@@ -322,23 +318,16 @@ export default function GestaoAcessosPage() {
                     </div>
 
                     <div className="flex justify-start lg:justify-end">
-                      <Link
-                        href="#"
-                        onClick={(event) => {
-                          event.preventDefault();
-                          handleReviewDenied(item);
-                        }}
-                        className="rounded-lg border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface transition-colors hover:bg-slate-50"
-                      >
-                        REVISAR
-                      </Link>
+                      <div className="rounded-lg border border-outline-variant/20 bg-surface-container-low px-4 py-2 text-xs font-bold text-on-surface">
+                        Revisado
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="px-8 py-8 text-sm text-on-surface-variant">
-                Nenhuma solicitação negada até o momento.
+                Nenhuma solicitacao negada ate o momento.
               </div>
             )}
           </div>
